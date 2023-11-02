@@ -1,0 +1,116 @@
+---
+title: "Dosage Descriptive Statistics and Modelling"
+format: html
+editor: visual
+---
+
+```{r, include = FALSE}
+library(tidyverse)
+library(ggplot2)
+library(lmtp)
+library(SuperLearner)
+library(parallel)
+```
+
+## Loading Data and Creating Tables
+
+```{r, message = FALSE}
+relapse_harmonized_long <- readRDS(here::here("data/ctn0094/data/drv/clean_weeks_with_relapse.rds")) |>
+    filter(week_of_intervention <= 4 & never_initiated == FALSE &
+               is.na(xrace) == FALSE & xrace != 4) #keeping only patients who initiated trt
+
+#relapse_harmonized_long |> filter(switched_meds == TRUE) only 2 patients switched med, but occurred after first 4 weeks -> duplicated in wide data, these will be filtered later
+
+relapse_harmonized_wide <- readRDS(here::here("data/ctn0094/data/drv/clean_patients_with_relapse_wide.rds")) |>
+    filter(never_initiated == FALSE) #keeping only patients who initiated trt
+
+#relapse_harmonized_wide |>
+#    filter(duplicated(who) | duplicated(who, fromLast = TRUE)) checking instances of duplicates in wide data
+
+dat_wide <- relapse_harmonized_wide |>
+    filter(medicine == medicine_assigned & #filtering out the two duplicates
+               is.na(xrace) == FALSE & xrace != 4) |> #filtering out missing and other races
+    mutate(xrace = factor(xrace, ordered = FALSE, levels = c("1", "2", "3"))) # refactoring variables to 1, 2, 3 (since 4 was removed)
+
+# stratifying datasets by treatment
+
+data_bup <- dat_wide |>
+    filter(medicine == 'bup') #bup only
+
+data_met <- dat_wide |>
+    filter(medicine == 'met') # met only
+```
+
+## Creating Censoring Variables
+
+```{r, warning = FALSE}
+## creating censoring variables: censoring = 0 indicates censoring
+
+for(i in 1:4)
+{
+    data_bup <- data_bup |>
+        mutate(
+            !!paste0(paste0("wk", i), ".censor") := # creating new weekly censor variable
+                case_when(
+                    i == 1 & wk1.relapse_this_week == 1 ~ 0, #if week 1 and relapse in week 1, then censor
+                    i == 1 & wk1.relapse_this_week == 0 ~ 1, #if week 1 and no relapse, then no censor
+                    if (i > 1) # for weeks greater than week 1 (if statement to avoid indexing error)
+                    {
+                        i > 1 & eval(as.name(paste0(paste0("wk", i-1), ".censor"))) == 0 ~ 0 # if not week 1 and previous week was censor, this week is censored
+                    },
+                    i > 1 & eval(as.name(paste0(paste0("wk", i), ".relapse_this_week"))) == 1 ~ 0, # if not week 1 and relapse this week, then censor
+                    TRUE ~ 1 #not censored
+                ))
+}
+
+for(i in 1:4)
+{
+    data_met <- data_met |>
+        mutate(
+            !!paste0(paste0("wk", i), ".censor") := # creating new weekly censor variable
+                case_when(
+                    i == 1 & wk1.relapse_this_week == 1 ~ 0, #if week 1 and relapse in week 1, then censor
+                    i == 1 & wk1.relapse_this_week == 0 ~ 1, #if week 1 and no relapse, then no censor
+                    if (i > 1) # for weeks greater than week 1 (if statement to avoid indexing error)
+                    {
+                        i > 1 & eval(as.name(paste0(paste0("wk", i-1), ".censor"))) == 0 ~ 0 # if not week 1 and previous week was censor, this week is censored
+                    },
+                    i > 1 & eval(as.name(paste0(paste0("wk", i), ".relapse_this_week"))) == 1 ~ 0, # if not week 1 and relapse this week, then censor
+                    TRUE ~ 1 #not censored
+                ))
+}
+```
+
+#### Checking Possible Left Censoring
+
+```{r}
+#checking for instances of left censoring
+
+for (i in 1:4)
+    {
+        missing_left_bup <- data_bup |>
+            filter((is.na(eval(as.name(paste0(paste0("wk", i), ".dose_this_week")))) | 
+                        eval(as.name(paste0(paste0("wk", i), ".dose_this_week"))) == 0) & 
+                       eval(as.name(paste0(paste0("wk", i), ".censor"))) == 1)
+        
+        print(missing_left_bup)
+        
+        missing_left_met <- data_met |>
+            filter((is.na(eval(as.name(paste0(paste0("wk", i), ".dose_this_week")))) | 
+                        eval(as.name(paste0(paste0("wk", i), ".dose_this_week"))) == 0) & 
+                       eval(as.name(paste0(paste0("wk", i), ".censor"))) == 1)
+        
+       # print(missing_left_met)
+}
+
+#none present for bup/met
+```
+
+
+#### Saving Data
+
+```{r}
+saveRDS(data_bup, here::here("data/processed/data_bup.rds"))
+saveRDS(data_met, here::here("data/processed/data_met.rds"))
+```
+

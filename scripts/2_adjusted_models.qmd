@@ -1,0 +1,373 @@
+---
+title: "Dosage Descriptive Statistics and Modelling"
+format: html
+editor: visual
+---
+
+```{r, include = FALSE}
+library(tidyverse)
+library(ggplot2)
+library(lmtp)
+library(SuperLearner)
+#library(parallel)
+```
+
+## Reading Data
+
+```{r}
+data_bup <- readRDS(here::here("data/processed/data_bup.rds"))
+    
+data_met <- readRDS(here::here("data/processed/data_met.rds"))
+```
+
+
+## Shift Functions
+
+```{r, warning = FALSE}
+# shifting race values to White (1)
+
+race_shift_white <- function(data, xrace) { # return list changing treatment
+    out <- list()
+    a <- data[[xrace]]
+    
+    for (i in 1:length(a)) {
+      if (as.character(a[i]) %in% c("2", "3")) {
+        out[[i]] <- as.character("1")
+      } else {
+        out[[i]] <- as.character(a[i])
+      }
+    }
+    factor(unlist(out), ordered = FALSE, levels = c("1", "2", "3")) # need this for glmnet
+}
+
+# shifting race values to Black (2)
+race_shift_black <- function(data, xrace) {
+    out <- list()
+    a <- data[[xrace]]
+    
+    for (i in 1:length(a)) {
+      if (as.character(a[i]) %in% c("1", "3")) {
+        out[[i]] <- as.character("2")
+      } else {
+        out[[i]] <- as.character(a[i])
+      }
+    }
+    factor(unlist(out), ordered = FALSE, levels = c("1", "2", "3")) # need this for glmnet
+}
+
+# shifting race values to Hispanic (3)
+
+race_shift_hispanic <- function(data, xrace) {
+    out <- list()
+    a <- data[[xrace]]
+    
+    for (i in 1:length(a)) {
+      if (as.character(a[i]) %in% c("1", "2")) {
+        out[[i]] <- as.character("3")
+      } else {
+        out[[i]] <- as.character(a[i])
+      }
+    }
+    factor(unlist(out), ordered = FALSE, levels = c("1", "2", "3")) # need this for glmnet
+}
+
+# function list to loop over
+
+func_list <- c(race_shift_white, race_shift_black, race_shift_hispanic)
+```
+
+## Baseline Variables
+
+```{r, warning = FALSE}
+
+# all baseline covariates
+
+baseline_complete <- c("sex", "age", "site", "edu", "edu_missing", "mar", "mar_missing",
+                       "hwithdraw", "hwithdraw_missing", "hcows", "hcows_missing",
+                       "falcohol", "falcohol_missing", "fdrug", "fdrug_missing",
+                       "alcdisorder", "alcdisorder_missing", "cocdisorder", 
+           "cocdisorder_missing",
+       "hasBrainDamage", "hasBrainDamage_missing","hasEpilepsy", "hasEpilepsy_missing",
+       "hasBipolar", "hasBipolar_missing",
+       "hasAnxPan", "hasAnxPan_missing","hasSchiz",
+       "hasSchiz_missing",
+       "hasMajorDep", "hasMajorDep_missing",
+       "bamphetamine30_base", "bcannabis30_base",
+       "bbenzo30_base", "ivdrug", "ivdrug_missing") #baseline covariates
+
+# replacing missing baseline covariates with missing indicators, where applicable
+
+data_bup <- data_bup |>
+  mutate(sex = ifelse(sex == "female", "1", "0"),
+      edu_missing = ifelse(is.na(edu), 1, 0),
+      edu = as.factor(ifelse(is.na(edu), "3", edu)),
+      mar_missing = ifelse(is.na(mar), 1, 0),
+      mar = as.factor(ifelse(is.na(mar), "3", mar)),
+      hwithdraw_missing = ifelse(is.na(hwithdraw), 1, 0),
+      hwithdraw = as.factor(case_when(is.na(hwithdraw) ~ "2",
+                                      TRUE ~ hwithdraw)),
+      hcows_missing = ifelse(is.na(hcows), 1, 0),
+      hcows = ifelse(is.na(hcows), mean(hcows, na.rm = TRUE), hcows),
+      falcohol_missing = ifelse(is.na(falcohol), 1, 0),
+      falcohol = ifelse(is.na(falcohol), 0, falcohol),
+      fdrug_missing = ifelse(is.na(fdrug), 1, 0),
+      fdrug = ifelse(is.na(fdrug), 0, fdrug),
+         alcdisorder_missing = ifelse(is.na(alcdisorder), 1, 0),
+         alcdisorder = ifelse(is.na(alcdisorder), "0", alcdisorder),
+        cocdisorder_missing = ifelse(is.na(cocdisorder), 1, 0),
+        cocdisorder = ifelse(is.na(cocdisorder), "0", cocdisorder),
+        hasBrainDamage_missing = ifelse(is.na(hasBrainDamage), 1, 0),
+        hasBrainDamage = ifelse(is.na(hasBrainDamage), "0", hasBrainDamage),
+        hasEpilepsy_missing = ifelse(is.na(hasEpilepsy), 1, 0),
+        hasEpilepsy = ifelse(is.na(hasEpilepsy), "0", hasEpilepsy),
+        hasSchiz_missing = ifelse(is.na(hasSchiz), 1, 0),
+        hasSchiz = ifelse(is.na(hasSchiz), "0", hasSchiz),
+        hasBipolar_missing = ifelse(is.na(hasBipolar), 1, 0),
+        hasBipolar = ifelse(is.na(hasBipolar), "0", hasBipolar),
+        hasAnxPan_missing = ifelse(is.na(hasAnxPan), 1, 0),
+        hasAnxPan = ifelse(is.na(hasAnxPan), "0", hasAnxPan),
+        hasMajorDep_missing = ifelse(is.na(hasMajorDep), 1, 0),
+        hasMajorDep = ifelse(is.na(hasMajorDep), "0", hasMajorDep),
+        ivdrug_missing = ifelse(is.na(ivdrug), 1, 0),
+        ivdrug = ifelse(is.na(ivdrug), "0", ivdrug),
+      bamphetamine30_base_missing = ifelse(is.na(bamphetamine30_base), 1, 0),
+      bamphetamine30_base = ifelse(is.na(bamphetamine30_base), "0", bamphetamine30_base),
+      bcannabis30_base_missing = ifelse(is.na(bcannabis30_base), 1, 0),
+      bcannabis30_base = ifelse(is.na(bcannabis30_base), "0", bcannabis30_base),
+      bbenzo30_base_missing = ifelse(is.na(bbenzo30_base), 1, 0),
+      bbenzo30_base = ifelse(is.na(bbenzo30_base), "0", bbenzo30_base)) |>
+  mutate_at(vars(all_of(baseline_complete), -age, -site, -edu, -mar, -hcows, -hwithdraw), funs(factor(., ordered = FALSE, levels = c("0", "1")))) |>
+    mutate(site = factor(site, ordered = FALSE, levels = c(as.character(unlist(unique(data_bup$site))))))
+
+data_met <- data_met |>
+  mutate(sex = ifelse(sex == "female", "1", "0"),
+      edu_missing = ifelse(is.na(edu), 1, 0),
+      edu = as.factor(ifelse(is.na(edu), "3", edu)),
+      mar_missing = ifelse(is.na(mar), 1, 0),
+      mar = as.factor(ifelse(is.na(mar), "3", mar)),
+      hwithdraw_missing = ifelse(is.na(hwithdraw), 1, 0),
+      hwithdraw = as.factor(case_when(is.na(hwithdraw) ~ "2",
+                                      TRUE ~ hwithdraw)),
+      hcows_missing = ifelse(is.na(hcows), 1, 0),
+      hcows = ifelse(is.na(hcows), mean(hcows, na.rm = TRUE), hcows),
+      falcohol_missing = ifelse(is.na(falcohol), 1, 0),
+      falcohol = ifelse(is.na(falcohol), 0, falcohol),
+      fdrug_missing = ifelse(is.na(fdrug), 1, 0),
+      fdrug = ifelse(is.na(fdrug), 0, fdrug),
+         alcdisorder_missing = ifelse(is.na(alcdisorder), 1, 0),
+         alcdisorder = ifelse(is.na(alcdisorder), "0", alcdisorder),
+        cocdisorder_missing = ifelse(is.na(cocdisorder), 1, 0),
+        cocdisorder = ifelse(is.na(cocdisorder), "0", cocdisorder),
+        hasBrainDamage_missing = ifelse(is.na(hasBrainDamage), 1, 0),
+        hasBrainDamage = ifelse(is.na(hasBrainDamage), "0", hasBrainDamage),
+        hasEpilepsy_missing = ifelse(is.na(hasEpilepsy), 1, 0),
+        hasEpilepsy = ifelse(is.na(hasEpilepsy), "0", hasEpilepsy),
+        hasSchiz_missing = ifelse(is.na(hasSchiz), 1, 0),
+        hasSchiz = ifelse(is.na(hasSchiz), "0", hasSchiz),
+        hasBipolar_missing = ifelse(is.na(hasBipolar), 1, 0),
+        hasBipolar = ifelse(is.na(hasBipolar), "0", hasBipolar),
+        hasAnxPan_missing = ifelse(is.na(hasAnxPan), 1, 0),
+        hasAnxPan = ifelse(is.na(hasAnxPan), "0", hasAnxPan),
+        hasMajorDep_missing = ifelse(is.na(hasMajorDep), 1, 0),
+        hasMajorDep = ifelse(is.na(hasMajorDep), "0", hasMajorDep),
+        ivdrug_missing = ifelse(is.na(ivdrug), 1, 0),
+        ivdrug = ifelse(is.na(ivdrug), "0", ivdrug),
+      bamphetamine30_base_missing = ifelse(is.na(bamphetamine30_base), 1, 0),
+      bamphetamine30_base = ifelse(is.na(bamphetamine30_base), "0", bamphetamine30_base),
+      bcannabis30_base_missing = ifelse(is.na(bcannabis30_base), 1, 0),
+      bcannabis30_base = ifelse(is.na(bcannabis30_base), "0", bcannabis30_base),
+      bbenzo30_base_missing = ifelse(is.na(bbenzo30_base), 1, 0),
+      bbenzo30_base = ifelse(is.na(bbenzo30_base), "0", bbenzo30_base)) |>
+  mutate_at(vars(all_of(baseline_complete), -age, -site, -edu, -mar, -hcows, -hwithdraw), funs(factor(., ordered = FALSE, levels = c("0", "1")))) |>
+    mutate(site = factor(site, ordered = FALSE, levels = c(as.character(unlist(unique(data_bup$site))))))
+
+# baseline bup covariates
+
+B_bup <- c("sex", "age", "edu", "edu_missing", "mar", "mar_missing",
+                       "hwithdraw", "hcows",
+                       "falcohol", "falcohol_missing", "fdrug", "fdrug_missing",
+                       "alcdisorder", "alcdisorder_missing", "cocdisorder", "cocdisorder_missing",
+       "hasBrainDamage", "hasEpilepsy",
+       "hasBipolar","hasAnxPan","hasSchiz",
+       "hasMajorDep",
+       "bamphetamine30_base", "bcannabis30_base",
+       "bbenzo30_base", "ivdrug", "ivdrug_missing") 
+
+# baseline methadone covariates
+
+B_met <- c("sex", "age", "edu", "edu_missing", "mar", "mar_missing",
+                    "hcows",
+                       "falcohol", "falcohol_missing", "fdrug", "fdrug_missing",
+                       "alcdisorder", "alcdisorder_missing", "cocdisorder", "cocdisorder_missing",
+       "hasBrainDamage", "hasEpilepsy",
+       "hasBipolar","hasAnxPan","hasSchiz",
+       "hasMajorDep",
+       "bamphetamine30_base", "bcannabis30_base",
+       "bbenzo30_base", "ivdrug") 
+```
+
+#### Misc. Cleaning Code
+
+```{r}
+#Checking missing counts
+
+#missing_counts <- sapply(baseline_complete, function(var) {
+#  sum(is.na(data_bup[[var]]))
+#})
+
+#for (i in 1:length(baseline_complete)) {
+#  cat(paste("Missing rows for", baseline_complete[i], ":", missing_counts[i], "\n"))
+#}
+
+# checking "counts" of each variable
+
+# frequency_tables <- list()
+# 
+# # Loop through the predetermined columns and create frequency tables
+# for (col in baseline_complete) {
+#   frequency_tables[[col]] <- table(data_met[[col]])
+# }
+# 
+# # Display the frequency tables
+# for (col in baseline_complete) {
+#   cat("Frequency table for", col, ":\n")
+#   print(frequency_tables[[col]])
+#   cat("\n")
+# }
+```
+
+## Bup Models
+
+```{r}
+# learners list
+
+lrnrs_out <- c("SL.mean", "SL.glm", "SL.glmnet", "SL.earth", "SL.gbm", "SL.bartMachine") # must be capable of continuous classification
+
+lrnrs_trt <- c("SL.mean", "SL.glm", "SL.glmnet", "SL.earth", "SL.gbm", "SL.bartMachine") # must be capable of binary classification
+
+# creating empty list to store results
+
+race_tmle_list_cs <- list()
+race_tmle_list_cs_limited <- list()
+
+set.seed(1)
+
+for(j in 1:3) # looping over race
+{
+    tmle_list_cs <- list()
+    tmle_list_cs_limited <- list()
+    
+    for (i in 1:4) # looping over weeks (1-3 for now)
+    {
+        Y <- c(paste0(paste0("wk", i), ".dose_this_week")) # outcome (dose)
+        
+    
+        C <- c(paste0(paste0("wk", i), ".censor")) # censor
+
+        # expanded baseline covariates (see above)
+        progressr::with_progress(tmle_list_cs[[i]] <- lmtp_tmle(
+            data = data_bup, 
+            trt = "xrace",
+            cens = C,
+            outcome = Y, 
+            baseline = B_bup, 
+            shift = func_list[[j]], 
+            outcome_type = "continuous", 
+            learners_outcome = lrnrs_out,
+            learners_trt = lrnrs_trt,
+            folds = 10,
+            .SL_folds = 10,
+            mtp = TRUE)) # must be true for continuous outcome
+        
+        # limited baseline covariates (sex + age)
+        progressr::with_progress(tmle_list_cs_limited[[i]] <- lmtp_tmle(
+            data = data_bup, 
+            trt = "xrace",
+            cens = C,
+            outcome = Y, 
+            baseline = c("sex", "age"), 
+            shift = func_list[[j]], 
+            outcome_type = "continuous", 
+            learners_outcome = lrnrs_out,
+            learners_trt = lrnrs_trt,
+            folds = 10,
+            .SL_folds = 10,
+            mtp = TRUE)) # must be true for continuous outcome
+        
+        print(paste0(j, sep = " ", i)) # to keep track of which race/week the loop is currently on
+        
+        # saving results
+        saveRDS(tmle_list_cs[[i]], here::here(paste0("./data/102623/","result", j, sep = "_", i, ".rds")))
+        saveRDS(tmle_list_cs_limited[[i]], here::here(paste0("./data/102623/","result_limited", j, sep = "_", i, ".rds")))
+    }
+    
+    race_tmle_list_cs[[j]] <- tmle_list_cs
+    race_tmle_list_cs_limited[[j]] <- tmle_list_cs_limited
+}
+```
+
+## Methadone Models
+
+```{r}
+lrnrs_out_met <- c("SL.mean", "SL.glm", "SL.glmnet", "SL.earth", "SL.gbm", "SL.bartMachine") # must be capable of continuous classification
+
+lrnrs_trt_met <- c("SL.mean", "SL.glm", "SL.glmnet", "SL.earth", "SL.gbm", "SL.bartMachine") # must be capable of binary classification
+
+race_tmle_list_cs_met <- list()
+race_tmle_list_cs_met_limited <- list()
+
+set.seed(1)
+
+for(j in 1:3) # looping over race
+{
+    tmle_list_cs_met <- list()
+    tmle_list_cs_met_limited <- list()
+    
+    for (i in 1:4) # looping over weeks (1-3 for now)
+    {
+        Y <- c(paste0(paste0("wk", i), ".dose_this_week")) # outcome (dose)
+        
+    
+        C <- c(paste0(paste0("wk", i), ".censor")) # censor
+        
+        # expanded baseline covariates (see above)
+        progressr::with_progress(tmle_list_cs_met[[i]] <- lmtp_tmle(
+            data = data_met, 
+            trt = "xrace",
+            cens = C,
+            outcome = Y, 
+            baseline = B_met, 
+            shift = func_list[[j]], 
+            outcome_type = "continuous", 
+            learners_outcome = lrnrs_out_met,
+            learners_trt = lrnrs_trt_met,
+            folds = 10,
+            .SL_folds = 10,
+            mtp = TRUE)) # must be true for continuous outcome
+        
+        # limited baseline covariates (sex + age)
+        progressr::with_progress(tmle_list_cs_met_limited[[i]] <- lmtp_tmle(
+            data = data_met, 
+            trt = "xrace",
+            cens = C,
+            outcome = Y, 
+            baseline = c("sex", "age"), 
+            shift = func_list[[j]], 
+            outcome_type = "continuous", 
+            learners_outcome = lrnrs_out_met,
+            learners_trt = lrnrs_trt_met,
+            folds = 10,
+            .SL_folds = 10,
+            mtp = TRUE)) # must be true for continuous outcome
+        
+        print(paste0(j, sep = " ", i)) # to keep track of which race/week the loop is currently on
+        
+        # saving results
+        saveRDS(tmle_list_cs_met[[i]], here::here(paste0("./data/102623/","result_met", j, sep = "_", i, ".rds")))
+        saveRDS(tmle_list_cs_met_limited[[i]], here::here(paste0("./data/102623/","result_met_limited", j, sep = "_", i, ".rds")))
+    }
+    
+    race_tmle_list_cs_met[[j]] <- tmle_list_cs_met
+    race_tmle_list_cs_met_limited[[j]] <- tmle_list_cs_met_limited
+}
+```

@@ -1,0 +1,93 @@
+---
+title: "Dosage Descriptive Statistics and Modelling"
+format: html
+editor: visual
+---
+
+```{r, include = FALSE}
+library(tidyverse)
+library(ggplot2)
+library(lmtp)
+library(SuperLearner)
+#library(parallel)
+```
+
+## Reading Data
+
+```{r}
+data_bup <- readRDS(here::here("data/processed/data_bup.rds"))
+data_met <- readRDS(here::here("data/processed/data_met.rds"))
+```
+
+
+## Descriptive Stats Stratified by Race and Week
+
+### bup dose in long format for summary statistics
+
+```{r}
+data_bup_long <- data_bup |>
+    pivot_longer(
+    cols = starts_with("wk"),
+    names_to = c("week", "type_name"),
+    names_pattern = "(wk[0-9]+).?(.*)",
+    values_to = "count") |>
+    pivot_wider(id_cols = c("who", "xrace", "week"),
+                names_from = "type_name",
+                values_from = "count") |>
+    mutate(dose_this_week = case_when(
+        censor == 0 ~ as.numeric(NA),
+        TRUE ~ dose_this_week),
+        week = as.integer(gsub("^.{0,2}", "", week))) |>
+        group_by(week, xrace) |>
+        summarize(avg_bup = mean(dose_this_week, na.rm = TRUE),
+                  se_bup = plotrix::std.error(dose_this_week, na.rm = TRUE),
+                  low = avg_bup - 1.96*se_bup,
+                  high = avg_bup + 1.96*se_bup,
+                  count = n(),
+                  max_bup = max(dose_this_week, na.rm = TRUE),
+                  min_bup = min(dose_this_week, na.rm = TRUE),
+                  range_bup = max_bup - min_bup) |>
+    mutate(xrace = case_when(xrace == "1" ~ "White",
+                             xrace == "2" ~ "Black",
+                             xrace == "3" ~ "Hispanic")) |>
+    filter(week <= 4)
+```
+
+### met dose in long format for summary statistics
+
+```{r}
+data_met_long <- data_met |>
+    pivot_longer(
+    cols = starts_with("wk"),
+    names_to = c("week", "type_name"),
+    names_pattern = "(wk[0-9]+).?(.*)",
+    values_to = "count") |>
+    pivot_wider(id_cols = c("who", "xrace", "week"),
+                names_from = "type_name",
+                values_from = "count") |>
+    mutate(dose_this_week = case_when(
+        censor == 0 ~ as.numeric(NA),
+        TRUE ~ dose_this_week),
+        week = as.integer(gsub("^.{0,2}", "", week))) |>
+    group_by(week, xrace) |>
+        summarize(avg_met = mean(dose_this_week, na.rm = TRUE),
+                  se_met = plotrix::std.error(dose_this_week, na.rm = TRUE),
+                  low = avg_met - 1.96*se_met,
+                  high = avg_met + 1.96*se_met,
+                  count = n(),
+                  max_met = max(dose_this_week, na.rm = TRUE),
+                  min_met = min(dose_this_week, na.rm = TRUE),
+                  range_bup = max_met - min_met) |>
+    mutate(xrace = case_when(xrace == "1" ~ "White",
+                             xrace == "2" ~ "Black",
+                             xrace == "3" ~ "Hispanic")) |>
+    filter(week <= 4)
+```
+
+## Saving Results
+
+```{r}
+saveRDS(data_bup_long, here::here("data/processed/data_bup_long.rds"))
+saveRDS(data_met_long, here::here("data/processed/data_met_long.rds"))
+```
+
