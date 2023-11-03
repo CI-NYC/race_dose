@@ -2,8 +2,10 @@
 # output: dataframe containing differences as well as confidence intervals.
 
 unadjusted_diff <- function(est_trt, est_ctl, weeks = 4, ci_level = 0.95,
-                              ci_type = c("simult")) {
+                              ci_type = c("bonf")) {
 
+    #creating empty dataframe to store results
+    
     all_weeks <- tibble(
         week = as.integer(0),
         ci_lwr = as.double(0),
@@ -13,7 +15,7 @@ unadjusted_diff <- function(est_trt, est_ctl, weeks = 4, ci_level = 0.95,
         test_stat = as.double(0),
         pval = as.double(0))
     
-    if(ci_type == "simult") #creating simultaneous CI
+    if(ci_type == "bonf") #creating Bonferroni CI
     {
         for (i in (1:weeks))
         {
@@ -29,9 +31,9 @@ unadjusted_diff <- function(est_trt, est_ctl, weeks = 4, ci_level = 0.95,
         s1 <- est_trt_new$sd
         s2 <- est_ctl_new$sd
         
-        sp <- sqrt(((n1 - 1) * s1^2 + (n2 - 1) * s2^2)/(n1 + n2 - 2))
+        sp <- sqrt(((n1 - 1) * s1^2 + (n2 - 1) * s2^2)/(n1 + n2 - 2)) #pooled standard dev
         
-        se_pooled <- sqrt(sp^2 * ((1/n1) + (1/n2)))
+        se_pooled <- sqrt(sp^2 * ((1/n1) + (1/n2))) #pooled standard error
         
          ci_upr <- (est_trt_new$avg - est_ctl_new$avg) + 
             qt(p=(1 - ci_level)/(2 * weeks),
@@ -42,10 +44,11 @@ unadjusted_diff <- function(est_trt, est_ctl, weeks = 4, ci_level = 0.95,
                df =  n1 + n2 -2, lower.tail=FALSE) *
             se_pooled
         
-        est <- est_trt_new$avg - est_ctl_new$avg
+        est <- est_trt_new$avg - est_ctl_new$avg #mean diff
         
-        test_stat <- abs(est / se_pooled)
-        pval <- pnorm(-test_stat)
+        test_stat <- abs((est - 0) / se_pooled) #test stat
+        
+        pval <- pnorm(-test_stat) #p-value
         
         week <- tibble(
             week = i,
