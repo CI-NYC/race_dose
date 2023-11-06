@@ -19,7 +19,6 @@ data_bup <- readRDS(here::here("data/processed/data_bup.rds"))
 data_met <- readRDS(here::here("data/processed/data_met.rds"))
 ```
 
-
 ## Descriptive Stats Stratified by Race and Week
 
 ### bup dose in long format for summary statistics
@@ -39,14 +38,15 @@ data_bup_long <- data_bup |>
         TRUE ~ dose_this_week),
         week = as.integer(gsub("^.{0,2}", "", week))) |>
         group_by(week, xrace) |>
-        summarize(avg_bup = mean(dose_this_week, na.rm = TRUE),
-                  se_bup = plotrix::std.error(dose_this_week, na.rm = TRUE),
-                  low = avg_bup - 1.96*se_bup,
-                  high = avg_bup + 1.96*se_bup,
+        summarize(avg = mean(dose_this_week, na.rm = TRUE),
+                  sd = sd(dose_this_week, na.rm = TRUE),
+                  se = plotrix::std.error(dose_this_week, na.rm = TRUE),
+                  low = avg - 1.96*se,
+                  high = avg + 1.96*se,
                   count = n(),
-                  max_bup = max(dose_this_week, na.rm = TRUE),
-                  min_bup = min(dose_this_week, na.rm = TRUE),
-                  range_bup = max_bup - min_bup) |>
+                  max = max(dose_this_week, na.rm = TRUE),
+                  min = min(dose_this_week, na.rm = TRUE),
+                  range_bup = max - min) |>
     mutate(xrace = case_when(xrace == "1" ~ "White",
                              xrace == "2" ~ "Black",
                              xrace == "3" ~ "Hispanic")) |>
@@ -70,14 +70,15 @@ data_met_long <- data_met |>
         TRUE ~ dose_this_week),
         week = as.integer(gsub("^.{0,2}", "", week))) |>
     group_by(week, xrace) |>
-        summarize(avg_met = mean(dose_this_week, na.rm = TRUE),
-                  se_met = plotrix::std.error(dose_this_week, na.rm = TRUE),
-                  low = avg_met - 1.96*se_met,
-                  high = avg_met + 1.96*se_met,
+        summarize(avg = mean(dose_this_week, na.rm = TRUE),
+                  sd = sd(dose_this_week, na.rm = TRUE),
+                  se = plotrix::std.error(dose_this_week, na.rm = TRUE),
+                  low = avg - 1.96*se,
+                  high = avg + 1.96*se,
                   count = n(),
-                  max_met = max(dose_this_week, na.rm = TRUE),
-                  min_met = min(dose_this_week, na.rm = TRUE),
-                  range_bup = max_met - min_met) |>
+                  max = max(dose_this_week, na.rm = TRUE),
+                  min = min(dose_this_week, na.rm = TRUE),
+                  range_bup = max - min) |>
     mutate(xrace = case_when(xrace == "1" ~ "White",
                              xrace == "2" ~ "Black",
                              xrace == "3" ~ "Hispanic")) |>
@@ -90,4 +91,3 @@ data_met_long <- data_met |>
 saveRDS(data_bup_long, here::here("data/processed/data_bup_long.rds"))
 saveRDS(data_met_long, here::here("data/processed/data_met_long.rds"))
 ```
-
