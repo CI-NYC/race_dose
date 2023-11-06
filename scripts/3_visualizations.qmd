@@ -350,7 +350,7 @@ met_unadj_b <- ggplot(unadjust_met_12, aes(x = time, y = effect_est)) +
     geom_point() + 
   geom_line() +   # Connect means with lines
   geom_ribbon(aes(ymin = ci_lwr, ymax = ci_upr), alpha = 0.3) + 
-  labs(title = "Difference in Mean Buprenorphine Dose (W v. B, Unadjusted)",
+  labs(title = "Difference in Mean Methadone Dose (W v. B, Unadjusted)",
        x = "Week",
        y = "Mean Dose Difference") +
     scale_x_continuous(breaks = seq(1, 4, by = 1)) +
@@ -363,7 +363,7 @@ met_unadj_c <- ggplot(unadjust_met_13, aes(x = time, y = effect_est)) +
     geom_point() + 
   geom_line() +   # Connect means with lines
   geom_ribbon(aes(ymin = ci_lwr, ymax = ci_upr), alpha = 0.3) + 
-  labs(title = "Difference in Mean Buprenorphine Dose (W v. H, Unadjusted)",
+  labs(title = "Difference in Mean Methadone Dose (W v. H, Unadjusted)",
        x = "Week",
        y = "Mean Dose Difference") +
     scale_x_continuous(breaks = seq(1, 4, by = 1)) +
@@ -376,7 +376,7 @@ met_unadj_d <- ggplot(unadjust_met_23, aes(x = time, y = effect_est)) +
     geom_point() + 
   geom_line() +   # Connect means with lines
   geom_ribbon(aes(ymin = ci_lwr, ymax = ci_upr), alpha = 0.3) + 
-  labs(title = "Difference in Mean Buprenorphine Dose (B v. H, Unadjusted)",
+  labs(title = "Difference in Mean Methadone Dose (B v. H, Unadjusted)",
        x = "Week",
        y = "Mean Dose Difference") +
     scale_x_continuous(breaks = seq(1, 4, by = 1)) +
