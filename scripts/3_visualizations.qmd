@@ -205,9 +205,15 @@ bup_point <- ggplot(data_bup_long, aes(x = week, y = avg, group = xrace, color =
        y = "Mean Dose") +
   scale_color_manual(values = custom_colors) +
     scale_x_continuous(breaks = seq(1, 4, by = 1)) +
-  theme_minimal() + 
-    theme(plot.title = element_text(hjust = 0.5, vjust = 0.5)) + 
-    labs(color = "Race")
+      scale_color_manual(values = custom_colors) + 
+  scale_fill_manual(values = custom_colors) +  
+  theme_minimal() +
+    theme(plot.title = element_text(vjust = 0.5),
+          legend.key.size = unit(0.25, 'cm'), 
+          legend.box.spacing = unit(-12.5, "pt"),
+          text = element_text(size=7, family = "Times New Roman")) + 
+    labs(color = "Race", 
+         fill = "Race")
 
 bup_cont <- ggplot(data_bup_long, aes(x = week, y = avg, color = xrace)) +
   geom_line() +   # Connect means with lines
@@ -219,11 +225,75 @@ bup_cont <- ggplot(data_bup_long, aes(x = week, y = avg, color = xrace)) +
     scale_x_continuous(breaks = seq(1, 4, by = 1)) +
       scale_color_manual(values = custom_colors) + 
   scale_fill_manual(values = custom_colors) +  
-  theme_minimal()+
-    theme(plot.title = element_text(hjust = 0.5, vjust = 0.5, family = "Times New Roman"))  + 
+  theme_minimal() +
+    theme(plot.title = element_text(vjust = 0.5),
+          legend.key.size = unit(0.25, 'cm'), 
+          legend.box.spacing = unit(-12.5, "pt"),
+          text = element_text(size=7, family = "Times New Roman")) + 
     labs(color = "Race", 
          fill = "Race")
 
+data_bup_long_1 <- data_bup_long |>
+    filter(xrace == "White")
+    
+data_bup_long_2 <- data_bup_long |>
+    filter(xrace == "Black")
+    
+data_bup_long_3 <- data_bup_long |>
+    filter(xrace == "Hispanic")
+    
+unadjust_bup_12 <- unadjusted_diff(data_bup_long_1, data_bup_long_2)
+
+unadjust_bup_13 <- unadjusted_diff(data_bup_long_1, data_bup_long_3)
+
+unadjust_bup_23 <- unadjusted_diff(data_bup_long_2, data_bup_long_3)
+
+bup_unadj_b <- ggplot(unadjust_bup_12, aes(x = time, y = effect_est)) +
+    geom_point() + 
+  geom_line() +   # Connect means with lines
+  geom_ribbon(aes(ymin = ci_lwr, ymax = ci_upr), alpha = 0.3) + 
+  labs(title = "Difference in Mean Buprenorphine Dose (W v. B, Unadjusted)",
+       x = "Week",
+       y = "Mean Dose Difference") +
+    scale_x_continuous(breaks = seq(1, 4, by = 1)) +
+  theme_minimal() +
+    theme(plot.title = element_text(vjust = 0.5),
+          text = element_text(size=7, family = "Times New Roman")) +
+  geom_hline(yintercept=c(0), linetype="dotted")
+
+bup_unadj_c <- ggplot(unadjust_bup_13, aes(x = time, y = effect_est)) +
+    geom_point() + 
+  geom_line() +   # Connect means with lines
+  geom_ribbon(aes(ymin = ci_lwr, ymax = ci_upr), alpha = 0.3) + 
+  labs(title = "Difference in Mean Buprenorphine Dose (W v. H, Unadjusted)",
+       x = "Week",
+       y = "Mean Dose Difference") +
+    scale_x_continuous(breaks = seq(1, 4, by = 1)) +
+  theme_minimal() +
+    theme(plot.title = element_text(vjust = 0.5),
+          text = element_text(size=7, family = "Times New Roman")) +
+  geom_hline(yintercept=c(0), linetype="dotted")
+
+bup_unadj_d <- ggplot(unadjust_bup_23, aes(x = time, y = effect_est)) +
+    geom_point() + 
+  geom_line() +   # Connect means with lines
+  geom_ribbon(aes(ymin = ci_lwr, ymax = ci_upr), alpha = 0.3) + 
+  labs(title = "Difference in Mean Buprenorphine Dose (B v. H, Unadjusted)",
+       x = "Week",
+       y = "Mean Dose Difference") +
+    scale_x_continuous(breaks = seq(1, 4, by = 1)) +
+  theme_minimal() +
+    theme(plot.title = element_text(vjust = 0.5),
+          text = element_text(size=7, family = "Times New Roman")) +
+  geom_hline(yintercept=c(0), linetype="dotted")
+
+bup_as_figure <- ggarrange(bup_cont, bup_unadj_b, bup_unadj_c, bup_unadj_d + font("x.text", size = 0.5),
+                    ncol = 2, nrow = 2, labels = c("A", "B", "C", "D"), vjust= 1.75, 
+                  font.label=list(color="black",size=10, family = "Times New Roman"))
+bup_as_figure
+```
+
+```{r}
 met_point <- ggplot(data_met_long, aes(x = week, y = avg, group = xrace, color = xrace)) +
   geom_point() +
   geom_line() +
@@ -233,9 +303,15 @@ met_point <- ggplot(data_met_long, aes(x = week, y = avg, group = xrace, color =
        y = "Mean Dose") +
   scale_color_manual(values = custom_colors) +
     scale_x_continuous(breaks = seq(1, 4, by = 1)) +
-  theme_minimal() + 
-    theme(plot.title = element_text(hjust = 0.5, vjust = 0.5)) + 
-    labs(color = "Race")
+      scale_color_manual(values = custom_colors) + 
+  scale_fill_manual(values = custom_colors) +  
+  theme_minimal() +
+    theme(plot.title = element_text(vjust = 0.5),
+          legend.key.size = unit(0.25, 'cm'), 
+          legend.box.spacing = unit(-12.5, "pt"),
+          text = element_text(size=7, family = "Times New Roman")) + 
+    labs(color = "Race", 
+         fill = "Race")
 
 met_cont <- ggplot(data_met_long, aes(x = week, y = avg, color = xrace)) +
   geom_line() +   # Connect means with lines
@@ -248,9 +324,71 @@ met_cont <- ggplot(data_met_long, aes(x = week, y = avg, color = xrace)) +
       scale_color_manual(values = custom_colors) + 
   scale_fill_manual(values = custom_colors) +  
   theme_minimal() +
-    theme(plot.title = element_text(hjust = 0.5, vjust = 0.5, family = "Times New Roman")) + 
+    theme(plot.title = element_text(vjust = 0.5),
+          legend.key.size = unit(0.25, 'cm'), 
+          legend.box.spacing = unit(-12.5, "pt"),
+          text = element_text(size=7, family = "Times New Roman")) + 
     labs(color = "Race", 
          fill = "Race")
+
+data_met_long_1 <- data_met_long |>
+    filter(xrace == "White")
+    
+data_met_long_2 <- data_met_long |>
+    filter(xrace == "Black")
+    
+data_met_long_3 <- data_met_long |>
+    filter(xrace == "Hispanic")
+
+unadjust_met_12 <- unadjusted_diff(data_met_long_1, data_met_long_2)
+
+unadjust_met_13 <- unadjusted_diff(data_met_long_1, data_met_long_3)
+
+unadjust_met_23 <- unadjusted_diff(data_met_long_2, data_met_long_3)
+
+met_unadj_b <- ggplot(unadjust_met_12, aes(x = time, y = effect_est)) +
+    geom_point() + 
+  geom_line() +   # Connect means with lines
+  geom_ribbon(aes(ymin = ci_lwr, ymax = ci_upr), alpha = 0.3) + 
+  labs(title = "Difference in Mean Buprenorphine Dose (W v. B, Unadjusted)",
+       x = "Week",
+       y = "Mean Dose Difference") +
+    scale_x_continuous(breaks = seq(1, 4, by = 1)) +
+  theme_minimal() +
+    theme(plot.title = element_text(vjust = 0.5),
+          text = element_text(size=7, family = "Times New Roman")) +
+  geom_hline(yintercept=c(0), linetype="dotted")
+
+met_unadj_c <- ggplot(unadjust_met_13, aes(x = time, y = effect_est)) +
+    geom_point() + 
+  geom_line() +   # Connect means with lines
+  geom_ribbon(aes(ymin = ci_lwr, ymax = ci_upr), alpha = 0.3) + 
+  labs(title = "Difference in Mean Buprenorphine Dose (W v. H, Unadjusted)",
+       x = "Week",
+       y = "Mean Dose Difference") +
+    scale_x_continuous(breaks = seq(1, 4, by = 1)) +
+  theme_minimal() +
+    theme(plot.title = element_text(vjust = 0.5),
+          text = element_text(size=7, family = "Times New Roman")) +
+  geom_hline(yintercept=c(0), linetype="dotted")
+
+met_unadj_d <- ggplot(unadjust_met_23, aes(x = time, y = effect_est)) +
+    geom_point() + 
+  geom_line() +   # Connect means with lines
+  geom_ribbon(aes(ymin = ci_lwr, ymax = ci_upr), alpha = 0.3) + 
+  labs(title = "Difference in Mean Buprenorphine Dose (B v. H, Unadjusted)",
+       x = "Week",
+       y = "Mean Dose Difference") +
+    scale_x_continuous(breaks = seq(1, 4, by = 1)) +
+  theme_minimal() +
+    theme(plot.title = element_text(vjust = 0.5),
+          text = element_text(size=7, family = "Times New Roman")) +
+  geom_hline(yintercept=c(0), linetype="dotted")
+
+met_unadj_figure <- ggarrange(met_cont, met_unadj_b, met_unadj_c, met_unadj_d + font("x.text", size = 0.5),
+                    ncol = 2, nrow = 2, labels = c("A", "B", "C", "D"), vjust= 1.75, 
+                  font.label=list(color="black",size=10, family = "Times New Roman"))
+met_unadj_figure
 ```
 
 ### Adjusted -- Sex + Age
@@ -335,7 +473,6 @@ bup_as_figure <- ggarrange(bup_lim_cont, bup_lim_b, bup_lim_c, bup_lim_d + font(
                   font.label=list(color="black",size=10, family = "Times New Roman"))
 bup_as_figure
 ```
-
 
 ```{r}
 met_lim_point <- ggplot(met_results_lim, aes(x = week, y = theta, group = race, color = race)) +
