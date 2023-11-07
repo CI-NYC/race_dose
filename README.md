@@ -13,8 +13,10 @@ Code and Visualizations Related to Treatment Dosage by Race/Ethnicity
 
 1. Unadjusted means were calculated for each treatment (t = 2) between groups (k = 3) across timepoints (j = 4)
 2. Means adjusted for sex and age were calculated for each treatment (t = 2) between groups (k = 3) across timepoints (j = 4)
-- Superlearner candidates: `mean`, `glm`, `earth`, `glmnet`, `gbm`
 3. Means adjusted for additional baseline covariates were calculated for each treatment (t = 2) between groups (k = 3) across timepoints (j = 4)
-- Superlearner candidates: `mean`, `glm`, `earth`, `glmnet`, `gbm`
+
+- Software:
+- Packages: The `lmtp` was used to calculate TMLE estimates of the means for adjusted models
+- Superlearner candidates for adjusted models (10 folds): `mean`, `glm`, `earth`, `glmnet`, `gbm`, `bartMachine`
 
 ## Results
