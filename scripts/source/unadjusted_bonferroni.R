@@ -7,10 +7,10 @@ unadjusted_diff <- function(est_trt, est_ctl, weeks = 4, ci_level = 0.95,
     #creating empty dataframe to store results
     
     all_weeks <- tibble(
-        week = as.integer(0),
+        time = as.integer(0),
         ci_lwr = as.double(0),
         ci_upr = as.double(0),
-        est = as.double(0),
+        effect_est = as.double(0),
         std_err = as.double(0),
         test_stat = as.double(0),
         pval = as.double(0))
@@ -44,24 +44,25 @@ unadjusted_diff <- function(est_trt, est_ctl, weeks = 4, ci_level = 0.95,
                df =  n1 + n2 -2, lower.tail=FALSE) *
             se_pooled
         
-        est <- est_trt_new$avg - est_ctl_new$avg #mean diff
+        effect_est <- est_trt_new$avg - est_ctl_new$avg #mean diff
         
-        test_stat <- abs((est - 0) / se_pooled) #test stat
+        test_stat <- abs((effect_est - 0) / se_pooled) #test stat
         
         pval <- pnorm(-test_stat) #p-value
         
-        week <- tibble(
-            week = i,
+        this_week <- tibble(
+            time = i,
             ci_lwr = ci_lwr,
             ci_upr = ci_upr,
-            est = est_trt_new$avg - est_ctl_new$avg,
+            effect_est = est_trt_new$avg - est_ctl_new$avg,
             std_err = se_pooled,
             test_stat = test_stat,
             pval = pval)
         
         all_weeks <- all_weeks |>
-            rbind(week)
+            rbind(this_week)
         }
     }
+    all_weeks = all_weeks[-1,]
     return(all_weeks)
 }
