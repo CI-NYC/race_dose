@@ -6,10 +6,6 @@ editor: visual
 
 ```{r, include = FALSE}
 library(tidyverse)
-library(ggplot2)
-library(lmtp)
-library(SuperLearner)
-library(parallel)
 ```
 
 ## Loading Data and Creating Tables
@@ -81,7 +77,7 @@ for(i in 1:4)
 }
 ```
 
-#### Checking Possible Left Censoring
+## Checking Possible Left Censoring
 
 ```{r}
 #checking for instances of left censoring
@@ -106,7 +102,7 @@ for (i in 1:4)
 #none present for bup/met
 ```
 
-#### Saving Data
+## Saving Data
 
 ```{r}
 #saveRDS(data_bup, here::here("data/processed/data_bup.rds"))
