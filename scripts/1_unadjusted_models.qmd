@@ -6,10 +6,6 @@ editor: visual
 
 ```{r, include = FALSE}
 library(tidyverse)
-library(ggplot2)
-library(lmtp)
-library(SuperLearner)
-#library(parallel)
 ```
 
 ## Reading Data
@@ -30,13 +26,15 @@ data_bup_long <- data_bup |>
     names_to = c("week", "type_name"),
     names_pattern = "(wk[0-9]+).?(.*)",
     values_to = "count") |>
-    pivot_wider(id_cols = c("who", "xrace", "week"),
+    pivot_wider(id_cols = c("who", "xrace", "week", "site"),
                 names_from = "type_name",
                 values_from = "count") |>
     mutate(dose_this_week = case_when(
         censor == 0 ~ as.numeric(NA),
         TRUE ~ dose_this_week),
-        week = as.integer(gsub("^.{0,2}", "", week))) |>
+        week = as.integer(gsub("^.{0,2}", "", week))) 
+
+data_bup_long_grouped <- data_bup_long |>
         group_by(week, xrace) |>
         summarize(avg = mean(dose_this_week, na.rm = TRUE),
                   sd = sd(dose_this_week, na.rm = TRUE),
@@ -44,6 +42,8 @@ data_bup_long <- data_bup |>
                   low = avg - 1.96*se,
                   high = avg + 1.96*se,
                   count = n(),
+                  uncensored = sum(censor), #summing uncensored individuals
+                  censored = n() - sum(censor), #summing censored individuals
                   max = max(dose_this_week, na.rm = TRUE),
                   min = min(dose_this_week, na.rm = TRUE),
                   range_bup = max - min) |>
@@ -62,13 +62,15 @@ data_met_long <- data_met |>
     names_to = c("week", "type_name"),
     names_pattern = "(wk[0-9]+).?(.*)",
     values_to = "count") |>
-    pivot_wider(id_cols = c("who", "xrace", "week"),
+    pivot_wider(id_cols = c("who", "xrace", "week", "site"),
                 names_from = "type_name",
                 values_from = "count") |>
     mutate(dose_this_week = case_when(
         censor == 0 ~ as.numeric(NA),
         TRUE ~ dose_this_week),
-        week = as.integer(gsub("^.{0,2}", "", week))) |>
+        week = as.integer(gsub("^.{0,2}", "", week))) 
+
+data_met_long_grouped <- data_met_long |>
     group_by(week, xrace) |>
         summarize(avg = mean(dose_this_week, na.rm = TRUE),
                   sd = sd(dose_this_week, na.rm = TRUE),
@@ -76,6 +78,8 @@ data_met_long <- data_met |>
                   low = avg - 1.96*se,
                   high = avg + 1.96*se,
                   count = n(),
+                  uncensored = sum(censor), #summing uncensored individuals
+                  censored = n() - sum(censor), #summing censored individuals
                   max = max(dose_this_week, na.rm = TRUE),
                   min = min(dose_this_week, na.rm = TRUE),
                   range_bup = max - min) |>
@@ -85,9 +89,31 @@ data_met_long <- data_met |>
     filter(week <= 4)
 ```
 
+## Sites
+
+```{r}
+## Site
+
+bup_sites <- data_bup_long |>
+    filter(week <= 4 & censor == 1) |> #filtering out censoring
+    group_by(site, week, xrace) |>
+    summarize(count = n(), mean_dose = mean(dose_this_week)) |>
+    mutate(freq = count/sum(count))
+
+met_sites <- data_met_long |>
+    filter(week <= 4 & censor == 1) |> #filtering out censoring
+    group_by(site, week, xrace) |>
+    summarize(count = n(), mean_dose = mean(dose_this_week)) |>
+    mutate(freq = count/sum(count))
+```
+
 ## Saving Results
 
 ```{r}
-saveRDS(data_bup_long, here::here("data/processed/data_bup_long.rds"))
-saveRDS(data_met_long, here::here("data/processed/data_met_long.rds"))
+#saveRDS(data_bup_long, here::here("data/processed/data_bup_long_ungrouped.rds"))
+#saveRDS(data_met_long, here::here("data/processed/data_met_long_ungrouped.rds"))
+#saveRDS(data_bup_long_grouped, here::here("data/processed/data_bup_long.rds"))
+#saveRDS(data_met_long_grouped, here::here("data/processed/data_met_long.rds"))
+#saveRDS(bup_sites, here::here("data/processed/bup_sites.rds"))
+#saveRDS(met_sites, here::here("data/processed/met_sites.rds"))
 ```
