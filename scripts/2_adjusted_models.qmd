@@ -9,7 +9,6 @@ library(tidyverse)
 library(ggplot2)
 library(lmtp)
 library(SuperLearner)
-#library(parallel)
 ```
 
 ## Reading Data
@@ -19,7 +18,6 @@ data_bup <- readRDS(here::here("data/processed/data_bup.rds"))
     
 data_met <- readRDS(here::here("data/processed/data_met.rds"))
 ```
-
 
 ## Shift Functions
 
@@ -184,14 +182,14 @@ data_met <- data_met |>
 # baseline bup covariates
 
 B_bup <- c("sex", "age", "edu", "edu_missing", "mar", "mar_missing",
-                       "hwithdraw", "hcows",
+                    "hcows",
                        "falcohol", "falcohol_missing", "fdrug", "fdrug_missing",
                        "alcdisorder", "alcdisorder_missing", "cocdisorder", "cocdisorder_missing",
        "hasBrainDamage", "hasEpilepsy",
        "hasBipolar","hasAnxPan","hasSchiz",
        "hasMajorDep",
        "bamphetamine30_base", "bcannabis30_base",
-       "bbenzo30_base", "ivdrug", "ivdrug_missing") 
+       "bbenzo30_base", "ivdrug") 
 
 # baseline methadone covariates
 
@@ -204,6 +202,25 @@ B_met <- c("sex", "age", "edu", "edu_missing", "mar", "mar_missing",
        "hasMajorDep",
        "bamphetamine30_base", "bcannabis30_base",
        "bbenzo30_base", "ivdrug") 
+```
+
+## Covariates Summary Table
+
+```{r}
+data_comb <- (data_bup |> mutate(trt = "bup")) |> #combining bup/met data for summary table
+    rbind(data_met |> mutate(trt = "met"))
+
+covartable <- tbl_summary(
+    data_comb,
+    include = B_bup, #same covariates for both
+    by = trt, # split table by treatment
+    missing = "no"
+  ) |>
+  modify_header(label = "**Baseline Covariate**") %>% # update the column header
+  bold_labels() 
+
+as_kable(covartable, format = "latex")
+#latex format
 ```
 
 #### Misc. Cleaning Code
