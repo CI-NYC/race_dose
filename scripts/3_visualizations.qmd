@@ -8,6 +8,8 @@ editor: visual
 library(tidyverse)
 library(ggplot2)
 library(ggpubr)
+library(ggalluvial)
+library(gtsummary)
 knitr::opts_chunk$set(warning=FALSE, message=FALSE)
 knitr::opts_chunk$set(fig.width=18, fig.height=12) 
 
@@ -23,6 +25,10 @@ source(here::here("scripts/source/unadjusted_bonferroni.R"))
 data_bup_long <- readRDS(here::here("data/processed/data_bup_long.rds"))
 
 data_met_long <- readRDS(here::here("data/processed/data_met_long.rds"))
+
+data_bup_long_ungrouped <- readRDS(here::here("data/processed/data_bup_long_ungrouped.rds"))
+
+data_met_long_ungrouped <- readRDS(here::here("data/processed/data_met_long_ungrouped.rds"))
 
 met_results_all <- data.frame(week = integer(0), race = numeric(0), theta = numeric(0), se = numeric(0), lower = numeric(0), upper = numeric(0))
 
@@ -197,13 +203,11 @@ met_as_13_df <- summarize_results(met_as_1, met_as_3, ci_level = 0.95, ci_type =
 custom_colors <- c("White" = "#e31a1c", "Black" = "#1f78b4", "Hispanic" = "darkseagreen4")
 
 bup_point <- ggplot(data_bup_long, aes(x = week, y = avg, group = xrace, color = xrace)) +
-  geom_point() +
-  geom_line() +
-  geom_errorbar(aes(ymin = low, ymax = high), width = 0.2) +
+  geom_point(position = position_dodge(width = 0.5)) +
+  geom_errorbar(aes(ymin = low, ymax = high), width = 0.2, position = position_dodge(width = 0.5)) +
   labs(title = "Mean Buprenorphine Dose by Race Over Time (Unadjusted)",
        x = "Week",
        y = "Mean Dose") +
-  scale_color_manual(values = custom_colors) +
     scale_x_continuous(breaks = seq(1, 4, by = 1)) +
       scale_color_manual(values = custom_colors) + 
   scale_fill_manual(values = custom_colors) +  
@@ -250,8 +254,7 @@ unadjust_bup_23 <- unadjusted_diff(data_bup_long_2, data_bup_long_3)
 
 bup_unadj_b <- ggplot(unadjust_bup_12, aes(x = time, y = effect_est)) +
     geom_point() + 
-  geom_line() +   # Connect means with lines
-  geom_ribbon(aes(ymin = ci_lwr, ymax = ci_upr), alpha = 0.3) + 
+  geom_errorbar(aes(ymin = ci_lwr, ymax = ci_upr), width = 0.2) + 
   labs(title = "Difference in Mean Buprenorphine Dose (W v. B, Unadjusted)",
        x = "Week",
        y = "Mean Dose Difference") +
@@ -263,8 +266,7 @@ bup_unadj_b <- ggplot(unadjust_bup_12, aes(x = time, y = effect_est)) +
 
 bup_unadj_c <- ggplot(unadjust_bup_13, aes(x = time, y = effect_est)) +
     geom_point() + 
-  geom_line() +   # Connect means with lines
-  geom_ribbon(aes(ymin = ci_lwr, ymax = ci_upr), alpha = 0.3) + 
+  geom_errorbar(aes(ymin = ci_lwr, ymax = ci_upr), width = 0.2) + 
   labs(title = "Difference in Mean Buprenorphine Dose (W v. H, Unadjusted)",
        x = "Week",
        y = "Mean Dose Difference") +
@@ -276,8 +278,7 @@ bup_unadj_c <- ggplot(unadjust_bup_13, aes(x = time, y = effect_est)) +
 
 bup_unadj_d <- ggplot(unadjust_bup_23, aes(x = time, y = effect_est)) +
     geom_point() + 
-  geom_line() +   # Connect means with lines
-  geom_ribbon(aes(ymin = ci_lwr, ymax = ci_upr), alpha = 0.3) + 
+  geom_errorbar(aes(ymin = ci_lwr, ymax = ci_upr), width = 0.2) + 
   labs(title = "Difference in Mean Buprenorphine Dose (B v. H, Unadjusted)",
        x = "Week",
        y = "Mean Dose Difference") +
@@ -287,7 +288,7 @@ bup_unadj_d <- ggplot(unadjust_bup_23, aes(x = time, y = effect_est)) +
           text = element_text(size=7, family = "Times New Roman")) +
   geom_hline(yintercept=c(0), linetype="dotted")
 
-bup_as_figure <- ggarrange(bup_cont, bup_unadj_b, bup_unadj_c, bup_unadj_d + font("x.text", size = 0.5),
+bup_as_figure <- ggarrange(bup_point, bup_unadj_b, bup_unadj_c, bup_unadj_d + font("x.text", size = 0.5),
                     ncol = 2, nrow = 2, labels = c("A", "B", "C", "D"), vjust= 1.75, 
                   font.label=list(color="black",size=10, family = "Times New Roman"))
 bup_as_figure
@@ -295,13 +296,11 @@ bup_as_figure
 
 ```{r}
 met_point <- ggplot(data_met_long, aes(x = week, y = avg, group = xrace, color = xrace)) +
-  geom_point() +
-  geom_line() +
-  geom_errorbar(aes(ymin = low, ymax = high), width = 0.2) +
+  geom_point(position = position_dodge(width = 0.5)) +
+  geom_errorbar(aes(ymin = low, ymax = high), width = 0.2, position = position_dodge(width = 0.5)) +
   labs(title = "Mean Methadone Dose by Race Over Time (Unadjusted)",
        x = "Week",
        y = "Mean Dose") +
-  scale_color_manual(values = custom_colors) +
     scale_x_continuous(breaks = seq(1, 4, by = 1)) +
       scale_color_manual(values = custom_colors) + 
   scale_fill_manual(values = custom_colors) +  
@@ -348,8 +347,7 @@ unadjust_met_23 <- unadjusted_diff(data_met_long_2, data_met_long_3)
 
 met_unadj_b <- ggplot(unadjust_met_12, aes(x = time, y = effect_est)) +
     geom_point() + 
-  geom_line() +   # Connect means with lines
-  geom_ribbon(aes(ymin = ci_lwr, ymax = ci_upr), alpha = 0.3) + 
+  geom_errorbar(aes(ymin = ci_lwr, ymax = ci_upr), width = 0.2) + 
   labs(title = "Difference in Mean Methadone Dose (W v. B, Unadjusted)",
        x = "Week",
        y = "Mean Dose Difference") +
@@ -361,8 +359,7 @@ met_unadj_b <- ggplot(unadjust_met_12, aes(x = time, y = effect_est)) +
 
 met_unadj_c <- ggplot(unadjust_met_13, aes(x = time, y = effect_est)) +
     geom_point() + 
-  geom_line() +   # Connect means with lines
-  geom_ribbon(aes(ymin = ci_lwr, ymax = ci_upr), alpha = 0.3) + 
+  geom_errorbar(aes(ymin = ci_lwr, ymax = ci_upr), width = 0.2) + 
   labs(title = "Difference in Mean Methadone Dose (W v. H, Unadjusted)",
        x = "Week",
        y = "Mean Dose Difference") +
@@ -374,8 +371,7 @@ met_unadj_c <- ggplot(unadjust_met_13, aes(x = time, y = effect_est)) +
 
 met_unadj_d <- ggplot(unadjust_met_23, aes(x = time, y = effect_est)) +
     geom_point() + 
-  geom_line() +   # Connect means with lines
-  geom_ribbon(aes(ymin = ci_lwr, ymax = ci_upr), alpha = 0.3) + 
+  geom_errorbar(aes(ymin = ci_lwr, ymax = ci_upr), width = 0.2) + 
   labs(title = "Difference in Mean Methadone Dose (B v. H, Unadjusted)",
        x = "Week",
        y = "Mean Dose Difference") +
@@ -385,7 +381,7 @@ met_unadj_d <- ggplot(unadjust_met_23, aes(x = time, y = effect_est)) +
           text = element_text(size=7, family = "Times New Roman")) +
   geom_hline(yintercept=c(0), linetype="dotted")
 
-met_unadj_figure <- ggarrange(met_cont, met_unadj_b, met_unadj_c, met_unadj_d + font("x.text", size = 0.5),
+met_unadj_figure <- ggarrange(met_point, met_unadj_b, met_unadj_c, met_unadj_d + font("x.text", size = 0.5),
                     ncol = 2, nrow = 2, labels = c("A", "B", "C", "D"), vjust= 1.75, 
                   font.label=list(color="black",size=10, family = "Times New Roman"))
 met_unadj_figure
@@ -399,17 +395,21 @@ custom_colors <- c("White" = "#e31a1c", "Black" = "#1f78b4", "Hispanic" = "darks
 ## sex and age
 
 bup_lim_point <- ggplot(bup_results_lim, aes(x = week, y = theta, group = race, color = race)) +
-  geom_point() +
-  geom_line() +
-  geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.2) +
+  geom_point(position = position_dodge(width = 0.5)) +
+  geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.2, position = position_dodge(width = 0.5)) +
   labs(title = "Mean Buprenorphine Dose by Race Over Time (Sex + Age)",
        x = "Week",
        y = "Mean Dose") +
-  scale_color_manual(values = custom_colors) +
     scale_x_continuous(breaks = seq(1, 4, by = 1)) +
-  theme_minimal() + 
-    theme(plot.title = element_text(vjust = 0.5)) + 
-    labs(color = "Race")
+      scale_color_manual(values = custom_colors) + 
+  scale_fill_manual(values = custom_colors) +  
+  theme_minimal() +
+    theme(plot.title = element_text(vjust = 0.5),
+          legend.key.size = unit(0.25, 'cm'), 
+          legend.box.spacing = unit(-12.5, "pt"),
+          text = element_text(size=7, family = "Times New Roman")) + 
+    labs(color = "Race", 
+         fill = "Race")
 
 bup_lim_cont <- ggplot(bup_results_lim, aes(x = week, y = theta, color = race)) +
   geom_line() +   # Connect means with lines
@@ -431,8 +431,7 @@ bup_lim_cont <- ggplot(bup_results_lim, aes(x = week, y = theta, color = race)) 
 
 bup_lim_b <- ggplot(bup_as_12_df, aes(x = time, y = effect_est)) +
     geom_point() + 
-  geom_line() +   # Connect means with lines
-  geom_ribbon(aes(ymin = ci_lwr, ymax = ci_upr), alpha = 0.3) + 
+  geom_errorbar(aes(ymin = ci_lwr, ymax = ci_upr), width = 0.2) + 
   labs(title = "Difference in Mean Buprenorphine Dose (W v. B, Sex + Age)",
        x = "Week",
        y = "Mean Dose Difference") +
@@ -444,8 +443,7 @@ bup_lim_b <- ggplot(bup_as_12_df, aes(x = time, y = effect_est)) +
 
 bup_lim_c <- ggplot(bup_as_13_df, aes(x = time, y = effect_est)) +
     geom_point() + 
-  geom_line() +   # Connect means with lines
-  geom_ribbon(aes(ymin = ci_lwr, ymax = ci_upr), alpha = 0.3) + 
+  geom_errorbar(aes(ymin = ci_lwr, ymax = ci_upr), width = 0.2) + 
   labs(title = "Difference in Mean Buprenorphine Dose (W v. H, Sex + Age)",
        x = "Week",
        y = "Mean Dose Difference") +
@@ -457,8 +455,7 @@ bup_lim_c <- ggplot(bup_as_13_df, aes(x = time, y = effect_est)) +
 
 bup_lim_d <- ggplot(bup_as_23_df, aes(x = time, y = effect_est)) +
     geom_point() + 
-  geom_line() +   # Connect means with lines
-  geom_ribbon(aes(ymin = ci_lwr, ymax = ci_upr), alpha = 0.3) + 
+  geom_errorbar(aes(ymin = ci_lwr, ymax = ci_upr), width = 0.2) + 
   labs(title = "Difference in Mean Buprenorphine Dose (B v. H, Sex + Age)",
        x = "Week",
        y = "Mean Dose Difference") +
@@ -468,7 +465,7 @@ bup_lim_d <- ggplot(bup_as_23_df, aes(x = time, y = effect_est)) +
           text = element_text(size=7, family = "Times New Roman")) +
   geom_hline(yintercept=c(0), linetype="dotted")
 
-bup_as_figure <- ggarrange(bup_lim_cont, bup_lim_b, bup_lim_c, bup_lim_d + font("x.text", size = 0.5),
+bup_as_figure <- ggarrange(bup_lim_point, bup_lim_b, bup_lim_c, bup_lim_d + font("x.text", size = 0.5),
                     ncol = 2, nrow = 2, labels = c("A", "B", "C", "D"), vjust= 1.75, 
                   font.label=list(color="black",size=10, family = "Times New Roman"))
 bup_as_figure
@@ -476,18 +473,21 @@ bup_as_figure
 
 ```{r}
 met_lim_point <- ggplot(met_results_lim, aes(x = week, y = theta, group = race, color = race)) +
-  geom_point() +
-  geom_line() +
-  geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.2) +
+  geom_point(position = position_dodge(width = 0.5)) +
+  geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.2, position = position_dodge(width = 0.5)) +
   labs(title = "Mean Methadone Dose by Race Over Time (Sex + Age)",
        x = "Week",
        y = "Mean Dose") +
-  scale_color_manual(values = custom_colors) +
     scale_x_continuous(breaks = seq(1, 4, by = 1)) +
+      scale_color_manual(values = custom_colors) + 
+  scale_fill_manual(values = custom_colors) +  
   theme_minimal() +
     theme(plot.title = element_text(vjust = 0.5),
+          legend.key.size = unit(0.25, 'cm'), 
+          legend.box.spacing = unit(-12.5, "pt"),
           text = element_text(size=7, family = "Times New Roman")) + 
-    labs(color = "Race")
+    labs(color = "Race", 
+         fill = "Race")
 
 met_lim_cont <- ggplot(met_results_lim, aes(x = week, y = theta, color = race)) +
   geom_line() +   # Connect means with lines
@@ -509,8 +509,7 @@ met_lim_cont <- ggplot(met_results_lim, aes(x = week, y = theta, color = race)) 
 
 met_lim_b <- ggplot(met_as_12_df, aes(x = time, y = effect_est)) +
     geom_point() + 
-  geom_line() +   # Connect means with lines
-  geom_ribbon(aes(ymin = ci_lwr, ymax = ci_upr), alpha = 0.3) + 
+  geom_errorbar(aes(ymin = ci_lwr, ymax = ci_upr), width = 0.2) + 
   labs(title = "Difference in Mean Met Dose (W v. B, Sex + Age)",
        x = "Week",
        y = "Mean Dose Difference") +
@@ -522,8 +521,7 @@ met_lim_b <- ggplot(met_as_12_df, aes(x = time, y = effect_est)) +
 
 met_lim_c <- ggplot(met_as_13_df, aes(x = time, y = effect_est)) +
     geom_point() + 
-  geom_line() +   # Connect means with lines
-  geom_ribbon(aes(ymin = ci_lwr, ymax = ci_upr), alpha = 0.3) + 
+  geom_errorbar(aes(ymin = ci_lwr, ymax = ci_upr), width = 0.2) + 
   labs(title = "Difference in Mean Met Dose (W v. H, Sex + Age)",
        x = "Week",
        y = "Mean Dose Difference") +
@@ -535,8 +533,7 @@ met_lim_c <- ggplot(met_as_13_df, aes(x = time, y = effect_est)) +
 
 met_lim_d <- ggplot(met_as_23_df, aes(x = time, y = effect_est)) +
     geom_point() + 
-  geom_line() +   # Connect means with lines
-  geom_ribbon(aes(ymin = ci_lwr, ymax = ci_upr), alpha = 0.3) + 
+  geom_errorbar(aes(ymin = ci_lwr, ymax = ci_upr), width = 0.2) + 
   labs(title = "Difference in Mean Met Dose (B v. H, Sex + Age)",
        x = "Week",
        y = "Mean Dose Difference") +
@@ -546,7 +543,7 @@ met_lim_d <- ggplot(met_as_23_df, aes(x = time, y = effect_est)) +
           text = element_text(size=7, family = "Times New Roman")) +
   geom_hline(yintercept=c(0), linetype="dotted")
 
-met_as_figure <- ggarrange(met_lim_cont, met_lim_b, met_lim_c, met_lim_d + font("x.text", size = 0.5),
+met_as_figure <- ggarrange(met_lim_point, met_lim_b, met_lim_c, met_lim_d + font("x.text", size = 0.5),
                     ncol = 2, nrow = 2, labels = c("A", "B", "C", "D"), vjust= 1.75, hjust= -1,
                   font.label=list(color="black",size=10, family = "Times New Roman"))
 met_as_figure
@@ -556,18 +553,21 @@ met_as_figure
 
 ```{r}
 bup_all_point <- ggplot(bup_results_all, aes(x = week, y = theta, group = race, color = race)) +
-  geom_point() +
-  geom_line() +
-  geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.2) +
+  geom_point(position = position_dodge(width = 0.5)) +
+  geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.2, position = position_dodge(width = 0.5)) +
   labs(title = "Mean Buprenorphine Dose by Race Over Time (Expanded Covariates)",
        x = "Week",
        y = "Mean Dose") +
-  scale_color_manual(values = custom_colors) +
     scale_x_continuous(breaks = seq(1, 4, by = 1)) +
+      scale_color_manual(values = custom_colors) + 
+  scale_fill_manual(values = custom_colors) +  
   theme_minimal() +
     theme(plot.title = element_text(vjust = 0.5),
-          text = element_text(size=6, family = "Times New Roman")) + 
-    labs(color = "Race")
+          legend.key.size = unit(0.25, 'cm'), 
+          legend.box.spacing = unit(-12.5, "pt"),
+          text = element_text(size=7, family = "Times New Roman")) + 
+    labs(color = "Race", 
+         fill = "Race")
 
 bup_all_cont <- ggplot(bup_results_all, aes(x = week, y = theta, color = race)) +
   geom_line() +   # Connect means with lines
@@ -589,8 +589,7 @@ bup_all_cont <- ggplot(bup_results_all, aes(x = week, y = theta, color = race)) 
 
 bup_all_b <- ggplot(bup_all_12_df, aes(x = time, y = effect_est)) +
     geom_point() + 
-  geom_line() +   # Connect means with lines
-  geom_ribbon(aes(ymin = ci_lwr, ymax = ci_upr), alpha = 0.3) + 
+  geom_errorbar(aes(ymin = ci_lwr, ymax = ci_upr), width = 0.2) +  
   labs(title = "Difference in Mean Bup Dose (W v. B, Expanded Covariates)",
        x = "Week",
        y = "Mean Dose Difference") +
@@ -602,8 +601,7 @@ bup_all_b <- ggplot(bup_all_12_df, aes(x = time, y = effect_est)) +
 
 bup_all_c <- ggplot(bup_all_13_df, aes(x = time, y = effect_est)) +
     geom_point() + 
-  geom_line() +   # Connect means with lines
-  geom_ribbon(aes(ymin = ci_lwr, ymax = ci_upr), alpha = 0.3) + 
+  geom_errorbar(aes(ymin = ci_lwr, ymax = ci_upr), width = 0.2) + 
   labs(title = "Difference in Mean Bup Dose (W v. H, Expanded Covariates)",
        x = "Week",
        y = "Mean Dose Difference") +
@@ -615,8 +613,7 @@ bup_all_c <- ggplot(bup_all_13_df, aes(x = time, y = effect_est)) +
 
 bup_all_d <- ggplot(bup_all_23_df, aes(x = time, y = effect_est)) +
     geom_point() + 
-  geom_line() +   # Connect means with lines
-  geom_ribbon(aes(ymin = ci_lwr, ymax = ci_upr), alpha = 0.3) + 
+  geom_errorbar(aes(ymin = ci_lwr, ymax = ci_upr), width = 0.2) + 
   labs(title = "Difference in Mean Bup Dose (B v. H, Expanded Covariates)",
        x = "Week",
        y = "Mean Dose Difference") +
@@ -626,7 +623,7 @@ bup_all_d <- ggplot(bup_all_23_df, aes(x = time, y = effect_est)) +
           text = element_text(size=7, family = "Times New Roman")) +
   geom_hline(yintercept=c(0), linetype="dotted")
 
-bup_all_figure <- ggarrange(bup_all_cont, bup_all_b, bup_all_c, bup_all_d + font("x.text", size = 0.5),
+bup_all_figure <- ggarrange(bup_all_point, bup_all_b, bup_all_c, bup_all_d + font("x.text", size = 0.5),
                     ncol = 2, nrow = 2, labels = c("A", "B", "C", "D"), vjust= 1.75, hjust= -1,
                   font.label=list(color="black",size=10, family = "Times New Roman"))
 bup_all_figure
@@ -634,18 +631,21 @@ bup_all_figure
 
 ```{r}
 met_all_point <- ggplot(met_results_all, aes(x = week, y = theta, group = race, color = race)) +
-  geom_point() +
-  geom_line() +
-  geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.2) +
+  geom_point(position = position_dodge(width = 0.5)) +
+  geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.2, position = position_dodge(width = 0.5)) +
   labs(title = "Mean Methadone Dose by Race Over Time (Expanded Covariates)",
        x = "Week",
        y = "Mean Dose") +
-  scale_color_manual(values = custom_colors) +
     scale_x_continuous(breaks = seq(1, 4, by = 1)) +
+      scale_color_manual(values = custom_colors) + 
+  scale_fill_manual(values = custom_colors) +  
   theme_minimal() +
     theme(plot.title = element_text(vjust = 0.5),
+          legend.key.size = unit(0.25, 'cm'), 
+          legend.box.spacing = unit(-12.5, "pt"),
           text = element_text(size=7, family = "Times New Roman")) + 
-    labs(color = "Race")
+    labs(color = "Race", 
+         fill = "Race")
 
 met_all_cont <- ggplot(met_results_all, aes(x = week, y = theta, color = race)) +
   geom_line() +   # Connect means with lines
@@ -667,8 +667,7 @@ met_all_cont <- ggplot(met_results_all, aes(x = week, y = theta, color = race)) 
 
 met_all_b <- ggplot(met_all_12_df, aes(x = time, y = effect_est)) +
     geom_point() + 
-  geom_line() +   # Connect means with lines
-  geom_ribbon(aes(ymin = ci_lwr, ymax = ci_upr), alpha = 0.3) + 
+  geom_errorbar(aes(ymin = ci_lwr, ymax = ci_upr), width = 0.2) + 
   labs(title = "Difference in Mean Met Dose (W v. B, Expanded Covariates)",
        x = "Week",
        y = "Mean Dose Difference") +
@@ -680,8 +679,7 @@ met_all_b <- ggplot(met_all_12_df, aes(x = time, y = effect_est)) +
 
 met_all_c <- ggplot(met_all_13_df, aes(x = time, y = effect_est)) +
     geom_point() + 
-  geom_line() +   # Connect means with lines
-  geom_ribbon(aes(ymin = ci_lwr, ymax = ci_upr), alpha = 0.3) + 
+  geom_errorbar(aes(ymin = ci_lwr, ymax = ci_upr), width = 0.2) + 
   labs(title = "Difference in Mean Met Dose (W v. H, Expanded Covariates)",
        x = "Week",
        y = "Mean Dose Difference") +
@@ -693,8 +691,7 @@ met_all_c <- ggplot(met_all_13_df, aes(x = time, y = effect_est)) +
 
 met_all_d <- ggplot(met_all_23_df, aes(x = time, y = effect_est)) +
     geom_point() + 
-  geom_line() +   # Connect means with lines
-  geom_ribbon(aes(ymin = ci_lwr, ymax = ci_upr), alpha = 0.3) + 
+  geom_errorbar(aes(ymin = ci_lwr, ymax = ci_upr), width = 0.2) + 
   labs(title = "Difference in Mean Met Dose (B v. H, Expanded Covariates)",
        x = "Week",
        y = "Mean Dose Difference") +
@@ -704,8 +701,115 @@ met_all_d <- ggplot(met_all_23_df, aes(x = time, y = effect_est)) +
           text = element_text(size=7, family = "Times New Roman")) +
   geom_hline(yintercept=c(0), linetype="dotted")
 
-met_all_figure <- ggarrange(met_all_cont, met_all_b, met_all_c, met_all_d + font("x.text", size = 0.5),
+met_all_figure <- ggarrange(met_all_point, met_all_b, met_all_c, met_all_d + font("x.text", size = 0.5),
                     ncol = 2, nrow = 2, labels = c("A", "B", "C", "D"), vjust= 1.75, hjust= -1,
                   font.label=list(color="black",size=10, family = "Times New Roman"))
 met_all_figure
+```
+
+## Methods Plots
+
+```{r}
+custom_colors_4 <- c("White" = "#e31a1c", "Black" = "#1f78b4", "Hispanic" = "darkseagreen4", 
+                     "Censor" = "darkorchid4") # color scheme, can adjust
+
+data_bup_long_censored <- data_bup_long_ungrouped |>
+    select(who, week, xrace, dose_this_week, censor) |>
+    filter(week <= 4) |>
+    mutate(dose_this_week = ifelse(is.na(dose_this_week), 0, dose_this_week),
+           xrace = case_when(xrace == "1" ~ "White",
+                             xrace == "2" ~ "Black",
+                             xrace == "3" ~ "Hispanic", 
+                             TRUE ~ xrace),
+           xrace = ifelse(censor == 0, "Censor", xrace),
+           xrace = factor(xrace, levels = c("White", "Black", "Hispanic", "Censor"))) |>
+    arrange(week, xrace) 
+
+ggplot(data_bup_long_censored,
+       aes(x = week, stratum = xrace, alluvium = who,
+           fill = xrace, label = xrace)) +
+  geom_flow() +
+  geom_stratum(alpha = .5) +
+  geom_text(stat = "stratum", aes(label = after_stat(count)),
+            family = "Times New Roman") +
+    scale_fill_manual(values = custom_colors_4) +
+    theme_void()  +
+  guides(fill = guide_legend(title = "Race")) + labs(x = "Week") +
+    theme(axis.title.x = element_text(),
+          axis.text.x = element_text(),
+        text = element_text(size=12, family = "Times New Roman"), 
+          legend.box.spacing = unit(-10, "pt"))
+
+data_met_long_censored <- data_met_long_ungrouped |>
+    select(who, week, xrace, dose_this_week, censor) |>
+    filter(week <= 4) |>
+    mutate(dose_this_week = ifelse(is.na(dose_this_week), 0, dose_this_week),
+           xrace = case_when(xrace == "1" ~ "White",
+                             xrace == "2" ~ "Black",
+                             xrace == "3" ~ "Hispanic", 
+                             TRUE ~ xrace),
+           xrace = ifelse(censor == 0, "Censor", xrace),
+           xrace = factor(xrace, levels = c("White", "Black", "Hispanic", "Censor"))) |>
+    arrange(week, xrace)
+
+ggplot(data_met_long_censored,
+       aes(x = week, stratum = xrace, alluvium = who,
+           fill = xrace, label = xrace)) +
+  geom_flow() +
+  geom_stratum(alpha = .5) +
+  geom_text(stat = "stratum", aes(label = after_stat(count)), 
+            family = "Times New Roman") +
+    scale_fill_manual(values = custom_colors_4) +
+    theme_void()  +
+  guides(fill = guide_legend(title = "Race")) + labs(x = "Week") +
+    theme(axis.title.x = element_text(),
+          axis.text.x = element_text(),
+        text = element_text(size=12, family = "Times New Roman"), 
+          legend.box.spacing = unit(-10, "pt"))
+```
+
+## Misc. Plots
+
+```{r}
+bup_sites <- readRDS(here::here("data/processed/bup_sites.rds"))
+met_sites <- readRDS(here::here("data/processed/met_sites.rds"))
+
+bup_site_prop_plot <- ggplot(bup_sites, aes(x = week, y = freq, fill = xrace)) +
+  geom_bar(stat = "identity", position = "stack") +
+  facet_wrap(~site, scales = "fixed", ncol = 4) +
+  labs(title = "Proportion of Race Groups by Site (Bup)", fill = "Race") +
+  scale_fill_brewer(palette = "Set1", labels = c("White", "Black", "Hispanic")) +
+  theme_minimal() + 
+    theme(axis.title.x = element_blank(), axis.title.y = element_blank(),
+          plot.title = element_text(size = 50)) 
+
+met_site_prop_plot <- ggplot(met_sites, aes(x = week, y = freq, fill = xrace)) +
+  geom_bar(stat = "identity", position = "stack") +
+  facet_wrap(~site, scales = "free_x", ncol = 4) +
+  labs(title = "Proportion of Race Groups by Site (Met)", fill = "Race") +
+  scale_fill_brewer(palette = "Set1", labels = c("White", "Black", "Hispanic")) +
+  theme_minimal() + 
+    theme(axis.title.x = element_blank(), axis.title.y = element_blank())
+
+bup_site_count_plot <- ggplot(bup_sites, aes(x = week, y = count, fill = xrace)) +
+  geom_bar(stat = "identity", position = "stack") +
+  facet_wrap(~site, scales = "fixed", ncol = 4) +
+  labs(title = "Count of Race Groups by Site (Bup)", fill = "Race") +
+  scale_fill_brewer(palette = "Set1", labels = c("White", "Black", "Hispanic")) +
+  theme_minimal() + 
+    theme(axis.title.x = element_blank(), axis.title.y = element_blank(),
+          plot.title = element_text(size = 50))
+
+met_site_count_plot <- ggplot(met_sites, aes(x = week, y = count, fill = xrace)) +
+  geom_bar(stat = "identity", position = "stack") +
+  facet_wrap(~site, scales = "free_x", ncol = 5) +
+  labs(title = "Count of Race Groups by Site (Met)", fill = "Race") +
+  scale_fill_brewer(palette = "Set1", labels = c("White", "Black", "Hispanic")) + 
+  theme_minimal() + 
+    theme(axis.title.x = element_blank(), axis.title.y = element_blank())
+
+#ggsave("bup_site_prop_plot.png", plot = bup_site_prop_plot, width = 20, height = 30, bg="white", dpi = 320)
+#ggsave("met_site_prop_plot.png", plot = met_site_prop_plot, bg="white")
+#ggsave("bup_site_count_plot.png", plot = bup_site_count_plot, width = 20, height = 30, bg="white", dpi = 320)
+#ggsave("met_site_count_plot.png", plot = met_site_count_plot, bg="white")
 ```
