@@ -6,6 +6,7 @@ editor: visual
 
 ```{r, include = FALSE}
 library(tidyverse)
+library(gtsummary)
 ```
 
 ## Loading Data and Creating Tables
@@ -102,9 +103,51 @@ for (i in 1:4)
 #none present for bup/met
 ```
 
+## Covariates Summary Table
+
+```{r}
+covartable <- tbl_summary(
+    data_bup,
+    include =  c("sex", "age", "edu", "mar","hcows",
+                       "falcohol", "fdrug",
+                       "alcdisorder","cocdisorder",
+       "hasBrainDamage", "hasEpilepsy",
+       "hasBipolar","hasAnxPan","hasSchiz",
+       "hasMajorDep",
+       "bamphetamine30_base", "bcannabis30_base",
+       "bbenzo30_base", "ivdrug"),
+    by = xrace, # split table by treatment
+    missing = "ifany"
+  ) |>
+  modify_header(label = "**Baseline Covariate**") |> # update the column header
+  bold_labels() 
+
+as_kable(covartable, format = "latex")
+#latex format
+
+covartable_met <- tbl_summary(
+    data_met,
+    include =  c("sex", "age", "edu", "mar","hcows",
+                       "falcohol", "fdrug",
+                       "alcdisorder","cocdisorder",
+       "hasBrainDamage", "hasEpilepsy",
+       "hasBipolar","hasAnxPan","hasSchiz",
+       "hasMajorDep",
+       "bamphetamine30_base", "bcannabis30_base",
+       "bbenzo30_base", "ivdrug"),
+    by = xrace, # split table by treatment
+    missing = "ifany"
+  ) |>
+  modify_header(label = "**Baseline Covariate**") |> # update the column header
+  bold_labels() 
+
+as_kable(covartable_met, format = "latex")
+```
+
 ## Saving Data
 
 ```{r}
 #saveRDS(data_bup, here::here("data/processed/data_bup.rds"))
 #saveRDS(data_met, here::here("data/processed/data_met.rds"))
 ```
+
