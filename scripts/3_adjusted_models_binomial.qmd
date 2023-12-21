@@ -18,30 +18,96 @@ source("source/shift_functions.R") #loading shift functions
 ```{r}
 # inadequate dose if less than 16 mg
 data_bup <- readRDS(here::here("data/processed/data_bup.rds")) |>
-    mutate(wk1.binary = ifelse(wk1.dose_this_week < 16, 1, 0),
-           wk2.binary = ifelse(wk2.dose_this_week < 16, 1, 0),
-           wk3.binary = ifelse(wk3.dose_this_week < 16, 1, 0),
-           wk4.binary = ifelse(wk4.dose_this_week < 16, 1, 0))
+    mutate(wk1.binary = ifelse(wk1.dose_this_week < 16, 0, 1),
+           wk2.binary = ifelse(wk2.dose_this_week < 16, 0, 1),
+           wk3.binary = ifelse(wk3.dose_this_week < 16, 0, 1),
+           wk4.binary = ifelse(wk4.dose_this_week < 16, 0, 1))
 # inadequate dose if less than 60 mg
 data_met <- readRDS(here::here("data/processed/data_met.rds")) |>
-    mutate(wk1.binary = ifelse(wk1.dose_this_week < 60, 1, 0),
-           wk2.binary = ifelse(wk2.dose_this_week < 60, 1, 0),
-           wk3.binary = ifelse(wk3.dose_this_week < 60, 1, 0),
-           wk4.binary = ifelse(wk4.dose_this_week < 60, 1, 0))
+    mutate(wk1.binary = ifelse(wk1.dose_this_week < 60, 0, 1),
+           wk2.binary = ifelse(wk2.dose_this_week < 60, 0, 1),
+           wk3.binary = ifelse(wk3.dose_this_week < 60, 0, 1),
+           wk4.binary = ifelse(wk4.dose_this_week < 60, 0, 1))
 
 #ensuring enough participants in each group
 data_bup |>
-    summarize(wk1.binary_prop = sum(wk1.binary)/nrow(data_bup),
-              wk2.binary_prop = sum(wk2.binary)/nrow(data_bup),
-              wk3.binary_prop = sum(wk3.binary)/nrow(data_bup),
-              wk4.binary_prop = sum(wk4.binary)/nrow(data_bup))
+    group_by(xrace) |>
+    summarize(wk1.binary_prop = sum(wk1.binary)/sum(ifelse(wk1.censor == 1, 1, 0)),
+              wk2.binary_prop = sum(wk2.binary)/sum(ifelse(wk2.censor == 1, 1, 0)),
+              wk3.binary_prop = sum(wk3.binary)/sum(ifelse(wk3.censor == 1, 1, 0)),
+              wk4.binary_prop = sum(wk4.binary)/sum(ifelse(wk4.censor == 1, 1, 0))) |>
+    mutate(xrace = case_when(xrace == "1" ~ "White",
+                    xrace == "2" ~ "Black",
+                    xrace == "3" ~ "Hispanic"))
 
 data_met |>
-    summarize(wk1.binary_prop = sum(wk1.binary)/nrow(data_met),
-              wk2.binary_prop = sum(wk2.binary)/nrow(data_met),
-              wk3.binary_prop = sum(wk3.binary)/nrow(data_met),
-              wk4.binary_prop = sum(wk4.binary)/nrow(data_met))
+    group_by(xrace) |>
+    summarize(wk1.binary_prop = sum(wk1.binary)/sum(ifelse(wk1.censor == 1, 1, 0)),
+              wk2.binary_prop = sum(wk2.binary)/sum(ifelse(wk2.censor == 1, 1, 0)),
+              wk3.binary_prop = sum(wk3.binary)/sum(ifelse(wk3.censor == 1, 1, 0)),
+              wk4.binary_prop = sum(wk4.binary)/sum(ifelse(wk4.censor == 1, 1, 0))) |>
+    mutate(xrace = case_when(xrace == "1" ~ "White",
+                    xrace == "2" ~ "Black",
+                    xrace == "3" ~ "Hispanic"))
+
+# use this week 
+
+bup_use <- data_bup |>
+    group_by(xrace) |>
+    summarize(wk3.use = sum(wk3.use_this_week),
+              wk3._prop = sum(wk3.use_this_week)/sum(ifelse(wk3.censor == 1, 1, 0)),
+              wk3.dose_increase = sum(ifelse(wk3.use_this_week == 1 &wk3.dose_increase_this_week == 1, 1, 0)),
+              wk3.dose_increase_prop = sum(ifelse(wk3.use_this_week == 1 &wk3.dose_increase_this_week == 1, 1, 0))/sum(wk3.use_this_week),
+              wk4.use = sum(wk4.use_this_week),
+              wk4.use_prop = sum(wk4.use_this_week)/sum(ifelse(wk4.censor == 1, 1, 0)),
+              wk4.dose_increase = sum(ifelse(wk4.use_this_week == 1 & wk4.dose_increase_this_week == 1, 1, 0)),
+              wk4.dose_increase_prop = sum(ifelse(wk4.use_this_week == 1 &wk4.dose_increase_this_week == 1, 1, 0))/sum(wk4.use_this_week)) |>
+    mutate(xrace = case_when(xrace == "1" ~ "White",
+                    xrace == "2" ~ "Black",
+                    xrace == "3" ~ "Hispanic")) |>
+    mutate(type = "bup")
+
+met_use <- data_met |>
+    group_by(xrace) |>
+    summarize(wk3.use = sum(wk3.use_this_week),
+              wk3._prop = sum(wk3.use_this_week)/sum(ifelse(wk3.censor == 1, 1, 0)),
+              wk3.dose_increase = sum(ifelse(wk3.use_this_week == 1 &wk3.dose_increase_this_week == 1, 1, 0)),
+              wk3.dose_increase_prop = sum(ifelse(wk3.use_this_week == 1 &wk3.dose_increase_this_week == 1, 1, 0))/sum(wk3.use_this_week),
+              wk4.use = sum(wk4.use_this_week),
+              wk4.use_prop = sum(wk4.use_this_week)/sum(ifelse(wk4.censor == 1, 1, 0)),
+              wk4.dose_increase = sum(ifelse(wk4.use_this_week == 1 & wk4.dose_increase_this_week == 1, 1, 0)),
+              wk4.dose_increase_prop = sum(ifelse(wk4.use_this_week == 1 &wk4.dose_increase_this_week == 1, 1, 0))/sum(wk4.use_this_week)) |>
+    mutate(xrace = case_when(xrace == "1" ~ "White",
+                    xrace == "2" ~ "Black",
+                    xrace == "3" ~ "Hispanic")) |>
+    mutate(type = "met")
+
+bup_use |>
+    merge(met_use, all = TRUE) |>
+    relocate(type, .before = xrace)
 ```
+
+## baseline covariates 
+```{r}
+# baseline bup covariates
+
+B_bup <- c("sex", "age", "hcows","alcdisorder", 
+           "alcdisorder_missing", "cocdisorder", "cocdisorder_missing",
+       "hasBipolar","hasAnxPan",
+       "hasMajorDep",
+       "bamphetamine30_base", "bcannabis30_base",
+       "bbenzo30_base", "ivdrug", "ivdrug_missing") 
+
+# baseline methadone covariates
+
+B_met <- c("sex", "age", "hcows","alcdisorder", 
+           "alcdisorder_missing", "cocdisorder", "cocdisorder_missing",
+       "hasBipolar","hasAnxPan",
+       "hasMajorDep",
+       "bamphetamine30_base", "bcannabis30_base",
+       "bbenzo30_base", "ivdrug") 
+```
+
 
 ## Bup Models
 
@@ -52,18 +118,15 @@ lrnrs_out <- c("SL.mean", "SL.glm", "SL.glmnet", "SL.earth", "SL.gbm", "SL.bartM
 
 lrnrs_trt <- c("SL.mean", "SL.glm", "SL.glmnet", "SL.earth", "SL.gbm", "SL.bartMachine") # must be capable of binary classification
 
-lrnrs_out <- c("SL.mean") # must be capable of continuous classification
-
-lrnrs_trt <- c("SL.mean") # must be capable of binary classification
-
 # creating empty list to store results
-
+race_tmle_list_cs<- list()
 race_tmle_list_cs_limited <- list()
 
 set.seed(1)
 
 for(j in 1:3) # looping over race
 {
+    tmle_list_cs <- list()
     tmle_list_cs_limited <- list()
     
     for (i in 1:4) # looping over weeks (1-3 for now)
@@ -72,6 +135,21 @@ for(j in 1:3) # looping over race
         
     
         C <- c(paste0(paste0("wk", i), ".censor")) # censor
+        
+        # all covariates
+        progressr::with_progress(tmle_list_cs[[i]] <- lmtp_tmle(
+            data = data_bup, 
+            trt = "xrace",
+            cens = C,
+            outcome = Y, 
+            baseline = B_bup, 
+            shift = func_list[[j]], 
+            outcome_type = "binomial", 
+            learners_outcome = lrnrs_out,
+            learners_trt = lrnrs_trt,
+            folds = 10,
+            .SL_folds = 10,
+            mtp = FALSE)) 
         
         # limited baseline covariates (sex + age)
         progressr::with_progress(tmle_list_cs_limited[[i]] <- lmtp_tmle(
@@ -91,13 +169,13 @@ for(j in 1:3) # looping over race
         print(paste0(j, sep = " ", i)) # to keep track of which race/week the loop is currently on
         
         # saving results
+        saveRDS(tmle_list_cs[[i]], here::here(paste0("./data/102623/bup_binomial/","result", j, sep = "_", i, ".rds")))
         saveRDS(tmle_list_cs_limited[[i]], here::here(paste0("./data/102623/bup_binomial/","result_limited", j, sep = "_", i, ".rds")))
     }
-    
+    race_tmle_list_cs[[j]] <- tmle_list_cs
     race_tmle_list_cs_limited[[j]] <- tmle_list_cs_limited
 }
 ```
-
 
 ## Methadone Models
 
@@ -106,16 +184,14 @@ lrnrs_out_met <- c("SL.mean", "SL.glm", "SL.glmnet", "SL.earth", "SL.gbm", "SL.b
 
 lrnrs_trt_met <- c("SL.mean", "SL.glm", "SL.glmnet", "SL.earth", "SL.gbm", "SL.bartMachine") # must be capable of binary classification
 
-lrnrs_out_met <- c("SL.mean") # must be capable of continuous classification
-
-lrnrs_trt_met <- c("SL.mean")
-
+race_tmle_list_cs_met<- list()
 race_tmle_list_cs_met_limited <- list()
 
 set.seed(1)
 
 for(j in 1:3) # looping over race
 {
+    tmle_list_cs_met <- list()
     tmle_list_cs_met_limited <- list()
     
     for (i in 1:4) # looping over weeks (1-3 for now)
@@ -124,6 +200,21 @@ for(j in 1:3) # looping over race
         
     
         C <- c(paste0(paste0("wk", i), ".censor")) # censor
+        
+         # all baseline covariates
+        progressr::with_progress(tmle_list_cs_met[[i]] <- lmtp_tmle(
+            data = data_met, 
+            trt = "xrace",
+            cens = C,
+            outcome = Y, 
+            baseline = B_met, 
+            shift = func_list[[j]], 
+            outcome_type = "binomial", 
+            learners_outcome = lrnrs_out_met,
+            learners_trt = lrnrs_trt_met,
+            folds = 10,
+            .SL_folds = 10,
+            mtp = FALSE)) 
         
         # limited baseline covariates (sex + age)
         progressr::with_progress(tmle_list_cs_met_limited[[i]] <- lmtp_tmle(
@@ -143,10 +234,11 @@ for(j in 1:3) # looping over race
         print(paste0(j, sep = " ", i)) # to keep track of which race/week the loop is currently on
         
         # saving results
+        saveRDS(tmle_list_cs_met[[i]], here::here(paste0("./data/102623/met_binomial/", "result_met", j, sep = "_", i, ".rds")))
         saveRDS(tmle_list_cs_met_limited[[i]], here::here(paste0("./data/102623/met_binomial/", "result_met_limited", j, sep = "_", i, ".rds")))
     }
     
+    race_tmle_list_cs_met[[j]] <- tmle_list_cs_met
     race_tmle_list_cs_met_limited[[j]] <- tmle_list_cs_met_limited
 }
 ```
-
