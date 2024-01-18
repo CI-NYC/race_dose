@@ -15,6 +15,7 @@ library(patchwork)
 knitr::opts_chunk$set(warning=FALSE, message=FALSE)
 knitr::opts_chunk$set(fig.width=18, fig.height=12) 
 
+# scripts to make confidence intervals
 source(here::here("scripts/source/utils_adapted.R"))
 source(here::here("scripts/source/unadjusted_ci.R"))
 ```
@@ -24,21 +25,48 @@ source(here::here("scripts/source/unadjusted_ci.R"))
 ### Reading Results for Marginal CI
 
 ```{r}
-data_bup_long <- readRDS(here::here("data/processed/data_bup_long.rds"))
+# unadjusted data
+data_bup_long <- readRDS(here::here("data/processed/data_bup_long.rds")) |>
+    rename("theta" = "avg",
+           "lower" = "low",
+           "upper" = "high",
+           "race" = "xrace")
 
-data_met_long <- readRDS(here::here("data/processed/data_met_long.rds"))
+data_met_long <- readRDS(here::here("data/processed/data_met_long.rds")) |>
+    rename("theta" = "avg",
+           "lower" = "low",
+           "upper" = "high",
+           "race" = "xrace")
 
 data_bup_long_ungrouped <- readRDS(here::here("data/processed/data_bup_long_ungrouped.rds"))
 
 data_met_long_ungrouped <- readRDS(here::here("data/processed/data_met_long_ungrouped.rds"))
 
+data_met_bin_unadj <- readRDS(here::here("data/processed/met_binom_df.rds"))
+
+data_bup_bin_unadj <- readRDS(here::here("data/processed/bup_binom_df.rds"))
+
+data_comb_bin_unadj <- readRDS(here::here("data/processed/comb_binom_df.rds"))
+
 met_results_all <- data.frame(week = integer(0), race = numeric(0), theta = numeric(0), se = numeric(0), lower = numeric(0), upper = numeric(0))
 
 met_results_lim <- data.frame(week = integer(0), race = numeric(0), theta = numeric(0), se = numeric(0), lower = numeric(0), upper = numeric(0))
 
+met_binomial_lim <- data.frame(week = integer(0), race = numeric(0), theta = numeric(0), se = numeric(0), lower = numeric(0), upper = numeric(0))
+
+met_binomial_all <- data.frame(week = integer(0), race = numeric(0), theta = numeric(0), se = numeric(0), lower = numeric(0), upper = numeric(0))
+
 bup_results_all <- data.frame(week = integer(0), race = numeric(0), theta = numeric(0), se = numeric(0), lower = numeric(0), upper = numeric(0))
 
 bup_results_lim <- data.frame(week = integer(0), race = numeric(0), theta = numeric(0), se = numeric(0), lower = numeric(0), upper = numeric(0))
+
+bup_binomial_lim <- data.frame(week = integer(0), race = numeric(0), theta = numeric(0), se = numeric(0), lower = numeric(0), upper = numeric(0))
+
+bup_binomial_all <- data.frame(week = integer(0), race = numeric(0), theta = numeric(0), se = numeric(0), lower = numeric(0), upper = numeric(0))
+
+comb_binomial_lim <- data.frame(week = integer(0), race = numeric(0), theta = numeric(0), se = numeric(0), lower = numeric(0), upper = numeric(0))
+
+comb_binomial_all <- data.frame(week = integer(0), race = numeric(0), theta = numeric(0), se = numeric(0), lower = numeric(0), upper = numeric(0))
 
 # Loop through the file paths and read the RDS files into data frames
 for (j in 1:3)
@@ -96,6 +124,93 @@ bup_results_all <- bup_results_all |>
 
 bup_results_lim <- bup_results_lim |>
     merge(bup_results_lim_temp, all = TRUE)
+
+}
+
+# binomial analysis
+for (j in 1:3)
+{
+    met_binomial_lim_temp <- data.frame(week = numeric(0), race = numeric(0), theta = numeric(0), se = numeric(0), lower = numeric(0), upper = numeric(0))
+    
+    bup_binomial_lim_temp <- data.frame(week = numeric(0), race = numeric(0), theta = numeric(0), se = numeric(0), lower = numeric(0), upper = numeric(0))
+    
+    met_binomial_all_temp <- data.frame(week = numeric(0), race = numeric(0), theta = numeric(0), se = numeric(0), lower = numeric(0), upper = numeric(0))
+    
+    bup_binomial_all_temp <- data.frame(week = numeric(0), race = numeric(0), theta = numeric(0), se = numeric(0), lower = numeric(0), upper = numeric(0))
+    
+    comb_binomial_lim_temp <- data.frame(week = numeric(0), race = numeric(0), theta = numeric(0), se = numeric(0), lower = numeric(0), upper = numeric(0))
+    
+    comb_binomial_all_temp <- data.frame(week = numeric(0), race = numeric(0), theta = numeric(0), se = numeric(0), lower = numeric(0), upper = numeric(0))
+
+    
+for (i in 3:4) 
+{
+    data_met_binomial_lim <- readRDS(here::here(paste0("./data/102623/met_binomial/","result_met_limited", j, sep = "_", i, ".rds")))
+    met_binomial_lim_temp[[i, "week"]] <- i
+    met_binomial_lim_temp[[i, "race"]] <- j
+    met_binomial_lim_temp[[i, "theta"]] <- data_met_binomial_lim$theta
+    met_binomial_lim_temp[[i, "se"]] <- data_met_binomial_lim$standard_error
+    met_binomial_lim_temp[[i, "lower"]] <- data_met_binomial_lim$low
+    met_binomial_lim_temp[[i, "upper"]] <- data_met_binomial_lim$high
+    
+    data_met_binomial_all <- readRDS(here::here(paste0("./data/102623/met_binomial/","result_met", j, sep = "_", i, ".rds")))
+    met_binomial_all_temp[[i, "week"]] <- i
+    met_binomial_all_temp[[i, "race"]] <- j
+    met_binomial_all_temp[[i, "theta"]] <- data_met_binomial_all$theta
+    met_binomial_all_temp[[i, "se"]] <- data_met_binomial_all$standard_error
+    met_binomial_all_temp[[i, "lower"]] <- data_met_binomial_all$low
+    met_binomial_all_temp[[i, "upper"]] <- data_met_binomial_all$high
+    
+    data_bup_binomial_lim <- readRDS(here::here(paste0("./data/102623/bup_binomial/","result_limited", j, sep = "_", i, ".rds")))
+    bup_binomial_lim_temp[[i, "week"]] <- i
+    bup_binomial_lim_temp[[i, "race"]] <- j
+    bup_binomial_lim_temp[[i, "theta"]] <- data_bup_binomial_lim$theta
+    bup_binomial_lim_temp[[i, "se"]] <- data_bup_binomial_lim$standard_error
+    bup_binomial_lim_temp[[i, "lower"]] <- data_bup_binomial_lim$low
+    bup_binomial_lim_temp[[i, "upper"]] <- data_bup_binomial_lim$high
+    
+    data_bup_binomial_all <- readRDS(here::here(paste0("./data/102623/bup_binomial/","result", j, sep = "_", i, ".rds")))
+    bup_binomial_all_temp[[i, "week"]] <- i
+    bup_binomial_all_temp[[i, "race"]] <- j
+    bup_binomial_all_temp[[i, "theta"]] <- data_bup_binomial_all$theta
+    bup_binomial_all_temp[[i, "se"]] <- data_bup_binomial_all$standard_error
+    bup_binomial_all_temp[[i, "lower"]] <- data_bup_binomial_all$low
+    bup_binomial_all_temp[[i, "upper"]] <- data_bup_binomial_all$high
+    
+    data_comb_binomial_lim <- readRDS(here::here(paste0("./data/102623/comb_binomial/","result_comb_limited", j, sep = "_", i, ".rds")))
+    comb_binomial_lim_temp[[i, "week"]] <- i
+    comb_binomial_lim_temp[[i, "race"]] <- j
+    comb_binomial_lim_temp[[i, "theta"]] <- data_comb_binomial_lim$theta
+    comb_binomial_lim_temp[[i, "se"]] <- data_comb_binomial_lim$standard_error
+    comb_binomial_lim_temp[[i, "lower"]] <- data_comb_binomial_lim$low
+    comb_binomial_lim_temp[[i, "upper"]] <- data_comb_binomial_lim$high
+    
+    data_comb_binomial_all <- readRDS(here::here(paste0("./data/102623/comb_binomial/","result_comb", j, sep = "_", i, ".rds")))
+    comb_binomial_all_temp[[i, "week"]] <- i
+    comb_binomial_all_temp[[i, "race"]] <- j
+    comb_binomial_all_temp[[i, "theta"]] <- data_comb_binomial_all$theta
+    comb_binomial_all_temp[[i, "se"]] <- data_comb_binomial_all$standard_error
+    comb_binomial_all_temp[[i, "lower"]] <- data_comb_binomial_all$low
+    comb_binomial_all_temp[[i, "upper"]] <- data_comb_binomial_all$high
+}
+
+met_binomial_lim <- met_binomial_lim |>
+    merge(met_binomial_lim_temp, all = TRUE) 
+
+met_binomial_all <- met_binomial_all |>
+    merge(met_binomial_all_temp, all = TRUE) 
+
+bup_binomial_lim <- bup_binomial_lim |>
+    merge(bup_binomial_lim_temp, all = TRUE) 
+
+bup_binomial_all <- bup_binomial_all |>
+    merge(bup_binomial_all_temp, all = TRUE) 
+
+comb_binomial_lim <- comb_binomial_lim |>
+    merge(comb_binomial_lim_temp, all = TRUE) 
+
+comb_binomial_all <- comb_binomial_all |>
+    merge(comb_binomial_all_temp, all = TRUE) 
 }
 
 met_results_all <- met_results_all |>
@@ -105,6 +220,18 @@ met_results_all <- met_results_all |>
                              race == "3" ~ "Hispanic"))
 
 met_results_lim <- met_results_lim |>
+    mutate(race = as.factor(race)) |>
+    mutate(race = case_when(race == "1" ~ "White",
+                             race == "2" ~ "Black",
+                             race == "3" ~ "Hispanic"))
+
+met_binomial_lim <- met_binomial_lim |>
+    mutate(race = as.factor(race)) |>
+    mutate(race = case_when(race == "1" ~ "White",
+                             race == "2" ~ "Black",
+                             race == "3" ~ "Hispanic"))
+
+met_binomial_all <- met_binomial_all |>
     mutate(race = as.factor(race)) |>
     mutate(race = case_when(race == "1" ~ "White",
                              race == "2" ~ "Black",
@@ -121,24 +248,67 @@ bup_results_lim <- bup_results_lim |>
     mutate(race = case_when(race == "1" ~ "White",
                              race == "2" ~ "Black",
                              race == "3" ~ "Hispanic"))
+
+bup_binomial_lim <- bup_binomial_lim |>
+    mutate(race = as.factor(race)) |>
+    mutate(race = case_when(race == "1" ~ "White",
+                             race == "2" ~ "Black",
+                             race == "3" ~ "Hispanic"))
+
+bup_binomial_all <- bup_binomial_all |>
+    mutate(race = as.factor(race)) |>
+    mutate(race = case_when(race == "1" ~ "White",
+                             race == "2" ~ "Black",
+                             race == "3" ~ "Hispanic"))
+
+comb_binomial_lim <- comb_binomial_lim |>
+    mutate(race = as.factor(race)) |>
+    mutate(race = case_when(race == "1" ~ "White",
+                             race == "2" ~ "Black",
+                             race == "3" ~ "Hispanic"))
+
+comb_binomial_all <- comb_binomial_all |>
+    mutate(race = as.factor(race)) |>
+    mutate(race = case_when(race == "1" ~ "White",
+                             race == "2" ~ "Black",
+                             race == "3" ~ "Hispanic"))
 ```
 
-### Reading Results for Simultaneous CI
+### Reading Results for CI
 
 ```{r}
 # bup limited 
 bup_as_1 <- list()
 bup_as_2 <- list()
 bup_as_3 <- list()
+bup_binomial_as_1 <- list()
+bup_binomial_as_2 <- list()
+bup_binomial_as_3 <- list()
 met_as_1 <- list()
 met_as_2 <- list()
 met_as_3 <- list()
+met_binomial_as_1 <- list()
+met_binomial_as_2 <- list()
+met_binomial_as_3 <- list()
 bup_1 <- list()
 bup_2 <- list()
 bup_3 <- list()
 met_1 <- list()
 met_2 <- list()
 met_3 <- list()
+bup_binomial_1 <- list()
+bup_binomial_2 <- list()
+bup_binomial_3 <- list()
+met_binomial_1 <- list()
+met_binomial_2 <- list()
+met_binomial_3 <- list()
+
+comb_binomial_as_1 <- list()
+comb_binomial_as_2 <- list()
+comb_binomial_as_3 <- list()
+comb_binomial_1 <- list()
+comb_binomial_2 <- list()
+comb_binomial_3 <- list()
 
 for (i in 1:4) {
     
@@ -148,7 +318,7 @@ for (i in 1:4) {
     bup_as_2[[i]] <- readRDS(here::here(paste0("./data/102623/bup/","result_limited", "2", sep = "_", i, ".rds")))
     
     bup_as_3[[i]] <- readRDS(here::here(paste0("./data/102623/bup/","result_limited", "3", sep = "_", i, ".rds")))
-    
+
     #met limited
     met_as_1[[i]] <- readRDS(here::here(paste0("./data/102623/met/","result_met_limited", "1", sep = "_", i, ".rds")))
     
@@ -167,595 +337,779 @@ for (i in 1:4) {
     met_1[[i]] <- readRDS(here::here(paste0("./data/102623/met/","result_met", "1", sep = "_", i, ".rds")))
     met_2[[i]] <- readRDS(here::here(paste0("./data/102623/met/","result_met", "2", sep = "_", i, ".rds")))
     met_3[[i]] <- readRDS(here::here(paste0("./data/102623/met/","result_met", "3", sep = "_", i, ".rds")))
+    
+    # for binomial analysis
+    if(i >= 3){
+    #bup binomial limited
+    bup_binomial_as_1[[i-2]] <- readRDS(here::here(paste0("./data/102623/bup_binomial/","result_limited", "1", sep = "_", i, ".rds")))
+    
+    bup_binomial_as_2[[i-2]] <- readRDS(here::here(paste0("./data/102623/bup_binomial/","result_limited", "2", sep = "_", i, ".rds")))
+    
+    bup_binomial_as_3[[i-2]] <- readRDS(here::here(paste0("./data/102623/bup_binomial/","result_limited", "3", sep = "_", i, ".rds")))
+    
+    #met binomial limited
+    met_binomial_as_1[[i-2]] <- readRDS(here::here(paste0("./data/102623/met_binomial/","result_met_limited", "1", sep = "_", i, ".rds")))
+    
+    met_binomial_as_2[[i-2]] <- readRDS(here::here(paste0("./data/102623/met_binomial/","result_met_limited", "2", sep = "_", i, ".rds")))
+    
+    met_binomial_as_3[[i-2]] <- readRDS(here::here(paste0("./data/102623/met_binomial/","result_met_limited", "3", sep = "_", i, ".rds")))
+    
+    # bup binomial all
+    bup_binomial_1[[i-2]] <- readRDS(here::here(paste0("./data/102623/bup_binomial/","result", "1", sep = "_", i, ".rds")))
+
+    bup_binomial_2[[i-2]] <- readRDS(here::here(paste0("./data/102623/bup_binomial/","result", "2", sep = "_", i, ".rds")))
+    
+    bup_binomial_3[[i-2]] <- readRDS(here::here(paste0("./data/102623/bup_binomial/","result", "3", sep = "_", i, ".rds")))
+
+    # met binomial all
+    met_binomial_1[[i-2]] <- readRDS(here::here(paste0("./data/102623/met_binomial/","result_met", "1", sep = "_", i, ".rds")))
+    met_binomial_2[[i-2]] <- readRDS(here::here(paste0("./data/102623/met_binomial/","result_met", "2", sep = "_", i, ".rds")))
+    met_binomial_3[[i-2]] <- readRDS(here::here(paste0("./data/102623/met_binomial/","result_met", "3", sep = "_", i, ".rds")))
+    
+    #comb binomial limited
+    comb_binomial_as_1[[i-2]] <- readRDS(here::here(paste0("./data/102623/comb_binomial/","result_comb_limited", "1", sep = "_", i, ".rds")))
+    
+    comb_binomial_as_2[[i-2]] <- readRDS(here::here(paste0("./data/102623/comb_binomial/","result_comb_limited", "2", sep = "_", i, ".rds")))
+    
+    comb_binomial_as_3[[i-2]] <- readRDS(here::here(paste0("./data/102623/comb_binomial/","result_comb_limited", "3", sep = "_", i, ".rds")))
+    
+    # comb binomial all
+    comb_binomial_1[[i-2]] <- readRDS(here::here(paste0("./data/102623/comb_binomial/","result_comb", "1", sep = "_", i, ".rds")))
+    comb_binomial_2[[i-2]] <- readRDS(here::here(paste0("./data/102623/comb_binomial/","result_comb", "2", sep = "_", i, ".rds")))
+    comb_binomial_3[[i-2]] <- readRDS(here::here(paste0("./data/102623/comb_binomial/","result_comb", "3", sep = "_", i, ".rds")))
+    }
 }
 
-bup_all_12_df <- summarize_results(bup_1, bup_2, ci_level = 0.95, ci_type = "simult")$diff_est |>
+bup_all_12_df <- summarize_results(bup_2, bup_1, ci_level = 0.95, ci_type = "marginal")$diff_est |>
     filter(time > 0)
-bup_all_23_df <- summarize_results(bup_2, bup_3, ci_level = 0.95, ci_type = "simult")$diff_est |>
+bup_all_23_df <- summarize_results(bup_2, bup_3, ci_level = 0.95, ci_type = "marginal")$diff_est |>
     filter(time > 0)
-bup_all_13_df <- summarize_results(bup_1, bup_3, ci_level = 0.95, ci_type = "simult")$diff_est |>
-    filter(time > 0)
-
-met_all_12_df <- summarize_results(met_1, met_2, ci_level = 0.95, ci_type = "simult")$diff_est |>
-    filter(time > 0)
-met_all_23_df <- summarize_results(met_2, met_3, ci_level = 0.95, ci_type = "simult")$diff_est |>
-    filter(time > 0)
-met_all_13_df <- summarize_results(met_1, met_3, ci_level = 0.95, ci_type = "simult")$diff_est |>
+bup_all_13_df <- summarize_results(bup_3, bup_1, ci_level = 0.95, ci_type = "marginal")$diff_est |>
     filter(time > 0)
 
-bup_as_12_df <- summarize_results(bup_as_1, bup_as_2, ci_level = 0.95, ci_type = "simult")$diff_est |>
+met_all_12_df <- summarize_results(met_2, met_1, ci_level = 0.95, ci_type = "marginal")$diff_est |>
     filter(time > 0)
-bup_as_23_df <- summarize_results(bup_as_2, bup_as_3, ci_level = 0.95, ci_type = "simult")$diff_est |>
+met_all_23_df <- summarize_results(met_2, met_3, ci_level = 0.95, ci_type = "marginal")$diff_est |>
     filter(time > 0)
-bup_as_13_df <- summarize_results(bup_as_1, bup_as_3, ci_level = 0.95, ci_type = "simult")$diff_est |>
+met_all_13_df <- summarize_results(met_3, met_1, ci_level = 0.95, ci_type = "marginal")$diff_est |>
     filter(time > 0)
-met_as_12_df <- summarize_results(met_as_1, met_as_2, ci_level = 0.95, ci_type = "simult")$diff_est |>
+
+bup_as_12_df <- summarize_results(bup_as_2, bup_as_1, ci_level = 0.95, ci_type = "marginal")$diff_est |>
     filter(time > 0)
-met_as_23_df <- summarize_results(met_as_2, met_as_3, ci_level = 0.95, ci_type = "simult")$diff_est |>
+bup_as_23_df <- summarize_results(bup_as_2, bup_as_3, ci_level = 0.95, ci_type = "marginal")$diff_est |>
     filter(time > 0)
-met_as_13_df <- summarize_results(met_as_1, met_as_3, ci_level = 0.95, ci_type = "simult")$diff_est |>
+bup_as_13_df <- summarize_results(bup_as_3, bup_as_1, ci_level = 0.95, ci_type = "marginal")$diff_est |>
     filter(time > 0)
+
+met_as_12_df <- summarize_results(met_as_2, met_as_1, ci_level = 0.95, ci_type = "marginal")$diff_est |>
+    filter(time > 0)
+met_as_23_df <- summarize_results(met_as_2, met_as_3, ci_level = 0.95, ci_type = "marginal")$diff_est |>
+    filter(time > 0)
+met_as_13_df <- summarize_results(met_as_3, met_as_1, ci_level = 0.95, ci_type = "marginal")$diff_est |>
+    filter(time > 0)
+
+bup_binomial_as_12_df <- summarize_results(bup_binomial_as_2, bup_binomial_as_1, ci_level = 0.95, ci_type = "marginal")$diff_est |>
+    filter(time > 0)
+bup_binomial_as_23_df <- summarize_results(bup_binomial_as_2, bup_binomial_as_3, ci_level = 0.95, ci_type = "marginal")$diff_est |>
+    filter(time > 0)
+bup_binomial_as_13_df <- summarize_results(bup_binomial_as_3, bup_binomial_as_1, ci_level = 0.95, ci_type = "marginal")$diff_est |>
+    filter(time > 0)
+
+met_binomial_as_12_df <- summarize_results(met_binomial_as_2, met_binomial_as_1, ci_level = 0.95, ci_type = "marginal")$diff_est |>
+    filter(time > 0)
+met_binomial_as_23_df <- summarize_results(met_binomial_as_2, met_binomial_as_3, ci_level = 0.95, ci_type = "marginal")$diff_est |>
+    filter(time > 0)
+met_binomial_as_13_df <- summarize_results(met_binomial_as_3, met_binomial_as_1, ci_level = 0.95, ci_type = "marginal")$diff_est |>
+    filter(time > 0)
+
+bup_binomial_12_df <- summarize_results(bup_binomial_2, bup_binomial_1, ci_level = 0.95, ci_type = "marginal")$diff_est |>
+    filter(time > 0)
+bup_binomial_23_df <- summarize_results(bup_binomial_2, bup_binomial_3, ci_level = 0.95, ci_type = "marginal")$diff_est |>
+    filter(time > 0)
+bup_binomial_13_df <- summarize_results(bup_binomial_3, bup_binomial_1, ci_level = 0.95, ci_type = "marginal")$diff_est |>
+    filter(time > 0)
+
+met_binomial_12_df <- summarize_results(met_binomial_2, met_binomial_1, ci_level = 0.95, ci_type = "marginal")$diff_est |>
+    filter(time > 0)
+met_binomial_23_df <- summarize_results(met_binomial_2, met_binomial_3, ci_level = 0.95, ci_type = "marginal")$diff_est |>
+    filter(time > 0)
+met_binomial_13_df <- summarize_results(met_binomial_3, met_binomial_1, ci_level = 0.95, ci_type = "marginal")$diff_est |>
+    filter(time > 0)
+
+comb_binomial_as_12_df <- summarize_results(comb_binomial_as_2, comb_binomial_as_1, ci_level = 0.95, ci_type = "marginal")$diff_est |>
+    filter(time > 0)
+comb_binomial_as_23_df <- summarize_results(comb_binomial_as_2, comb_binomial_as_3, ci_level = 0.95, ci_type = "marginal")$diff_est |>
+    filter(time > 0)
+comb_binomial_as_13_df <- summarize_results(comb_binomial_as_3, comb_binomial_as_1, ci_level = 0.95, ci_type = "marginal")$diff_est |>
+    filter(time > 0)
+
+comb_binomial_12_df <- summarize_results(comb_binomial_2, comb_binomial_1, ci_level = 0.95, ci_type = "marginal")$diff_est |>
+    filter(time > 0)
+comb_binomial_23_df <- summarize_results(comb_binomial_2, comb_binomial_3, ci_level = 0.95, ci_type = "marginal")$diff_est |>
+    filter(time > 0)
+comb_binomial_13_df <- summarize_results(comb_binomial_3, comb_binomial_1, ci_level = 0.95, ci_type = "marginal")$diff_est |>
+    filter(time > 0)
+
+data_bup_long_1 <- data_bup_long |>
+    filter(race == "White") |>
+    rename("avg" = "theta")
+
+data_bup_long_2 <- data_bup_long |>
+    filter(race == "Black") |>
+    rename("avg" = "theta")
+
+data_bup_long_3 <- data_bup_long |>
+    filter(race == "Hispanic") |>
+    rename("avg" = "theta")
+
+data_met_long_1 <- data_met_long |>
+    filter(race == "White") |>
+    rename("avg" = "theta")
+
+data_met_long_2 <- data_met_long |>
+    filter(race == "Black") |>
+    rename("avg" = "theta")
+
+data_met_long_3 <- data_met_long |>
+    filter(race == "Hispanic") |>
+    rename("avg" = "theta")
+
+data_bup_bin_unadj_1 <- data_bup_bin_unadj |>
+    filter(xrace == "White")
+
+data_bup_bin_unadj_2  <- data_bup_bin_unadj |>
+    filter(xrace == "Black")
+
+data_bup_bin_unadj_3 <- data_bup_bin_unadj |>
+    filter(xrace == "Hispanic")
+
+data_met_bin_unadj_1 <- data_met_bin_unadj |>
+    filter(xrace == "White")
+
+data_met_bin_unadj_2  <- data_met_bin_unadj |>
+    filter(xrace == "Black")
+
+data_met_bin_unadj_3 <- data_met_bin_unadj |>
+    filter(xrace == "Hispanic")
+
+data_comb_bin_unadj_1 <- data_comb_bin_unadj |>
+    filter(xrace == "White")
+
+data_comb_bin_unadj_2  <- data_comb_bin_unadj |>
+    filter(xrace == "Black")
+
+data_comb_bin_unadj_3 <- data_comb_bin_unadj |>
+    filter(xrace == "Hispanic")
+
+unadjust_bup_12 <- unadjusted_diff(data_bup_long_2, data_bup_long_1, ci_type = "marginal")
+
+unadjust_bup_13 <- unadjusted_diff(data_bup_long_3, data_bup_long_1, ci_type = "marginal")
+
+unadjust_bup_23 <- unadjusted_diff(data_bup_long_2, data_bup_long_3, ci_type = "marginal")
+
+unadjust_met_12 <- unadjusted_diff(data_met_long_2, data_met_long_1, ci_type = "marginal")
+
+unadjust_met_13 <- unadjusted_diff(data_met_long_3, data_met_long_1, ci_type = "marginal")
+
+unadjust_met_23 <- unadjusted_diff(data_met_long_2, data_met_long_3, ci_type = "marginal")
+
+unadjust_bup_12_bin <- unadjusted_diff_binom(data_bup_bin_unadj_2, data_bup_bin_unadj_1, ci_type = "marginal")
+
+unadjust_bup_13_bin <- unadjusted_diff_binom(data_bup_bin_unadj_3, data_bup_bin_unadj_1, ci_type = "marginal")
+
+unadjust_bup_23_bin <- unadjusted_diff_binom(data_bup_bin_unadj_2, data_bup_bin_unadj_3, ci_type = "marginal")
+
+unadjust_met_12_bin <- unadjusted_diff_binom(data_met_bin_unadj_2, data_met_bin_unadj_1, ci_type = "marginal")
+
+unadjust_met_13_bin <- unadjusted_diff_binom(data_met_bin_unadj_3, data_met_bin_unadj_1, ci_type = "marginal")
+
+unadjust_met_23_bin <- unadjusted_diff_binom(data_met_bin_unadj_2, data_met_bin_unadj_3, ci_type = "marginal")
+
+unadjust_comb_12_bin <- unadjusted_diff_binom(data_comb_bin_unadj_2, data_comb_bin_unadj_1, ci_type = "marginal")
+
+unadjust_comb_13_bin <- unadjusted_diff_binom(data_comb_bin_unadj_3, data_comb_bin_unadj_1, ci_type = "marginal")
+
+unadjust_comb_23_bin <- unadjusted_diff_binom(data_comb_bin_unadj_2, data_comb_bin_unadj_3, ci_type = "marginal")
 ```
 
-## Plotting Results
-
-### Unadjusted
+## Plotting Continuous
 
 ```{r}
 custom_colors <- c("White" = "#e31a1c", "Black" = "#1f78b4", "Hispanic" = "darkseagreen4")
 
-bup_point <- ggplot(data_bup_long, aes(x = week, y = avg, group = xrace, color = xrace)) +
-  geom_point(position = position_dodge(width = 0.5)) +
-  geom_errorbar(aes(ymin = low, ymax = high), width = 0.25, position = position_dodge(width = 0.5)) +
-  labs(title = "Mean Buprenorphine Dose by Race (Unadjusted)",
-       x = "Week",
-       y = "Mean Dose") +
+met_cont_unadj <- data_met_long |>
+    mutate(type = "Unadjusted")
+
+met_cont_lim <- met_results_lim |>
+    mutate(type = "Age + Sex")
+
+met_cont_all <- met_results_all |>
+    mutate(type = "Expanded")
+
+met_cont_total <- met_cont_unadj |>
+    merge(met_cont_lim, all = TRUE) |>
+    merge(met_cont_all, all = TRUE) |>
+    mutate(type = factor(type, levels = c("Unadjusted", "Age + Sex", "Expanded")))
+
+met_cont_plot <- ggplot(met_cont_total, aes(x = week, y = theta, group = race, color = race, fill = race, shape = race)) +
+    geom_point(position = position_dodge(width = 0.5)) +
+    geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.25, position = position_dodge(width = 0.5)) +
+    labs(title = "",
+         x = "Study Week",
+         y = "Mean Dose") +
     scale_x_continuous(breaks = seq(1, 4, by = 1)) +
-      scale_color_manual(values = custom_colors) + 
-  scale_fill_manual(values = custom_colors) +  
-  theme_minimal() +
-    theme(plot.title = element_text(vjust = 0.5),
-          legend.key.size = unit(0.25, 'cm'), 
-          legend.box.spacing = unit(-5, "pt"),
-          text = element_text(size=7, family = "Times New Roman")) + 
-    labs(color = "", 
-         fill = "")
+    scale_color_manual(values = custom_colors) + 
+    scale_shape_manual(values = c(1, 0, 8)) +
+    scale_fill_manual(values = custom_colors) +  
+    theme_minimal() +
+    labs(color = "",
+         shape = "",
+         fill = "") +
+    facet_wrap(~type, scales = "free_x") + 
+    theme(
+        legend.position = c(0.00125, 0.9975),
+        legend.justification = c("left", "top"),
+        legend.box.just = "left",
+        legend.margin = margin(-12, 1.5, 1.5, 1.5),
+        legend.key = element_rect(fill = "white", colour = "black", size = 0.0000000001),
+        legend.background = element_rect(fill="white", size = 0.5),
+        legend.box.background = element_rect(color = "black", size = 0.25),
+        legend.box = "vertical", 
+        plot.title = element_text(vjust = 0.5),
+        legend.key.size = unit(0.000000000000001, 'cm'), 
+        legend.box.spacing = unit(-5, "pt"),
+        text = element_text(size=10, family = "Times New Roman")
+    )
 
-bup_cont <- ggplot(data_bup_long, aes(x = week, y = avg, color = xrace)) +
-  geom_line() +   # Connect means with lines
-  geom_ribbon(aes(ymin = low, ymax = high, fill = xrace), alpha = 0.3) + 
-  labs(title = "Mean Buprenorphine Dose by Race (Unadjusted)",
-       x = "Week",
-       y = "Mean Dose",
-       color = "Group") +
+met_unadj <- unadjust_met_12 |> mutate(race = "Black v. White") |>
+    merge(unadjust_met_23 |> mutate(race = "Black v. Hispanic"), all = TRUE) |>
+    merge(unadjust_met_13 |> mutate(race = "Hispanic v. White"), all = TRUE)
+
+met_as <- met_as_12_df |> mutate(race = "Black v. White") |>
+    merge(met_as_23_df |> mutate(race = "Black v. Hispanic"), all = TRUE) |>
+    merge(met_as_13_df |> mutate(race = "Hispanic v. White"), all = TRUE)
+
+met_all <- met_all_12_df |> mutate(race = "Black v. White") |>
+    merge(met_all_23_df |> mutate(race = "Black v. Hispanic"), all = TRUE) |>
+    merge(met_all_13_df |> mutate(race = "Hispanic v. White"), all = TRUE)
+
+met_cont_pair <- met_unadj |> mutate(type = "Unadjusted") |>
+    merge(met_as |> mutate(type = "Age + Sex"), all = TRUE) |>
+    merge(met_all |> mutate(type = "Expanded"), all = TRUE) |>
+    mutate(type = factor(type, levels = c("Unadjusted", "Age + Sex", "Expanded"))) |>
+    filter(race != "Black v. Hispanic")
+
+met_pairwise <- ggplot(met_cont_pair, aes(x = time, y = effect_est, group = race, color = race, fill = race, shape = race)) +
+    geom_point(position = position_dodge(width = 0.5)) +
+    geom_errorbar(aes(ymin = ci_lwr, ymax = ci_upr), width = 0.25, position = position_dodge(width = 0.5)) +
+    labs(title = "",
+         x = "Study Week",
+         y = "Mean Dose Difference") +
+    geom_hline(yintercept = 0, linetype = "dotted", color = "black") +
     scale_x_continuous(breaks = seq(1, 4, by = 1)) +
-      scale_color_manual(values = custom_colors) + 
-  scale_fill_manual(values = custom_colors) +  
-  theme_minimal() +
-    theme(plot.title = element_text(vjust = 0.5),
-          legend.key.size = unit(0.25, 'cm'), 
-          legend.box.spacing = unit(-5, "pt"),
-          text = element_text(size=7, family = "Times New Roman")) + 
-    labs(color = "Race", 
-         fill = "Race")
+    scale_color_manual(values = c("#1f78b4", "darkseagreen4")) + 
+    scale_shape_manual(values = c(1, 0, 8)) +
+    scale_fill_manual(values = c("#1f78b4", "darkseagreen4")) +  
+    theme_minimal() +
+    labs(color = "",
+         shape = "",
+         fill = "") +
+    facet_wrap(~type, scales = "free_x") + 
+    theme(
+        legend.position = c(0.00125, 0.9975),
+        legend.justification = c("left", "top"),
+        legend.box.just = "left",
+        legend.margin = margin(-12, 1.5, 1.5, 1.5),
+        legend.title = element_text(margin = margin(0, 0, 0, 0)),
+        legend.key = element_rect(fill = "white", colour = "black", size = 0.0000000001),
+        legend.background = element_rect(fill="white", size = 0.5),
+        legend.box.background = element_rect(color = "black", size = 0.25),
+        legend.box = "vertical", 
+        plot.title = element_text(vjust = 0.5),
+        legend.key.size = unit(0.000000000000001, 'cm'), 
+        legend.box.spacing = unit(-10, "pt"),
+        text = element_text(size = 10, family = "Times New Roman")
+    )
 
-data_bup_long_1 <- data_bup_long |>
-    filter(xrace == "White")
-    
-data_bup_long_2 <- data_bup_long |>
-    filter(xrace == "Black")
-    
-data_bup_long_3 <- data_bup_long |>
-    filter(xrace == "Hispanic")
-    
-unadjust_bup_12 <- unadjusted_diff(data_bup_long_1, data_bup_long_2, ci_type = "simult")
+met_cont_plot_final <- met_cont_plot + met_pairwise + 
+    plot_annotation(tag_levels = 'A') + plot_layout(ncol = 1) & 
+    theme(plot.tag = element_text(size = 12),
+          panel.border = element_rect(colour = "black", fill=NA, size = 1))
 
-unadjust_bup_13 <- unadjusted_diff(data_bup_long_1, data_bup_long_3, ci_type = "simult")
+ggsave(filename = here::here("figures/met_cont_plot_final.png"),
+       plot = met_cont_plot_final,
+       width = 8, height = 11)
 
-unadjust_bup_23 <- unadjusted_diff(data_bup_long_2, data_bup_long_3, ci_type = "simult")
+bup_cont_unadj <- data_bup_long |>
+    mutate(type = "Unadjusted")
 
-bup_unadj_b <- ggplot(unadjust_bup_12, aes(x = time, y = effect_est)) +
-    geom_point() + 
-  geom_errorbar(aes(ymin = ci_lwr, ymax = ci_upr), width = 0.2) + 
-  labs(title = "W v. B (Unadjusted)",
-       x = "Week",
-       y = "Mean Dose Difference") +
+bup_cont_lim <- bup_results_lim |>
+    mutate(type = "Age + Sex")
+
+bup_cont_all <- bup_results_all |>
+    mutate(type = "Expanded")
+
+bup_cont_total <- bup_cont_unadj |>
+    merge(bup_cont_lim, all = TRUE) |>
+    merge(bup_cont_all, all = TRUE) |>
+    mutate(type = factor(type, levels = c("Unadjusted", "Age + Sex", "Expanded")))
+
+bup_cont_plot <- ggplot(bup_cont_total, aes(x = week, y = theta, group = race, color = race, fill = race, shape = race)) +
+    geom_point(position = position_dodge(width = 0.5)) +
+    geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.25, position = position_dodge(width = 0.5)) +
+    labs(title = "",
+         x = "Study Week",
+         y = "Mean Dose") +
     scale_x_continuous(breaks = seq(1, 4, by = 1)) +
-  theme_minimal() +
-    theme(plot.title = element_text(vjust = 0.5),
-          text = element_text(size=7, family = "Times New Roman")) +
-  geom_hline(yintercept=c(0), linetype="dotted")
+    scale_color_manual(values = custom_colors) + 
+    scale_shape_manual(values = c(1, 0, 8)) +
+    scale_fill_manual(values = custom_colors) +  
+    theme_minimal() +
+    labs(color = "",
+         shape = "",
+         fill = "") +
+    facet_wrap(~type, scales = "free_x") + 
+    theme(
+        legend.position = c(0.00125, 0.9975),
+        legend.justification = c("left", "top"),
+        legend.box.just = "left",
+        legend.margin = margin(-12, 1.5, 1.5, 1.5),
+        legend.title = element_text(margin = margin(0, 0, 0, 0)),
+        legend.key = element_rect(fill = "white", colour = "black", size = 0.0000000001),
+        legend.background = element_rect(fill="white", size = 0.5),
+        legend.box.background = element_rect(color = "black", size = 0.25),
+        legend.box = "vertical", 
+        plot.title = element_text(vjust = 0.5),
+        legend.key.size = unit(0.000000000000001, 'cm'), 
+        legend.box.spacing = unit(-10, "pt"),
+        text = element_text(size = 10, family = "Times New Roman")
+    )
 
-bup_unadj_c <- ggplot(unadjust_bup_13, aes(x = time, y = effect_est)) +
-    geom_point() + 
-  geom_errorbar(aes(ymin = ci_lwr, ymax = ci_upr), width = 0.2) + 
-  labs(title = "W v. H (Unadjusted)",
-       x = "Week",
-       y = "Mean Dose Difference") +
+bup_unadj <- unadjust_bup_12 |> mutate(race = "Black v. White") |>
+    merge(unadjust_bup_23 |> mutate(race = "Black v. Hispanic"), all = TRUE) |>
+    merge(unadjust_bup_13 |> mutate(race = "Hispanic v. White"), all = TRUE)
+
+bup_as <- bup_as_12_df |> mutate(race = "Black v. White") |>
+    merge(bup_as_23_df |> mutate(race = "Black v. Hispanic"), all = TRUE) |>
+    merge(bup_as_13_df |> mutate(race = "Hispanic v. White"), all = TRUE)
+
+bup_all <- bup_all_12_df |> mutate(race = "Black v. White") |>
+    merge(bup_all_23_df |> mutate(race = "Black v. Hispanic"), all = TRUE) |>
+    merge(bup_all_13_df |> mutate(race = "Hispanic v. White"), all = TRUE)
+
+bup_cont_pair <- bup_unadj |> mutate(type = "Unadjusted") |>
+    merge(bup_as |> mutate(type = "Age + Sex"), all = TRUE) |>
+    merge(bup_all |> mutate(type = "Expanded"), all = TRUE) |>
+    mutate(type = factor(type, levels = c("Unadjusted", "Age + Sex", "Expanded"))) |>
+    filter(race != "Black v. Hispanic")
+
+bup_pairwise <- ggplot(bup_cont_pair, aes(x = time, y = effect_est, group = race, color = race, fill = race, shape = race)) +
+    geom_point(position = position_dodge(width = 0.5)) +
+    geom_errorbar(aes(ymin = ci_lwr, ymax = ci_upr), width = 0.25, position = position_dodge(width = 0.5)) +
+    labs(title = "",
+         x = "Study Week",
+         y = "Mean Dose Difference") +
+    geom_hline(yintercept = 0, linetype = "dotted", color = "black") +
     scale_x_continuous(breaks = seq(1, 4, by = 1)) +
-  theme_minimal() +
-    theme(plot.title = element_text(vjust = 0.5),
-          text = element_text(size=7, family = "Times New Roman")) +
-  geom_hline(yintercept=c(0), linetype="dotted")
+    scale_color_manual(values = c("#1f78b4", "darkseagreen4")) + 
+    scale_shape_manual(values = c(1, 0, 8)) +
+    scale_fill_manual(values = c("#1f78b4", "darkseagreen4")) +  
+    theme_minimal() +
+    labs(color = "",
+         shape = "",
+         fill = "") +
+    facet_wrap(~type, scales = "free_x") + 
+    theme(
+        legend.position = c(0.00125, 0.9975),
+        legend.justification = c("left", "top"),
+        legend.box.just = "left",
+        legend.margin = margin(-12, 1.5, 1.5, 1.5),
+        legend.title = element_text(margin = margin(0, 0, 0, 0)),
+        legend.key = element_rect(fill = "white", colour = "black", size = 0.0000000001),
+        legend.background = element_rect(fill="white", size = 0.5),
+        legend.box.background = element_rect(color = "black", size = 0.25),
+        legend.box = "vertical", 
+        plot.title = element_text(vjust = 0.5),
+        legend.key.size = unit(0.000000000000001, 'cm'), 
+        legend.box.spacing = unit(-10, "pt"),
+        text = element_text(size = 10, family = "Times New Roman")
+    )
 
-bup_unadj_d <- ggplot(unadjust_bup_23, aes(x = time, y = effect_est)) +
-    geom_point() + 
-  geom_errorbar(aes(ymin = ci_lwr, ymax = ci_upr), width = 0.2) + 
-  labs(title = "B v. H (Unadjusted)",
-       x = "Week",
-       y = "Mean Dose Difference") +
+bup_cont_plot_final <- bup_cont_plot + bup_pairwise + 
+    plot_annotation(tag_levels = 'A') + plot_layout(ncol = 1) & 
+    theme(plot.tag = element_text(size = 12),
+          panel.border = element_rect(colour = "black", fill=NA))
+
+ggsave(filename = here::here("figures/bup_cont_plot_final.png"),
+       plot = bup_cont_plot_final,
+       width = 8, height = 11)
+```
+
+### Binomial Plots
+
+```{r}
+custom_colors <- c("White" = "#e31a1c", "Black" = "#1f78b4", "Hispanic" = "darkseagreen4")
+
+met_binomial_unadj <- readRDS(here::here("data/processed/met_binom_df.rds")) |>
+    mutate(type = "Unadjusted") |>
+    rename("race" = "xrace",
+           "theta" = "prop")
+
+met_binomial_lim <- met_binomial_lim |>
+    slice(1:6) |>
+    mutate(type = "Age + Sex")
+
+met_binomial_all <- met_binomial_all |>
+    slice(1:6) |>
+    mutate(type = "Expanded")
+
+met_binomial_total <- met_binomial_unadj |>
+    merge(met_binomial_lim, all = TRUE) |>
+    merge(met_binomial_all, all = TRUE) |>
+    mutate(type = factor(type, levels = c("Unadjusted", "Age + Sex", "Expanded")))
+
+met_binomial_plot <- ggplot(met_binomial_total, aes(x = week, y = theta, group = race, color = race, fill = race, shape = race)) +
+    geom_point(position = position_dodge(width = 0.5)) +
+    geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.25, position = position_dodge(width = 0.5)) +
+    labs(title = "",
+         x = "Study Week",
+         y = "Mean Dose") +
     scale_x_continuous(breaks = seq(1, 4, by = 1)) +
-  theme_minimal() +
-    theme(plot.title = element_text(vjust = 0.5),
-          text = element_text(size=7, family = "Times New Roman")) +
-  geom_hline(yintercept=c(0), linetype="dotted")
+    scale_color_manual(values = custom_colors) + 
+    scale_shape_manual(values = c(1, 0, 8)) +
+    scale_fill_manual(values = custom_colors) +  
+    theme_minimal() +
+    labs(color = "",
+         shape = "",
+         fill = "") +
+    facet_wrap(~type, scales = "free_x") + 
+    theme(
+        legend.position = c(0.00125, 0.9975),
+        legend.justification = c("left", "top"),
+        legend.box.just = "left",
+        legend.margin = margin(-12, 1.5, 1.5, 1.5),
+        legend.key = element_rect(fill = "white", colour = "black", size = 0.001),
+        legend.background = element_rect(fill="white", size = 0.5),
+        legend.box.background = element_rect(color = "black", size = 0.25),
+        legend.box = "vertical", 
+        plot.title = element_text(vjust = 0.5),
+        legend.key.size = unit(0.000000000000001, 'cm'), 
+        legend.box.spacing = unit(-5, "pt"),
+        text = element_text(size=10, family = "Times New Roman")
+    )
 
-bup_as_figure <- ggarrange(bup_point, bup_unadj_b, bup_unadj_c, bup_unadj_d + font("x.text", size = 0.5),
-                    ncol = 2, nrow = 2, labels = c("A", "B", "C", "D"), vjust= 1.75, 
-                  font.label=list(color="black",size=10, family = "Times New Roman"))
-bup_as_figure
+met_binomial_unadj_pair <- unadjust_met_12_bin |> mutate(race = "Black v. White") |>
+    merge(unadjust_met_23_bin |> mutate(race = "Black v. Hispanic"), all = TRUE) |>
+    merge(unadjust_met_13_bin |> mutate(race = "Hispanic v. White"), all = TRUE)
+
+met_binomial_as_pair <- met_binomial_as_12_df |> mutate(race = "Black v. White") |>
+    merge(met_binomial_as_23_df |> mutate(race = "Black v. Hispanic"), all = TRUE) |>
+    merge(met_binomial_as_13_df |> mutate(race = "Hispanic v. White"), all = TRUE)
+
+met_binomial_all_pair <- met_binomial_12_df |> mutate(race = "Black v. White") |>
+    merge(met_binomial_23_df |> mutate(race = "Black v. Hispanic"), all = TRUE) |>
+    merge(met_binomial_13_df |> mutate(race = "Hispanic v. White"), all = TRUE)
+
+met_binomial_pair <- met_binomial_unadj_pair |> mutate(type = "Unadjusted") |>
+    merge(met_binomial_as_pair |> mutate(type = "Age + Sex"), all = TRUE) |>
+    merge(met_binomial_all_pair |> mutate(type = "Expanded"), all = TRUE) |>
+    mutate(type = factor(type, levels = c("Unadjusted", "Age + Sex", "Expanded")),
+           time = case_when(time == 1 ~ 3,
+                            time == 2 ~ 4,
+                            TRUE ~ time)) |>
+    filter(race != "Black v. Hispanic")
+
+met_binomial_pairwise <- ggplot(met_binomial_pair, aes(x = time, y = effect_est, group = race, color = race, fill = race, shape = race)) +
+    geom_point(position = position_dodge(width = 0.5)) +
+    geom_errorbar(aes(ymin = ci_lwr, ymax = ci_upr), width = 0.25, position = position_dodge(width = 0.5)) +
+    labs(title = "",
+         x = "Study Week",
+         y = "Mean Dose Difference") +
+    geom_hline(yintercept = 0, linetype = "dotted", color = "black") +
+    scale_x_continuous(breaks = seq(3, 4, by = 1)) +
+    scale_color_manual(values = c("#1f78b4", "darkseagreen4")) + 
+    scale_shape_manual(values = c(1, 0, 8)) +
+    scale_fill_manual(values = c("#1f78b4", "darkseagreen4")) +  
+    theme_minimal() +
+    labs(color = "",
+         shape = "",
+         fill = "") +
+    facet_wrap(~type, scales = "free_x") + 
+    theme(
+        legend.position = c(0.00125, 0.9975),
+        legend.justification = c("left", "top"),
+        legend.box.just = "left",
+        legend.margin = margin(-12, 1.5, 1.5, 1.5),
+        legend.title = element_text(margin = margin(0, 0, 0, 0)),
+        legend.key = element_rect(fill = "white", colour = "black", size = 0.001),
+        legend.background = element_rect(fill="white", size = 0.5),
+        legend.box.background = element_rect(color = "black", size = 0.25),
+        legend.box = "vertical", 
+        plot.title = element_text(vjust = 0.5),
+        legend.key.size = unit(0.000000000000001, 'cm'), 
+        legend.box.spacing = unit(-10, "pt"),
+        text = element_text(size = 10, family = "Times New Roman")
+    )
+
+met_binomial_plot_final <- met_binomial_plot + met_binomial_pairwise + 
+    plot_annotation(tag_levels = 'A') + plot_layout(ncol = 1) & 
+    theme(plot.tag = element_text(size = 12),
+          panel.border = element_rect(colour = "black", fill=NA))
+
+ggsave(filename = here::here("figures/met_binomial_plot_final.png"),
+       plot = met_binomial_plot_final,
+       width = 8, height = 11)
+
+bup_binomial_unadj <- readRDS(here::here("data/processed/bup_binom_df.rds")) |>
+    mutate(type = "Unadjusted") |>
+    rename("race" = "xrace",
+           "theta" = "prop")
+
+bup_binomial_lim <- bup_binomial_lim |>
+    slice(1:6) |>
+    mutate(type = "Age + Sex")
+
+bup_binomial_all <- bup_binomial_all |>
+    slice(1:6) |>
+    mutate(type = "Expanded")
+
+bup_binomial_total <- bup_binomial_unadj |>
+    merge(bup_binomial_lim, all = TRUE) |>
+    merge(bup_binomial_all, all = TRUE) |>
+    mutate(type = factor(type, levels = c("Unadjusted", "Age + Sex", "Expanded")))
+
+bup_binomial_plot <- ggplot(bup_binomial_total, aes(x = week, y = theta, group = race, color = race, fill = race, shape = race)) +
+    geom_point(position = position_dodge(width = 0.5)) +
+    geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.25, position = position_dodge(width = 0.5)) +
+    labs(title = "",
+         x = "Study Week",
+         y = "Mean Dose") +
+    scale_x_continuous(breaks = seq(1, 4, by = 1)) +
+    scale_color_manual(values = custom_colors) + 
+    scale_shape_manual(values = c(1, 0, 8)) +
+    scale_fill_manual(values = custom_colors) +  
+    theme_minimal() +
+    labs(color = "",
+         shape = "",
+         fill = "") +
+    facet_wrap(~type, scales = "free_x") + 
+    theme(
+        legend.position = c(0.00125, 0.9975),
+        legend.justification = c("left", "top"),
+        legend.box.just = "left",
+        legend.margin = margin(-12, 1.5, 1.5, 1.5),
+        legend.key = element_rect(fill = "white", colour = "black", size = 0.001),
+        legend.background = element_rect(fill="white", size = 0.5),
+        legend.box.background = element_rect(color = "black", size = 0.25),
+        legend.box = "vertical", 
+        plot.title = element_text(vjust = 0.5),
+        legend.key.size = unit(0.000000000000001, 'cm'), 
+        legend.box.spacing = unit(-5, "pt"),
+        text = element_text(size=10, family = "Times New Roman")
+    )
+
+bup_binomial_unadj_pair <- unadjust_bup_12_bin |> mutate(race = "Black v. White") |>
+    merge(unadjust_bup_23_bin |> mutate(race = "Black v. Hispanic"), all = TRUE) |>
+    merge(unadjust_bup_13_bin |> mutate(race = "Hispanic v. White"), all = TRUE)
+
+bup_binomial_lim_pair <- bup_binomial_as_12_df |> mutate(race = "Black v. White") |>
+    merge(bup_binomial_as_23_df |> mutate(race = "Black v. Hispanic"), all = TRUE) |>
+    merge(bup_binomial_as_13_df |> mutate(race = "Hispanic v. White"), all = TRUE)
+
+bup_binomial_all_pair <- bup_binomial_12_df |> mutate(race = "Black v. White") |>
+    merge(bup_binomial_23_df |> mutate(race = "Black v. Hispanic"), all = TRUE) |>
+    merge(bup_binomial_13_df |> mutate(race = "Hispanic v. White"), all = TRUE)
+
+bup_binomial_pair <- bup_binomial_unadj_pair |> mutate(type = "Unadjusted") |>
+    merge(bup_binomial_lim_pair |> mutate(type = "Age + Sex"), all = TRUE) |>
+    merge(bup_binomial_all_pair |> mutate(type = "Expanded"), all = TRUE) |>
+    mutate(type = factor(type, levels = c("Unadjusted", "Age + Sex", "Expanded")),
+           time = case_when(time == 1 ~ 3,
+                            time == 2 ~ 4,
+                            TRUE ~ time)) |>
+    filter(race != "Black v. Hispanic")
+
+bup_binomial_pairwise <- ggplot(bup_binomial_pair, aes(x = time, y = effect_est, group = race, color = race, fill = race, shape = race)) +
+    geom_point(position = position_dodge(width = 0.5)) +
+    geom_errorbar(aes(ymin = ci_lwr, ymax = ci_upr), width = 0.25, position = position_dodge(width = 0.5)) +
+    labs(title = "",
+         x = "Study Week",
+         y = "Mean Dose Difference") +
+    geom_hline(yintercept = 0, linetype = "dotted", color = "black") +
+    scale_x_continuous(breaks = seq(3, 4, by = 1)) +
+    scale_color_manual(values = c("#1f78b4", "darkseagreen4")) + 
+    scale_shape_manual(values = c(1, 0, 8)) +
+    scale_fill_manual(values = c("#1f78b4", "darkseagreen4")) +  
+    theme_minimal() +
+    labs(color = "",
+         shape = "",
+         fill = "") +
+    facet_wrap(~type, scales = "free_x") + 
+    theme(
+        legend.position = c(0.00125, 0.9975),
+        legend.justification = c("left", "top"),
+        legend.box.just = "left",
+        legend.margin = margin(-12, 1.5, 1.5, 1.5),
+        legend.title = element_text(margin = margin(0, 0, 0, 0)),
+        legend.key = element_rect(fill = "white", colour = "black", size = 0.001),
+        legend.background = element_rect(fill="white", size = 0.5),
+        legend.box.background = element_rect(color = "black", size = 0.25),
+        legend.box = "vertical", 
+        plot.title = element_text(vjust = 0.5),
+        legend.key.size = unit(0.000000000000001, 'cm'), 
+        legend.box.spacing = unit(-10, "pt"),
+        text = element_text(size = 10, family = "Times New Roman")
+    )
+
+bup_binomial_plot_final <- bup_binomial_plot + bup_binomial_pairwise + 
+    plot_annotation(tag_levels = 'A') + plot_layout(ncol = 1) & 
+    theme(plot.tag = element_text(size = 12),
+          panel.border = element_rect(colour = "black", fill=NA))
+
+ggsave(filename = here::here("figures/bup_binomial_plot_final.png"),
+       plot = bup_binomial_plot_final,
+       width = 8, height = 11)
 ```
 
 ```{r}
-met_point <- ggplot(data_met_long, aes(x = week, y = avg, group = xrace, color = xrace)) +
-  geom_point(position = position_dodge(width = 0.5)) +
-  geom_errorbar(aes(ymin = low, ymax = high), width = 0.25, position = position_dodge(width = 0.5)) +
-  labs(title = "Mean Methadone Dose by Race (Unadjusted)",
-       x = "Week",
-       y = "Mean Dose") +
+comb_binomial_unadj <- readRDS(here::here("data/processed/comb_binom_df.rds")) |>
+    mutate(type = "Unadjusted") |>
+    rename("race" = "xrace",
+           "theta" = "prop")
+
+comb_binomial_lim <- comb_binomial_lim |>
+    slice(1:6) |>
+    mutate(type = "Age + Sex")
+
+comb_binomial_all <- comb_binomial_all |>
+    slice(1:6) |>
+    mutate(type = "Expanded")
+
+comb_binomial_total <- comb_binomial_unadj |>
+    merge(comb_binomial_lim, all = TRUE) |>
+    merge(comb_binomial_all, all = TRUE) |>
+    mutate(type = factor(type, levels = c("Unadjusted", "Age + Sex", "Expanded")))
+
+comb_binomial_plot <- ggplot(comb_binomial_total, aes(x = week, y = theta, group = race, color = race, fill = race, shape = race)) +
+    geom_point(position = position_dodge(width = 0.5)) +
+    geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.25, position = position_dodge(width = 0.5)) +
+    labs(title = "",
+         x = "Study Week",
+         y = "Mean Dose") +
     scale_x_continuous(breaks = seq(1, 4, by = 1)) +
-      scale_color_manual(values = custom_colors) + 
-  scale_fill_manual(values = custom_colors) +  
-  theme_minimal() +
-    theme(plot.title = element_text(vjust = 0.5),
-          legend.key.size = unit(0.25, 'cm'), 
-          legend.box.spacing = unit(-5, "pt"),
-          text = element_text(size=7, family = "Times New Roman")) + 
-    labs(color = "", 
-         fill = "")
+    scale_color_manual(values = custom_colors) + 
+    scale_shape_manual(values = c(1, 0, 8)) +
+    scale_fill_manual(values = custom_colors) +  
+    theme_minimal() +
+    labs(color = "",
+         shape = "",
+         fill = "") +
+    facet_wrap(~type, scales = "free_x") + 
+    theme(
+        legend.position = c(0.00125, 0.9975),
+        legend.justification = c("left", "top"),
+        legend.box.just = "left",
+        legend.margin = margin(-12, 1.5, 1.5, 1.5),
+        legend.key = element_rect(fill = "white", colour = "black", size = 0.001),
+        legend.background = element_rect(fill="white", size = 0.5),
+        legend.box.background = element_rect(color = "black", size = 0.25),
+        legend.box = "vertical", 
+        plot.title = element_text(vjust = 0.5),
+        legend.key.size = unit(0.000000000000001, 'cm'), 
+        legend.box.spacing = unit(-5, "pt"),
+        text = element_text(size=10, family = "Times New Roman")
+    )
 
-met_cont <- ggplot(data_met_long, aes(x = week, y = avg, color = xrace)) +
-  geom_line() +   # Connect means with lines
-  geom_ribbon(aes(ymin = low, ymax = high, fill = xrace), alpha = 0.3) + 
-  labs(title = "Mean Methadone Dose by Race (Unadjusted)",
-       x = "Week",
-       y = "Mean Dose",
-       color = "Group") +
+bup_binomial_unadj_pair <- unadjust_comb_12_bin |> mutate(race = "Black v. White") |>
+    merge(unadjust_comb_23_bin |> mutate(race = "Black v. Hispanic"), all = TRUE) |>
+    merge(unadjust_comb_13_bin |> mutate(race = "Hispanic v. White"), all = TRUE)
+
+comb_binomial_as <- comb_binomial_as_12_df |> mutate(race = "Black v. White") |>
+    merge(comb_binomial_as_23_df |> mutate(race = "Black v. Hispanic"), all = TRUE) |>  
+    merge(comb_binomial_as_13_df |> mutate(race = "Hispanic v. White"), all = TRUE)
+
+comb_binomial_all_pair <- comb_binomial_12_df |> mutate(race = "Black v. White") |>
+    merge(comb_binomial_23_df |> mutate(race = "Black v. Hispanic"), all = TRUE) |>
+    merge(comb_binomial_13_df |> mutate(race = "Hispanic v. White"), all = TRUE)
+
+comb_binomial_pair <- bup_binomial_unadj_pair |> mutate(type = "Unadjusted") |>
+    merge(comb_binomial_as |> mutate(type = "Age + Sex"), all = TRUE) |>
+    merge(comb_binomial_all_pair |> mutate(type = "Expanded"), all = TRUE) |>
+    mutate(type = factor(type, levels = c("Unadjusted", "Age + Sex", "Expanded")),
+           time = case_when(time == 1 ~ 3,
+                            time == 2 ~ 4,
+                            TRUE ~ time)) |>
+    filter(race != "Black v. Hispanic")
+
+comb_binomial_pairwise <- ggplot(comb_binomial_pair, aes(x = time, y = effect_est, group = race, color = race, fill = race, shape = race)) +
+    geom_point(position = position_dodge(width = 0.5)) +
+    geom_errorbar(aes(ymin = ci_lwr, ymax = ci_upr), width = 0.25, position = position_dodge(width = 0.5)) +
+    labs(title = "",
+         x = "Study Week",
+         y = "Mean Dose Difference") +
+    geom_hline(yintercept = 0, linetype = "dotted", color = "black") +
     scale_x_continuous(breaks = seq(1, 4, by = 1)) +
-      scale_color_manual(values = custom_colors) + 
-  scale_fill_manual(values = custom_colors) +  
-  theme_minimal() +
-    theme(plot.title = element_text(vjust = 0.5),
-          legend.key.size = unit(0.25, 'cm'), 
-          legend.box.spacing = unit(-5, "pt"),
-          text = element_text(size=7, family = "Times New Roman")) + 
-    labs(color = "Race", 
-         fill = "Race")
+    scale_color_manual(values = c("#1f78b4", "darkseagreen4")) + 
+    scale_shape_manual(values = c(1, 0, 8)) +
+    scale_fill_manual(values = c("#1f78b4", "darkseagreen4")) +  
+    theme_minimal() +
+    labs(color = "",
+         shape = "",
+         fill = "") +
+    facet_wrap(~type, scales = "free_x") + 
+    theme(
+        legend.position = c(0.00125, 0.9975),
+        legend.justification = c("left", "top"),
+        legend.box.just = "left",
+        legend.margin = margin(-12, 1.5, 1.5, 1.5),
+        legend.title = element_text(margin = margin(0, 0, 0, 0)),
+        legend.key = element_rect(fill = "white", colour = "black", size = 0.001),
+        legend.background = element_rect(fill="white", size = 0.5),
+        legend.box.background = element_rect(color = "black", size = 0.25),
+        legend.box = "vertical", 
+        plot.title = element_text(vjust = 0.5),
+        legend.key.size = unit(0.000000000000001, 'cm'), 
+        legend.box.spacing = unit(-10, "pt"),
+        text = element_text(size = 10, family = "Times New Roman")
+    )
 
-data_met_long_1 <- data_met_long |>
-    filter(xrace == "White")
-    
-data_met_long_2 <- data_met_long |>
-    filter(xrace == "Black")
-    
-data_met_long_3 <- data_met_long |>
-    filter(xrace == "Hispanic")
+comb_binomial_plot_final <- comb_binomial_plot + comb_binomial_pairwise + 
+    plot_annotation(tag_levels = 'A') + plot_layout(ncol = 1) & 
+    theme(plot.tag = element_text(size = 12),
+          panel.border = element_rect(colour = "black", fill=NA))
 
-unadjust_met_12 <- unadjusted_diff(data_met_long_1, data_met_long_2, ci_type = "simult")
-
-unadjust_met_13 <- unadjusted_diff(data_met_long_1, data_met_long_3, ci_type = "simult")
-
-unadjust_met_23 <- unadjusted_diff(data_met_long_2, data_met_long_3, ci_type = "simult")
-
-met_unadj_b <- ggplot(unadjust_met_12, aes(x = time, y = effect_est)) +
-    geom_point() + 
-  geom_errorbar(aes(ymin = ci_lwr, ymax = ci_upr), width = 0.2) + 
-  labs(title = "W v. B, Unadjusted",
-       x = "Week",
-       y = "Mean Dose Difference") +
-    scale_x_continuous(breaks = seq(1, 4, by = 1)) +
-  theme_minimal() +
-    theme(plot.title = element_text(vjust = 0.5),
-          text = element_text(size=7, family = "Times New Roman")) +
-  geom_hline(yintercept=c(0), linetype="dotted")
-
-met_unadj_c <- ggplot(unadjust_met_13, aes(x = time, y = effect_est)) +
-    geom_point() + 
-  geom_errorbar(aes(ymin = ci_lwr, ymax = ci_upr), width = 0.2) + 
-  labs(title = "W v. H, Unadjusted",
-       x = "Week",
-       y = "Mean Dose Difference") +
-    scale_x_continuous(breaks = seq(1, 4, by = 1)) +
-  theme_minimal() +
-    theme(plot.title = element_text(vjust = 0.5),
-          text = element_text(size=7, family = "Times New Roman")) +
-  geom_hline(yintercept=c(0), linetype="dotted")
-
-met_unadj_d <- ggplot(unadjust_met_23, aes(x = time, y = effect_est)) +
-    geom_point() + 
-  geom_errorbar(aes(ymin = ci_lwr, ymax = ci_upr), width = 0.2) + 
-  labs(title = "B v. H, Unadjusted",
-       x = "Week",
-       y = "Mean Dose Difference") +
-    scale_x_continuous(breaks = seq(1, 4, by = 1)) +
-  theme_minimal() +
-    theme(plot.title = element_text(vjust = 0.5),
-          text = element_text(size=7, family = "Times New Roman")) +
-  geom_hline(yintercept=c(0), linetype="dotted")
-
-met_unadj_figure <- ggarrange(met_point, met_unadj_b, met_unadj_c, met_unadj_d + font("x.text", size = 0.5),
-                    ncol = 2, nrow = 2, labels = c("A", "B", "C", "D"), vjust= 1.75, 
-                  font.label=list(color="black",size=10, family = "Times New Roman"))
-met_unadj_figure
-```
-
-```{r}
-#unadjusted 6 plots
-
-bup_point + bup_unadj_b + bup_unadj_c + met_point + met_unadj_b + met_unadj_c + 
-  plot_layout(ncol=3,widths=c(0.5, 0.25, 0.25)) + plot_annotation(tag_levels = 'A') &
-    theme(plot.tag = element_text(face = 'bold'))
-```
-
-### Adjusted -- Sex + Age
-
-```{r}
-custom_colors <- c("White" = "#e31a1c", "Black" = "#1f78b4", "Hispanic" = "darkseagreen4") # color scheme, can adjust
-
-## sex and age
-
-bup_lim_point <- ggplot(bup_results_lim, aes(x = week, y = theta, group = race, color = race)) +
-  geom_point(position = position_dodge(width = 0.5)) +
-  geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.25, position = position_dodge(width = 0.5)) +
-  labs(title = "Mean Buprenorphine Dose by Race (Sex + Age)",
-       x = "Week",
-       y = "Mean Dose") +
-    scale_x_continuous(breaks = seq(1, 4, by = 1)) +
-      scale_color_manual(values = custom_colors) + 
-  scale_fill_manual(values = custom_colors) +  
-  theme_minimal() +
-    theme(plot.title = element_text(vjust = 0.5),
-          legend.key.size = unit(0.25, 'cm'), 
-          legend.box.spacing = unit(-5, "pt"),
-          text = element_text(size=7, family = "Times New Roman")) + 
-    labs(color = "", 
-         fill = "")
-
-bup_lim_cont <- ggplot(bup_results_lim, aes(x = week, y = theta, color = race)) +
-  geom_line() +   # Connect means with lines
-  geom_ribbon(aes(ymin = lower, ymax = upper, fill = race), alpha = 0.3) + 
-  labs(title = "Mean Buprenorphine Dose by Race (Sex + Age)",
-       x = "Week",
-       y = "Mean Dose",
-       color = "Group") +
-    scale_x_continuous(breaks = seq(1, 4, by = 1)) +
-      scale_color_manual(values = custom_colors) + 
-  scale_fill_manual(values = custom_colors) +  
-  theme_minimal() +
-    theme(plot.title = element_text(vjust = 0.5),
-          legend.key.size = unit(0.25, 'cm'), 
-          legend.box.spacing = unit(-5, "pt"),
-          text = element_text(size=7, family = "Times New Roman")) + 
-    labs(color = "Race", 
-         fill = "Race")
-
-bup_lim_b <- ggplot(bup_as_12_df, aes(x = time, y = effect_est)) +
-    geom_point() + 
-  geom_errorbar(aes(ymin = ci_lwr, ymax = ci_upr), width = 0.2) + 
-  labs(title = "W v. B (Sex + Age)",
-       x = "Week",
-       y = "Mean Dose Difference") +
-    scale_x_continuous(breaks = seq(1, 4, by = 1)) +
-  theme_minimal() +
-    theme(plot.title = element_text(vjust = 0.5),
-          text = element_text(size=7, family = "Times New Roman")) +
-  geom_hline(yintercept=c(0), linetype="dotted")
-
-bup_lim_c <- ggplot(bup_as_13_df, aes(x = time, y = effect_est)) +
-    geom_point() + 
-  geom_errorbar(aes(ymin = ci_lwr, ymax = ci_upr), width = 0.2) + 
-  labs(title = "W v. H (Sex + Age)",
-       x = "Week",
-       y = "Mean Dose Difference") +
-    scale_x_continuous(breaks = seq(1, 4, by = 1)) +
-  theme_minimal() +
-    theme(plot.title = element_text(vjust = 0.5),
-          text = element_text(size=7, family = "Times New Roman")) +
-  geom_hline(yintercept=c(0), linetype="dotted")
-
-bup_lim_d <- ggplot(bup_as_23_df, aes(x = time, y = effect_est)) +
-    geom_point() + 
-  geom_errorbar(aes(ymin = ci_lwr, ymax = ci_upr), width = 0.2) + 
-  labs(title = "B v. H (Sex + Age)",
-       x = "Week",
-       y = "Mean Dose Difference") +
-    scale_x_continuous(breaks = seq(1, 4, by = 1)) +
-  theme_minimal() +
-    theme(plot.title = element_text(vjust = 0.5),
-          text = element_text(size=7, family = "Times New Roman")) +
-  geom_hline(yintercept=c(0), linetype="dotted")
-
-bup_as_figure <- ggarrange(bup_lim_point, bup_lim_b, bup_lim_c, bup_lim_d + font("x.text", size = 0.5),
-                    ncol = 2, nrow = 2, labels = c("A", "B", "C", "D"), vjust= 1.75, 
-                  font.label=list(color="black",size=10, family = "Times New Roman"))
-bup_as_figure
-```
-
-```{r}
-met_lim_point <- ggplot(met_results_lim, aes(x = week, y = theta, group = race, color = race)) +
-  geom_point(position = position_dodge(width = 0.5)) +
-  geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.25, position = position_dodge(width = 0.5)) +
-  labs(title = "Mean Methadone Dose by Race (Sex + Age)",
-       x = "Week",
-       y = "Mean Dose") +
-    scale_x_continuous(breaks = seq(1, 4, by = 1)) +
-      scale_color_manual(values = custom_colors) + 
-  scale_fill_manual(values = custom_colors) +  
-  theme_minimal() +
-    theme(plot.title = element_text(vjust = 0.5),
-          legend.key.size = unit(0.25, 'cm'), 
-          legend.box.spacing = unit(-5, "pt"),
-          text = element_text(size=7, family = "Times New Roman")) + 
-    labs(color = "", 
-         fill = "")
-
-met_lim_cont <- ggplot(met_results_lim, aes(x = week, y = theta, color = race)) +
-  geom_line() +   # Connect means with lines
-  geom_ribbon(aes(ymin = lower, ymax = upper, fill = race), alpha = 0.3) + 
-  labs(title = "Mean Methadone Dose by Race (Sex + Age)",
-       x = "Week",
-       y = "Mean Dose",
-       color = "Group") +
-    scale_x_continuous(breaks = seq(1, 4, by = 1)) +
-      scale_color_manual(values = custom_colors) + 
-  scale_fill_manual(values = custom_colors) +  
-  theme_minimal() +
-    theme(plot.title = element_text(vjust = 0.5),
-          legend.key.size = unit(0.25, 'cm'), 
-          legend.box.spacing = unit(-5, "pt"),
-          text = element_text(size=7, family = "Times New Roman")) + 
-    labs(color = "Race", 
-         fill = "Race")
-
-met_lim_b <- ggplot(met_as_12_df, aes(x = time, y = effect_est)) +
-    geom_point() + 
-  geom_errorbar(aes(ymin = ci_lwr, ymax = ci_upr), width = 0.2) + 
-  labs(title = "W v. B (Sex + Age)",
-       x = "Week",
-       y = "Mean Dose Difference") +
-    scale_x_continuous(breaks = seq(1, 4, by = 1)) +
-  theme_minimal() +
-    theme(plot.title = element_text(vjust = 0.5),
-          text = element_text(size=7, family = "Times New Roman")) +
-  geom_hline(yintercept=c(0), linetype="dotted")
-
-met_lim_c <- ggplot(met_as_13_df, aes(x = time, y = effect_est)) +
-    geom_point() + 
-  geom_errorbar(aes(ymin = ci_lwr, ymax = ci_upr), width = 0.2) + 
-  labs(title = "W v. H (Sex + Age)",
-       x = "Week",
-       y = "Mean Dose Difference") +
-    scale_x_continuous(breaks = seq(1, 4, by = 1)) +
-  theme_minimal() +
-    theme(plot.title = element_text(vjust = 0.5),
-          text = element_text(size=7, family = "Times New Roman")) +
-  geom_hline(yintercept=c(0), linetype="dotted")
-
-met_lim_d <- ggplot(met_as_23_df, aes(x = time, y = effect_est)) +
-    geom_point() + 
-  geom_errorbar(aes(ymin = ci_lwr, ymax = ci_upr), width = 0.2) + 
-  labs(title = "B v. H (Sex + Age)",
-       x = "Week",
-       y = "Mean Dose Difference") +
-    scale_x_continuous(breaks = seq(1, 4, by = 1)) +
-  theme_minimal() +
-    theme(plot.title = element_text(vjust = 0.5),
-          text = element_text(size=7, family = "Times New Roman")) +
-  geom_hline(yintercept=c(0), linetype="dotted")
-
-met_as_figure <- ggarrange(met_lim_point, met_lim_b, met_lim_c, met_lim_d + font("x.text", size = 0.5),
-                    ncol = 2, nrow = 2, labels = c("A", "B", "C", "D"), vjust= 1.75, hjust= -1,
-                  font.label=list(color="black",size=10, family = "Times New Roman"))
-met_as_figure
-```
-
-```{r}
-#sex + age 6 plots
-
-bup_lim_point + bup_lim_b + bup_lim_c + met_lim_point + met_lim_b + met_lim_c + 
-  plot_layout(ncol=3,widths=c(0.5, 0.25, 0.25)) + plot_annotation(tag_levels = 'A') &
-    theme(plot.tag = element_text(face = 'bold'))
-```
-
-### Adjusted -- Expanded Covariates
-
-```{r}
-bup_all_point <- ggplot(bup_results_all, aes(x = week, y = theta, group = race, color = race)) +
-  geom_point(position = position_dodge(width = 0.5)) +
-  geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.25, position = position_dodge(width = 0.5)) +
-  labs(title = "Mean Buprenorphine Dose by Race (Full Covariates)",
-       x = "Week",
-       y = "Mean Dose") +
-    scale_x_continuous(breaks = seq(1, 4, by = 1)) +
-      scale_color_manual(values = custom_colors) + 
-  scale_fill_manual(values = custom_colors) +  
-  theme_minimal() +
-    theme(plot.title = element_text(vjust = 0.5),
-          legend.key.size = unit(0.25, 'cm'), 
-          legend.box.spacing = unit(-5, "pt"),
-          text = element_text(size=7, family = "Times New Roman")) + 
-    labs(color = "", 
-         fill = "")
-
-bup_all_cont <- ggplot(bup_results_all, aes(x = week, y = theta, color = race)) +
-  geom_line() +   # Connect means with lines
-  geom_ribbon(aes(ymin = lower, ymax = upper, fill = race), alpha = 0.3) + 
-  labs(title = "Mean Buprenorphine Dose by Race (Full Covariates)",
-       x = "Week",
-       y = "Mean Dose",
-       color = "Group") +
-    scale_x_continuous(breaks = seq(1, 4, by = 1)) +
-      scale_color_manual(values = custom_colors) + 
-  scale_fill_manual(values = custom_colors) +  
-  theme_minimal() +
-    theme(plot.title = element_text(vjust = 0.5),
-          legend.key.size = unit(0.25, 'cm'), 
-          legend.box.spacing = unit(-5, "pt"),
-          text = element_text(size=7, family = "Times New Roman")) + 
-    labs(color = "Race", 
-         fill = "Race")
-
-bup_all_b <- ggplot(bup_all_12_df, aes(x = time, y = effect_est)) +
-    geom_point() + 
-  geom_errorbar(aes(ymin = ci_lwr, ymax = ci_upr), width = 0.2) +  
-  labs(title = "W v. B (Full Covariates)",
-       x = "Week",
-       y = "Mean Dose Difference") +
-    scale_x_continuous(breaks = seq(1, 4, by = 1)) +
-  theme_minimal() +
-    theme(plot.title = element_text(vjust = 0.5),
-          text = element_text(size=7, family = "Times New Roman")) +
-  geom_hline(yintercept=c(0), linetype="dotted")
-
-bup_all_c <- ggplot(bup_all_13_df, aes(x = time, y = effect_est)) +
-    geom_point() + 
-  geom_errorbar(aes(ymin = ci_lwr, ymax = ci_upr), width = 0.2) + 
-  labs(title = "W v. H (Full Covariates)",
-       x = "Week",
-       y = "Mean Dose Difference") +
-    scale_x_continuous(breaks = seq(1, 4, by = 1)) +
-  theme_minimal() +
-    theme(plot.title = element_text(vjust = 0.5),
-          text = element_text(size=7, family = "Times New Roman")) +
-  geom_hline(yintercept=c(0), linetype="dotted")
-
-bup_all_d <- ggplot(bup_all_23_df, aes(x = time, y = effect_est)) +
-    geom_point() + 
-  geom_errorbar(aes(ymin = ci_lwr, ymax = ci_upr), width = 0.2) + 
-  labs(title = "B v. H (Full Covariates)",
-       x = "Week",
-       y = "Mean Dose Difference") +
-    scale_x_continuous(breaks = seq(1, 4, by = 1)) +
-  theme_minimal() +
-    theme(plot.title = element_text(vjust = 0.5),
-          text = element_text(size=7, family = "Times New Roman")) +
-  geom_hline(yintercept=c(0), linetype="dotted")
-
-bup_all_figure <- ggarrange(bup_all_point, bup_all_b, bup_all_c, bup_all_d + font("x.text", size = 0.5),
-                    ncol = 2, nrow = 2, labels = c("A", "B", "C", "D"), vjust= 1.75, hjust= -1,
-                  font.label=list(color="black",size=10, family = "Times New Roman"))
-bup_all_figure
-```
-
-```{r}
-met_all_point <- ggplot(met_results_all, aes(x = week, y = theta, group = race, color = race)) +
-  geom_point(position = position_dodge(width = 0.5)) +
-  geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.25, position = position_dodge(width = 0.5)) +
-  labs(title = "Mean Methadone Dose by Race (Full Covariates)",
-       x = "Week",
-       y = "Mean Dose") +
-    scale_x_continuous(breaks = seq(1, 4, by = 1)) +
-      scale_color_manual(values = custom_colors) + 
-  scale_fill_manual(values = custom_colors) +  
-  theme_minimal() +
-    theme(plot.title = element_text(vjust = 0.5),
-          legend.key.size = unit(0.25, 'cm'), 
-          legend.box.spacing = unit(-5, "pt"),
-          text = element_text(size=7, family = "Times New Roman")) + 
-    labs(color = "", 
-         fill = "")
-
-met_all_cont <- ggplot(met_results_all, aes(x = week, y = theta, color = race)) +
-  geom_line() +   # Connect means with lines
-  geom_ribbon(aes(ymin = lower, ymax = upper, fill = race), alpha = 0.3) + 
-  labs(title = "Mean Methadone Dose by Race (Full Covariates)",
-       x = "Week",
-       y = "Mean Dose",
-       color = "Group") +
-    scale_x_continuous(breaks = seq(1, 4, by = 1)) +
-      scale_color_manual(values = custom_colors) + 
-  scale_fill_manual(values = custom_colors) +  
-  theme_minimal() +
-    theme(plot.title = element_text(vjust = 0.5),
-          legend.key.size = unit(0.25, 'cm'), 
-          legend.box.spacing = unit(-5, "pt"),
-          text = element_text(size=7, family = "Times New Roman")) + 
-    labs(color = "Race", 
-         fill = "Race")
-
-met_all_b <- ggplot(met_all_12_df, aes(x = time, y = effect_est)) +
-    geom_point() + 
-  geom_errorbar(aes(ymin = ci_lwr, ymax = ci_upr), width = 0.2) + 
-  labs(title = "W v. B (Full Covariates)",
-       x = "Week",
-       y = "Mean Dose Difference") +
-    scale_x_continuous(breaks = seq(1, 4, by = 1)) +
-  theme_minimal() +
-    theme(plot.title = element_text(vjust = 0.5),
-          text = element_text(size=7, family = "Times New Roman")) +
-  geom_hline(yintercept=c(0), linetype="dotted")
-
-met_all_c <- ggplot(met_all_13_df, aes(x = time, y = effect_est)) +
-    geom_point() + 
-  geom_errorbar(aes(ymin = ci_lwr, ymax = ci_upr), width = 0.2) + 
-  labs(title = "W v. H (Full Covariates)",
-       x = "Week",
-       y = "Mean Dose Difference") +
-    scale_x_continuous(breaks = seq(1, 4, by = 1)) +
-  theme_minimal() +
-    theme(plot.title = element_text(vjust = 0.5),
-          text = element_text(size=7, family = "Times New Roman")) +
-  geom_hline(yintercept=c(0), linetype="dotted")
-
-met_all_d <- ggplot(met_all_23_df, aes(x = time, y = effect_est)) +
-    geom_point() + 
-  geom_errorbar(aes(ymin = ci_lwr, ymax = ci_upr), width = 0.2) + 
-  labs(title = "B v. H (Full Covariates)",
-       x = "Week",
-       y = "Mean Dose Difference") +
-    scale_x_continuous(breaks = seq(1, 4, by = 1)) +
-  theme_minimal() +
-    theme(plot.title = element_text(vjust = 0.5),
-          text = element_text(size=7, family = "Times New Roman")) +
-  geom_hline(yintercept=c(0), linetype="dotted")
-
-met_all_figure <- ggarrange(met_all_point, met_all_b, met_all_c, met_all_d + font("x.text", size = 0.5),
-                    ncol = 2, nrow = 2, labels = c("A", "B", "C", "D"), vjust= 1.75, hjust= -1,
-                  font.label=list(color="black",size=10, family = "Times New Roman"))
-met_all_figure
-```
-
-```{r}
-#expanded covar plots
-
-bup_all_point + bup_all_b + bup_all_c + met_all_point + met_all_b + met_all_c + 
-  plot_layout(ncol=3,widths=c(0.5, 0.25, 0.25)) + plot_annotation(tag_levels = 'A') &
-    theme(plot.tag = element_text(face = 'bold'))
+ggsave(filename = here::here("figures/comb_binomial_plot_final.png"),
+       plot = comb_binomial_plot_final,
+       width = 8, height = 11)
 ```
 
 ## Methods Plots
 
 ```{r}
-custom_colors_4 <- c("White" = "#e31a1c", "Black" = "#1f78b4", "Hispanic" = "darkseagreen4", 
-                     "Censor" = "darkorchid4") # color scheme, can adjust
+custom_colors_4 <- c("White, Uncensored" = "#e31a1c", "Black, Uncensored" = "#1f78b4", 
+                     "Hispanic, Uncensored" = "darkseagreen4", 
+                     "Censored" = "darkorchid4") # color scheme, can adjust
 
 data_bup_long_censored <- data_bup_long_ungrouped |>
     select(who, week, xrace, dose_this_week, censor) |>
     filter(week <= 4) |>
     mutate(dose_this_week = ifelse(is.na(dose_this_week), 0, dose_this_week),
-           xrace = case_when(xrace == "1" ~ "White",
-                             xrace == "2" ~ "Black",
-                             xrace == "3" ~ "Hispanic", 
+           xrace = case_when(xrace == "1" ~ "White, Uncensored",
+                             xrace == "2" ~ "Black, Uncensored",
+                             xrace == "3" ~ "Hispanic, Uncensored", 
                              TRUE ~ xrace),
-           xrace = ifelse(censor == 0, "Censor", xrace),
-           xrace = factor(xrace, levels = c("White", "Black", "Hispanic", "Censor"))) |>
+           xrace = ifelse(censor == 0, "Censored", xrace),
+                      xrace = factor(xrace, levels = c("Black, Uncensored", 
+                                            "Hispanic, Uncensored", 
+                                            "White, Uncensored", 
+                                            "Censored"))) |>
     arrange(week, xrace) 
 
 bup_alluvial <- ggplot(data_bup_long_censored,
        aes(x = week, stratum = xrace, alluvium = who,
            fill = xrace, label = xrace)) +
   geom_flow() +
-  geom_stratum(alpha = .5) +
+  geom_stratum(alpha = .75) +
   geom_text(stat = "stratum", aes(label = after_stat(count)),
             family = "Times New Roman") +
     scale_fill_manual(values = custom_colors_4) +
@@ -763,26 +1117,30 @@ bup_alluvial <- ggplot(data_bup_long_censored,
   guides(fill = guide_legend(title = "")) + labs(x = "Week") +
     theme(axis.title.x = element_text(),
           axis.text.x = element_text(),
-        text = element_text(size=12, family = "Times New Roman"), 
-          legend.box.spacing = unit(-10, "pt"))
+        text = element_text(size=10, family = "Times New Roman"), 
+          legend.box.spacing = unit(-10, "pt")) +
+      labs(title = "Buprenorphine")
 
 data_met_long_censored <- data_met_long_ungrouped |>
     select(who, week, xrace, dose_this_week, censor) |>
     filter(week <= 4) |>
     mutate(dose_this_week = ifelse(is.na(dose_this_week), 0, dose_this_week),
-           xrace = case_when(xrace == "1" ~ "White",
-                             xrace == "2" ~ "Black",
-                             xrace == "3" ~ "Hispanic", 
+           xrace = case_when(xrace == "1" ~ "White, Uncensored",
+                             xrace == "2" ~ "Black, Uncensored",
+                             xrace == "3" ~ "Hispanic, Uncensored", 
                              TRUE ~ xrace),
-           xrace = ifelse(censor == 0, "Censor", xrace),
-           xrace = factor(xrace, levels = c("White", "Black", "Hispanic", "Censor"))) |>
+           xrace = ifelse(censor == 0, "Censored", xrace),
+           xrace = factor(xrace, levels = c("Black, Uncensored", 
+                                            "Hispanic, Uncensored", 
+                                            "White, Uncensored", 
+                                            "Censored"))) |>
     arrange(week, xrace)
 
 met_alluvial <- ggplot(data_met_long_censored,
        aes(x = week, stratum = xrace, alluvium = who,
            fill = xrace, label = xrace)) +
   geom_flow() +
-  geom_stratum(alpha = .5) +
+  geom_stratum(alpha = .75) +
   geom_text(stat = "stratum", aes(label = after_stat(count)), 
             family = "Times New Roman") +
     scale_fill_manual(values = custom_colors_4) +
@@ -790,13 +1148,73 @@ met_alluvial <- ggplot(data_met_long_censored,
   guides(fill = guide_legend(title = "")) + labs(x = "Week") +
     theme(axis.title.x = element_text(),
           axis.text.x = element_text(),
-        text = element_text(size=12, family = "Times New Roman"), 
-          legend.box.spacing = unit(-10, "pt"))
+        text = element_text(size=10, family = "Times New Roman"), 
+          legend.box.spacing = unit(-10, "pt")) +
+      labs(title = "Methadone")
 
 bup_alluvial + met_alluvial +
   plot_layout(ncol=2,widths=c(0.5, 0.5),
-              guides = 'collect') + plot_annotation(tag_levels = 'A') &
-    theme(plot.tag = element_text(face = 'bold'))
+              guides = 'collect') + plot_annotation(tag_levels = 'A') & 
+    theme(plot.tag = element_text(size = 12))
+
+ggsave(here::here("figures/alluvial_plot.png"))
+```
+
+```{r}
+custom_colors_violin <- c("White" = "#e31a1c", "Black" = "#1f78b4", "Hispanic" = "darkseagreen4") # color scheme, can adjust
+
+data_bup_long_df <- data_bup_long_ungrouped |>
+    filter(week <= 4, censor == 1) |>
+    rename("Race" = "xrace") |>
+    mutate(Race = case_when(Race == "1" ~ "White",
+                     Race == "2" ~ "Black",
+                     Race == "3" ~ "Hispanic")) |>
+    mutate(Race = factor(Race, levels = c("Black", "Hispanic", "White")))
+
+data_met_long_df <- data_met_long_ungrouped |>
+    filter(week <= 4, censor == 1) |>
+    rename("Race" = "xrace") |>
+    mutate(Race = case_when(Race == "1" ~ "White",
+                     Race == "2" ~ "Black",
+                     Race == "3" ~ "Hispanic")) |>
+    mutate(Race = factor(Race, levels = c("Black", "Hispanic", "White")))
+
+violin_bup <- ggplot(data_bup_long_df, aes(x = Race, y = dose_this_week, fill = Race)) +
+  geom_violin(alpha = 0.75) +
+  facet_wrap(~week, ncol = 4,
+             strip.position = "bottom") +
+    scale_fill_manual(values = custom_colors_violin) +
+  theme_minimal() +
+  labs(title = "Buprenorphine",
+       x = "Study Week",
+       y = "Dose") + 
+    theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank(),
+        text = element_text(size = 10, family = "Times New Roman"),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank())
+
+violin_met <- ggplot(data_met_long_df, aes(x = Race, y = dose_this_week, fill = Race)) +
+  geom_violin(alpha = 0.75, show.legend = FALSE) +
+  facet_wrap(~week, ncol = 4,
+             strip.position = "bottom") +
+    scale_fill_manual(values = custom_colors_violin) +
+  theme_minimal() +
+  labs(title = "Methadone",
+       x = "Study Week",
+       y = "Dose") + 
+    theme(axis.text.x=element_blank(),
+        axis.ticks.x=element_blank(),
+        text = element_text(size = 10, family = "Times New Roman"),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank())
+
+violin_bup + violin_met + 
+    plot_annotation(tag_levels = 'A') + plot_layout(ncol = 1) & 
+    theme(plot.tag = element_text(size = 12))
+
+ggsave(here::here("figures/violin_plot.png"))
 ```
 
 ## Misc. Plots
