@@ -6,13 +6,19 @@ editor: visual
 
 ```{r, include = FALSE}
 library(tidyverse)
+library(patchwork)
 ```
 
 ## Reading Data
 
 ```{r}
-data_bup <- readRDS(here::here("data/processed/data_bup.rds"))
-data_met <- readRDS(here::here("data/processed/data_met.rds"))
+data_bup <- readRDS(here::here("data/processed/data_bup.rds")) |>
+    mutate(wk3.binary = ifelse(wk3.dose_this_week < 16, 0, 1),
+           wk4.binary = ifelse(wk4.dose_this_week < 16, 0, 1))
+
+data_met <- readRDS(here::here("data/processed/data_met.rds")) |>
+    mutate(wk3.binary = ifelse(wk3.dose_this_week < 60, 0, 1),
+           wk4.binary = ifelse(wk4.dose_this_week < 60, 0, 1))
 ```
 
 ## Descriptive Stats Stratified by Race and Week
@@ -33,6 +39,13 @@ data_bup_long <- data_bup |>
         censor == 0 ~ as.numeric(NA),
         TRUE ~ dose_this_week),
         week = as.integer(gsub("^.{0,2}", "", week))) 
+
+# calculating median + iqr
+data_bup_long |>
+    filter(is.na(dose_this_week) == FALSE) |>
+    filter(censor == 1) |>
+    summarize(mean = median(dose_this_week),
+              iqr = quantile(dose_this_week, c(0.25, 0.75)))
 
 data_bup_long_grouped <- data_bup_long |>
         group_by(week, xrace) |>
@@ -70,6 +83,15 @@ data_met_long <- data_met |>
         TRUE ~ dose_this_week),
         week = as.integer(gsub("^.{0,2}", "", week))) 
 
+# calculating median + iqr
+data_met_long |>
+    filter(is.na(dose_this_week) == FALSE) |>
+    filter(censor == 1) |>
+    summarize(mean = median(dose_this_week),
+              iqr = quantile(dose_this_week, c(0.25, 0.75)),
+              max = max(dose_this_week), 
+              min = min(dose_this_week))
+
 data_met_long_grouped <- data_met_long |>
     group_by(week, xrace) |>
         summarize(avg = mean(dose_this_week, na.rm = TRUE),
@@ -87,6 +109,92 @@ data_met_long_grouped <- data_met_long |>
                              xrace == "2" ~ "Black",
                              xrace == "3" ~ "Hispanic")) |>
     filter(week <= 4)
+```
+
+```{r}
+# unadjusted binomial
+bup_binom_df <- data_bup |>
+    group_by(xrace) |>
+    summarize(wk3.binary_prop = sum(wk3.binary)/sum(ifelse(wk3.censor == 1, 1, 0)),
+              wk4.binary_prop = sum(wk4.binary)/sum(ifelse(wk4.censor == 1, 1, 0))) |>
+    mutate(xrace = case_when(xrace == "1" ~ "White",
+                    xrace == "2" ~ "Black",
+                    xrace == "3" ~ "Hispanic")) |>
+    pivot_longer(cols = wk3.binary_prop:wk4.binary_prop,
+                 names_to = "week",
+                 values_to = c("prop")) |>
+    mutate(week = ifelse(week == "wk3.binary_prop", 3, 4)) |>
+    left_join(data_bup |>
+    group_by(xrace) |>
+    summarize(wk3.n = sum(ifelse(wk3.censor == 1, 1, 0)),
+              wk4.n = sum(ifelse(wk4.censor == 1, 1, 0))) |>
+    mutate(xrace = case_when(xrace == "1" ~ "White",
+                    xrace == "2" ~ "Black",
+                    xrace == "3" ~ "Hispanic")) |>
+    pivot_longer(cols = wk3.n:wk4.n,
+                 names_to = "week",
+                 values_to = c("n")) |>
+        mutate(week = ifelse(week == "wk3.n", 3, 4)), by = c("xrace" = "xrace", "week" = "week")) |>
+    mutate(se = sqrt((prop * (1-prop))/n),
+           lower = prop - 1.96*se,
+           upper = prop + 1.96*se)
+
+met_binom_df <- data_met |>
+    group_by(xrace) |>
+    summarize(wk3.binary_prop = sum(wk3.binary)/sum(ifelse(wk3.censor == 1, 1, 0)),
+              wk4.binary_prop = sum(wk4.binary)/sum(ifelse(wk4.censor == 1, 1, 0))) |>
+    mutate(xrace = case_when(xrace == "1" ~ "White",
+                    xrace == "2" ~ "Black",
+                    xrace == "3" ~ "Hispanic")) |>
+    pivot_longer(cols = wk3.binary_prop:wk4.binary_prop,
+                 names_to = "week",
+                 values_to = c("prop")) |>
+    mutate(week = ifelse(week == "wk3.binary_prop", 3, 4)) |>
+    left_join(data_met |>
+    group_by(xrace) |>
+    summarize(wk3.n = sum(ifelse(wk3.censor == 1, 1, 0)),
+              wk4.n = sum(ifelse(wk4.censor == 1, 1, 0))) |>
+    mutate(xrace = case_when(xrace == "1" ~ "White",
+                    xrace == "2" ~ "Black",
+                    xrace == "3" ~ "Hispanic")) |>
+    pivot_longer(cols = wk3.n:wk4.n,
+                 names_to = "week",
+                 values_to = c("n")) |>
+        mutate(week = ifelse(week == "wk3.n", 3, 4)), by = c("xrace" = "xrace", "week" = "week")) |>
+    mutate(se = sqrt((prop * (1-prop))/n),
+           lower = prop - 1.96*se,
+           upper = prop + 1.96*se)
+```
+
+```{r}
+data_comb <- data_bup |>
+    merge(data_met, all = TRUE)
+
+comb_binom_df <- data_comb |>
+    group_by(xrace) |>
+    summarize(wk3.binary_prop = sum(wk3.binary)/sum(ifelse(wk3.censor == 1, 1, 0)),
+              wk4.binary_prop = sum(wk4.binary)/sum(ifelse(wk4.censor == 1, 1, 0))) |>
+    mutate(xrace = case_when(xrace == "1" ~ "White",
+                             xrace == "2" ~ "Black",
+                             xrace == "3" ~ "Hispanic")) |>
+    pivot_longer(cols = wk3.binary_prop:wk4.binary_prop,
+                 names_to = "week",
+                 values_to = c("prop")) |>
+    mutate(week = ifelse(week == "wk3.binary_prop", 3, 4)) |>
+    left_join(data_comb |>
+                  group_by(xrace) |>
+                  summarize(wk3.n = sum(ifelse(wk3.censor == 1, 1, 0)),
+                            wk4.n = sum(ifelse(wk4.censor == 1, 1, 0))) |>
+                  mutate(xrace = case_when(xrace == "1" ~ "White",
+                                           xrace == "2" ~ "Black",
+                                           xrace == "3" ~ "Hispanic")) |>
+                  pivot_longer(cols = wk3.n:wk4.n,
+                               names_to = "week",
+                               values_to = c("n")) |>
+                  mutate(week = ifelse(week == "wk3.n", 3, 4)), by = c("xrace" = "xrace", "week" = "week")) |>
+    mutate(se = sqrt((prop * (1-prop))/n),
+           lower = prop - 1.96*se,
+           upper = prop + 1.96*se)
 ```
 
 ## Sites
@@ -116,4 +224,7 @@ met_sites <- data_met_long |>
 #saveRDS(data_met_long_grouped, here::here("data/processed/data_met_long.rds"))
 #saveRDS(bup_sites, here::here("data/processed/bup_sites.rds"))
 #saveRDS(met_sites, here::here("data/processed/met_sites.rds"))
+#saveRDS(bup_binom_df, here::here("data/processed/bup_binom_df.rds"))
+#saveRDS(met_binom_df, here::here("data/processed/met_binom_df.rds"))
+#saveRDS(comb_binom_df, here::here("data/processed/comb_binom_df.rds"))
 ```

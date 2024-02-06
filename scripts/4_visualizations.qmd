@@ -570,7 +570,7 @@ met_cont_plot <- ggplot(met_cont_total, aes(x = week, y = theta, group = race, c
         legend.position = c(0.00125, 0.9975),
         legend.justification = c("left", "top"),
         legend.box.just = "left",
-        legend.margin = margin(-12, 1.5, 1.5, 1.5),
+        legend.margin = margin(-12, 2.5, 2.5, 2.5),
         legend.key = element_rect(fill = "white", colour = "black", size = 0.0000000001),
         legend.background = element_rect(fill="white", size = 0.5),
         legend.box.background = element_rect(color = "black", size = 0.25),
@@ -619,7 +619,7 @@ met_pairwise <- ggplot(met_cont_pair, aes(x = time, y = effect_est, group = race
         legend.position = c(0.00125, 0.9975),
         legend.justification = c("left", "top"),
         legend.box.just = "left",
-        legend.margin = margin(-12, 1.5, 1.5, 1.5),
+        legend.margin = margin(-12, 2.5, 2.5, 2.5),
         legend.title = element_text(margin = margin(0, 0, 0, 0)),
         legend.key = element_rect(fill = "white", colour = "black", size = 0.0000000001),
         legend.background = element_rect(fill="white", size = 0.5),
@@ -673,7 +673,7 @@ bup_cont_plot <- ggplot(bup_cont_total, aes(x = week, y = theta, group = race, c
         legend.position = c(0.00125, 0.9975),
         legend.justification = c("left", "top"),
         legend.box.just = "left",
-        legend.margin = margin(-12, 1.5, 1.5, 1.5),
+        legend.margin = margin(-12, 2.5, 2.5, 2.5),
         legend.title = element_text(margin = margin(0, 0, 0, 0)),
         legend.key = element_rect(fill = "white", colour = "black", size = 0.0000000001),
         legend.background = element_rect(fill="white", size = 0.5),
@@ -723,7 +723,7 @@ bup_pairwise <- ggplot(bup_cont_pair, aes(x = time, y = effect_est, group = race
         legend.position = c(0.00125, 0.9975),
         legend.justification = c("left", "top"),
         legend.box.just = "left",
-        legend.margin = margin(-12, 1.5, 1.5, 1.5),
+        legend.margin = margin(-12, 2.5, 2.5, 2.5),
         legend.title = element_text(margin = margin(0, 0, 0, 0)),
         legend.key = element_rect(fill = "white", colour = "black", size = 0.0000000001),
         legend.background = element_rect(fill="white", size = 0.5),
@@ -787,7 +787,7 @@ met_binomial_plot <- ggplot(met_binomial_total, aes(x = week, y = theta, group =
         legend.position = c(0.00125, 0.9975),
         legend.justification = c("left", "top"),
         legend.box.just = "left",
-        legend.margin = margin(-12, 1.5, 1.5, 1.5),
+        legend.margin = margin(-12, 2.5, 2.5, 2.5),
         legend.key = element_rect(fill = "white", colour = "black", size = 0.001),
         legend.background = element_rect(fill="white", size = 0.5),
         legend.box.background = element_rect(color = "black", size = 0.25),
@@ -839,7 +839,7 @@ met_binomial_pairwise <- ggplot(met_binomial_pair, aes(x = time, y = effect_est,
         legend.position = c(0.00125, 0.9975),
         legend.justification = c("left", "top"),
         legend.box.just = "left",
-        legend.margin = margin(-12, 1.5, 1.5, 1.5),
+        legend.margin = margin(-12, 2.5, 2.5, 2.5),
         legend.title = element_text(margin = margin(0, 0, 0, 0)),
         legend.key = element_rect(fill = "white", colour = "black", size = 0.001),
         legend.background = element_rect(fill="white", size = 0.5),
@@ -897,7 +897,7 @@ bup_binomial_plot <- ggplot(bup_binomial_total, aes(x = week, y = theta, group =
         legend.position = c(0.00125, 0.9975),
         legend.justification = c("left", "top"),
         legend.box.just = "left",
-        legend.margin = margin(-12, 1.5, 1.5, 1.5),
+        legend.margin = margin(-12, 2.5, 2.5, 2.5),
         legend.key = element_rect(fill = "white", colour = "black", size = 0.001),
         legend.background = element_rect(fill="white", size = 0.5),
         legend.box.background = element_rect(color = "black", size = 0.25),
@@ -949,7 +949,7 @@ bup_binomial_pairwise <- ggplot(bup_binomial_pair, aes(x = time, y = effect_est,
         legend.position = c(0.00125, 0.9975),
         legend.justification = c("left", "top"),
         legend.box.just = "left",
-        legend.margin = margin(-12, 1.5, 1.5, 1.5),
+        legend.margin = margin(-12, 2.5, 2.5, 2.5),
         legend.title = element_text(margin = margin(0, 0, 0, 0)),
         legend.key = element_rect(fill = "white", colour = "black", size = 0.001),
         legend.background = element_rect(fill="white", size = 0.5),
@@ -1009,7 +1009,7 @@ comb_binomial_plot <- ggplot(comb_binomial_total, aes(x = week, y = theta, group
         legend.position = c(0.00125, 0.9975),
         legend.justification = c("left", "top"),
         legend.box.just = "left",
-        legend.margin = margin(-12, 1.5, 1.5, 1.5),
+        legend.margin = margin(-12, 2.5, 2.5, 2.5),
         legend.key = element_rect(fill = "white", colour = "black", size = 0.001),
         legend.background = element_rect(fill="white", size = 0.5),
         legend.box.background = element_rect(color = "black", size = 0.25),
@@ -1061,7 +1061,7 @@ comb_binomial_pairwise <- ggplot(comb_binomial_pair, aes(x = time, y = effect_es
         legend.position = c(0.00125, 0.9975),
         legend.justification = c("left", "top"),
         legend.box.just = "left",
-        legend.margin = margin(-12, 1.5, 1.5, 1.5),
+        legend.margin = margin(-12, 2.5, 2.5, 2.5),
         legend.title = element_text(margin = margin(0, 0, 0, 0)),
         legend.key = element_rect(fill = "white", colour = "black", size = 0.001),
         legend.background = element_rect(fill="white", size = 0.5),
@@ -1181,6 +1181,7 @@ data_met_long_df <- data_met_long_ungrouped |>
 
 violin_bup <- ggplot(data_bup_long_df, aes(x = Race, y = dose_this_week, fill = Race)) +
   geom_violin(alpha = 0.75) +
+    geom_boxplot(width=0.1, color="black", show.legend = FALSE) +
   facet_wrap(~week, ncol = 4,
              strip.position = "bottom") +
     scale_fill_manual(values = custom_colors_violin) +
@@ -1197,6 +1198,7 @@ violin_bup <- ggplot(data_bup_long_df, aes(x = Race, y = dose_this_week, fill = 
 
 violin_met <- ggplot(data_met_long_df, aes(x = Race, y = dose_this_week, fill = Race)) +
   geom_violin(alpha = 0.75, show.legend = FALSE) +
+    geom_boxplot(width=0.1, color="black", show.legend = FALSE) +
   facet_wrap(~week, ncol = 4,
              strip.position = "bottom") +
     scale_fill_manual(values = custom_colors_violin) +
@@ -1212,7 +1214,8 @@ violin_met <- ggplot(data_met_long_df, aes(x = Race, y = dose_this_week, fill = 
 
 violin_bup + violin_met + 
     plot_annotation(tag_levels = 'A') + plot_layout(ncol = 1) & 
-    theme(plot.tag = element_text(size = 12))
+    theme(plot.tag = element_text(size = 12),
+          panel.border = element_rect(colour = "black", fill=NA))
 
 ggsave(here::here("figures/violin_plot.png"))
 ```
