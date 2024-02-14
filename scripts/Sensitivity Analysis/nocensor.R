@@ -1,7 +1,6 @@
 library(tidyverse)
 library(ggplot2)
 library(lmtp)
-library(gtsummary)
 library(SuperLearner)
 
 source("scripts/source/shift_functions.R") #loading shift functions
@@ -60,6 +59,11 @@ lrnrs_trt <- c("SL.mean", "SL.glm", "SL.glmnet", "SL.earth", "SL.gbm", "SL.bartM
 
 ## Met Analysis
 
+# creating empty list to store results
+
+race_tmle_list_cs_met <- list()
+race_tmle_list_cs_met_limited <- list()
+
 set.seed(1)
 
 for(j in 1:3) # looping over race
@@ -67,18 +71,21 @@ for(j in 1:3) # looping over race
     tmle_list_cs_met <- list()
     tmle_list_cs_met_limited <- list()
     
-    for (i in 1:4) # looping over weeks (1-3 for now)
+    for (i in 3:4) # looping over weeks (1-3 for now)
     {
         Y <- c(paste0(paste0("wk", i), ".dose_this_week")) # outcome (dose)
         
         
         C <- c(paste0(paste0("wk", i), ".censor")) # censor
+
+        data <- data_met |>
+            filter(eval(as.name(paste0(paste0("wk", i), ".censor"))) == 1)
         
         # expanded baseline covariates (see above)
         progressr::with_progress(tmle_list_cs_met[[i]] <- lmtp_tmle(
-            data = data_met, 
+            data = data, 
             trt = "xrace",
-            cens = C,
+            #cens = C,
             outcome = Y, 
             baseline = B_met, 
             shift = func_list[[j]], 
@@ -87,13 +94,13 @@ for(j in 1:3) # looping over race
             learners_trt = lrnrs_trt_met,
             folds = 10,
             .SL_folds = 10,
-            mtp = TRUE)) # must be true for continuous outcome
+            mtp = FALSE))
         
         # limited baseline covariates (sex + age)
         progressr::with_progress(tmle_list_cs_met_limited[[i]] <- lmtp_tmle(
-            data = data_met, 
+            data = data, 
             trt = "xrace",
-            cens = C,
+            #cens = C,
             outcome = Y, 
             baseline = c("sex", "age"), 
             shift = func_list[[j]], 
@@ -102,13 +109,13 @@ for(j in 1:3) # looping over race
             learners_trt = lrnrs_trt_met,
             folds = 10,
             .SL_folds = 10,
-            mtp = TRUE)) # must be true for continuous outcome
+            mtp = FALSE))
         
         print(paste0(j, sep = " ", i)) # to keep track of which race/week the loop is currently on
         
         # saving results
-        saveRDS(tmle_list_cs_met[[i]], here::here(paste0("./data/102623/","result_met", j, sep = "_", i, ".rds")))
-        saveRDS(tmle_list_cs_met_limited[[i]], here::here(paste0("./data/102623/","result_met_limited", j, sep = "_", i, ".rds")))
+        saveRDS(tmle_list_cs_met[[i]], here::here(paste0("./data/102623/","result_nocensor_met", j, sep = "_", i, ".rds")))
+        saveRDS(tmle_list_cs_met_limited[[i]], here::here(paste0("./data/102623/","result_nocensor__met_limited", j, sep = "_", i, ".rds")))
     }
     
     race_tmle_list_cs_met[[j]] <- tmle_list_cs_met
@@ -129,18 +136,21 @@ for(j in 1:3) # looping over race
     tmle_list_cs <- list()
     tmle_list_cs_limited <- list()
     
-    for (i in 1:4) # looping over weeks (1-3 for now)
+    for (i in 3:4) # looping over weeks (1-3 for now)
     {
         Y <- c(paste0(paste0("wk", i), ".dose_this_week")) # outcome (dose)
         
         
         C <- c(paste0(paste0("wk", i), ".censor")) # censor
         
+        data <- data_bup |>
+            filter(eval(as.name(paste0(paste0("wk", i), ".censor"))) == 1)
+        
         # expanded baseline covariates (see above)
         progressr::with_progress(tmle_list_cs[[i]] <- lmtp_tmle(
-            data = data_bup, 
+            data = data, 
             trt = "xrace",
-            cens = C,
+            #cens = C,
             outcome = Y, 
             baseline = B_bup, 
             shift = func_list[[j]], 
@@ -149,13 +159,13 @@ for(j in 1:3) # looping over race
             learners_trt = lrnrs_trt,
             folds = 10,
             .SL_folds = 10,
-            mtp = TRUE)) # must be true for continuous outcome
+            mtp = FALSE))
         
         # limited baseline covariates (sex + age)
         progressr::with_progress(tmle_list_cs_limited[[i]] <- lmtp_tmle(
-            data = data_bup, 
+            data = data, 
             trt = "xrace",
-            cens = C,
+            #cens = C,
             outcome = Y, 
             baseline = c("sex", "age"), 
             shift = func_list[[j]], 
@@ -164,13 +174,13 @@ for(j in 1:3) # looping over race
             learners_trt = lrnrs_trt,
             folds = 10,
             .SL_folds = 10,
-            mtp = TRUE)) # must be true for continuous outcome
+            mtp = FALSE))
         
         print(paste0(j, sep = " ", i)) # to keep track of which race/week the loop is currently on
         
         # saving results
-        saveRDS(tmle_list_cs[[i]], here::here(paste0("./data/102623/","result", j, sep = "_", i, ".rds")))
-        saveRDS(tmle_list_cs_limited[[i]], here::here(paste0("./data/102623/","result_limited", j, sep = "_", i, ".rds")))
+        saveRDS(tmle_list_cs[[i]], here::here(paste0("./data/102623/","result_nocensor", j, sep = "_", i, ".rds")))
+        saveRDS(tmle_list_cs_limited[[i]], here::here(paste0("./data/102623/","result_nocensor_limited", j, sep = "_", i, ".rds")))
     }
     
     race_tmle_list_cs[[j]] <- tmle_list_cs
