@@ -4,6 +4,7 @@ library(tidyverse)
 library(ggplot2)
 library(lmtp)
 library(SuperLearner)
+source("scripts/source/shift_functions.R") #loading shift functions
 
 wk3_dat <- readRDS(here::here("data/sensitivity/data_met_week3_outlier.rds"))
 wk4_dat <- readRDS(here::here("data/sensitivity/data_met_week4_outlier.rds"))
@@ -44,9 +45,7 @@ for(j in 1:3) # looping over race
         {
             dat <- wk4_dat
         }
-        
-        if (i > 1)
-        {
+
             B_met <- list(trt = c("sex", "age", "hcows_bin","alcdisorder", 
                                   "alcdisorder_missing", "cocdisorder", "cocdisorder_missing",
                                   "hasBipolar","hasAnxPan",
@@ -77,7 +76,7 @@ for(j in 1:3) # looping over race
                                       as.character(paste0(paste0("wk", i-1), ".dose_this_week"))),
                              outcome = c("sex", "age"))
             
-        }
+
         
         # expanded baseline covariates (see above)
         progressr::with_progress(tmle_list_cs_met[[i]] <- lmtp_tmle(

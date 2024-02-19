@@ -30,7 +30,10 @@ data_met_3 |>
     summarize(max_met = max(wk3.dose_this_week)) #120 mg
 
 data_met_3 <- data_met_3 |>
-    mutate(wk3.dose_this_week = ifelse(wk3.outlier == 1, 120, wk3.dose_this_week))
+    mutate(wk3.dose_this_week = ifelse(wk3.outlier == 1, 120, wk3.dose_this_week)) |>
+    merge(data_met |> filter(wk3.censor == 0), all = TRUE) #merging back censored
+
+saveRDS(data_met_4, here::here("data/sensitivity/data_met_week4_outlier.rds"))
 
 data_met_4 <- data_met |> filter(wk4.censor == 1) |>
     mutate(wk4.outlier = ifelse(is_outlier(wk4.dose_this_week) == 1, 1, 0))
@@ -40,4 +43,8 @@ data_met_4 |>
     summarize(max_met = max(wk4.dose_this_week)) #140 mg
 
 data_met_4 <- data_met_4 |>
-    mutate(wk4.dose_this_week = ifelse(wk4.outlier == 1, 140, wk4.dose_this_week))
+    mutate(wk4.dose_this_week = ifelse(wk4.outlier == 1, 140, wk4.dose_this_week)) |>
+    merge(data_met |> filter(wk4.censor == 0), all = TRUE) #merging back censored
+
+saveRDS(data_met_4, here::here("data/sensitivity/data_met_week4_outlier.rds"))
+
