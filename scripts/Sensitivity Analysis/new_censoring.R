@@ -47,10 +47,10 @@ lrnrs_trt <- c("SL.mean", "SL.glm", "SL.glmnet", "SL.earth", "SL.gbm", "SL.bartM
 
 ## Met Analysis
 
-set.seed(1)
-
 race_tmle_list_cs_met <- list()
 race_tmle_list_cs_met_limited <- list()
+
+set.seed(1)
 
 for(j in 1:3) # looping over race
 {
@@ -65,20 +65,20 @@ for(j in 1:3) # looping over race
         
         if (i > 1)
         {
-            B_met <- list(trt = c("sex", "age", "hcows","alcdisorder", 
+            B_met <- list(trt = c("sex", "age", "hcows_bin","alcdisorder", 
                                   "alcdisorder_missing", "cocdisorder", "cocdisorder_missing",
                                   "hasBipolar","hasAnxPan",
                                   "hasMajorDep",
                                   "bamphetamine30_base", "bcannabis30_base",
                                   "bbenzo30_base", "ivdrug"),
-                          cens = c("sex", "age", "hcows","alcdisorder", 
+                          cens = c("sex", "age", "hcows_bin","alcdisorder", 
                                    "alcdisorder_missing", "cocdisorder", "cocdisorder_missing",
                                    "hasBipolar","hasAnxPan",
                                    "hasMajorDep",
                                    "bamphetamine30_base", "bcannabis30_base",
                                    "bbenzo30_base", "ivdrug",
                                    as.character(paste0(paste0("wk", i-1), ".dose_this_week"))),
-                          outcome = c("sex", "age", "hcows","alcdisorder", 
+                          outcome = c("sex", "age", "hcows_bin","alcdisorder", 
                                       "alcdisorder_missing", "cocdisorder", "cocdisorder_missing",
                                       "hasBipolar","hasAnxPan",
                                       "hasMajorDep",
@@ -86,7 +86,7 @@ for(j in 1:3) # looping over race
                                       "bbenzo30_base", "ivdrug"))
 
             B_met_as <- list(trt = c("sex", "age"),
-                          cens = c("sex", "age", "hcows","alcdisorder", 
+                          cens = c("sex", "age", "hcows_bin","alcdisorder", 
                                    "alcdisorder_missing", "cocdisorder", "cocdisorder_missing",
                                    "hasBipolar","hasAnxPan",
                                    "hasMajorDep",
@@ -98,19 +98,19 @@ for(j in 1:3) # looping over race
         }
         else
         {
-            B_met <- list(trt = c("sex", "age", "hcows","alcdisorder", 
+            B_met <- list(trt = c("sex", "age", "hcows_bin","alcdisorder", 
                                        "alcdisorder_missing", "cocdisorder", "cocdisorder_missing",
                                        "hasBipolar","hasAnxPan",
                                        "hasMajorDep",
                                        "bamphetamine30_base", "bcannabis30_base",
                                        "bbenzo30_base", "ivdrug"),
-                          cens = c("sex", "age", "hcows","alcdisorder", 
+                          cens = c("sex", "age", "hcows_bin","alcdisorder", 
                                    "alcdisorder_missing", "cocdisorder", "cocdisorder_missing",
                                    "hasBipolar","hasAnxPan",
                                    "hasMajorDep",
                                    "bamphetamine30_base", "bcannabis30_base",
                                    "bbenzo30_base", "ivdrug"),
-                          outcome = c("sex", "age", "hcows","alcdisorder", 
+                          outcome = c("sex", "age", "hcows_bin","alcdisorder", 
                                            "alcdisorder_missing", "cocdisorder", "cocdisorder_missing",
                                            "hasBipolar","hasAnxPan",
                                            "hasMajorDep",
@@ -118,7 +118,7 @@ for(j in 1:3) # looping over race
                                            "bbenzo30_base", "ivdrug"))
             
             B_met_as <- list(trt = c("sex", "age"),
-                             cens = c("sex", "age", "hcows","alcdisorder", 
+                             cens = c("sex", "age", "hcows_bin","alcdisorder", 
                                       "alcdisorder_missing", "cocdisorder", "cocdisorder_missing",
                                       "hasBipolar","hasAnxPan",
                                       "hasMajorDep",
@@ -190,20 +190,20 @@ for(j in 1:3) # looping over race
         
         if (i > 1)
         {
-            B_bup <- list(trt = c("sex", "age", "hcows","alcdisorder", 
+            B_bup <- list(trt = c("sex", "age", "hcows_bin","alcdisorder", 
                                   "alcdisorder_missing", "cocdisorder", "cocdisorder_missing",
                                   "hasBipolar","hasAnxPan",
                                   "hasMajorDep",
                                   "bamphetamine30_base", "bcannabis30_base",
                                   "bbenzo30_base", "ivdrug", "ivdrug_missing"),
-                          cens = c("sex", "age", "hcows","alcdisorder", 
+                          cens = c("sex", "age", "hcows_bin","alcdisorder", 
                                    "alcdisorder_missing", "cocdisorder", "cocdisorder_missing",
                                    "hasBipolar","hasAnxPan",
                                    "hasMajorDep",
                                    "bamphetamine30_base", "bcannabis30_base",
                                    "bbenzo30_base", "ivdrug", "ivdrug_missing",
                                    as.character(paste0(paste0("wk", i-1), ".dose_this_week"))),
-                          outcome = c("sex", "age", "hcows","alcdisorder", 
+                          outcome = c("sex", "age", "hcows_bin","alcdisorder", 
                                       "alcdisorder_missing", "cocdisorder", "cocdisorder_missing",
                                       "hasBipolar","hasAnxPan",
                                       "hasMajorDep",
@@ -211,7 +211,7 @@ for(j in 1:3) # looping over race
                                       "bbenzo30_base", "ivdrug", "ivdrug_missing"))
             
             B_bup_as <- list(trt = c("sex", "age"),
-                             cens = c("sex", "age", "hcows","alcdisorder", 
+                             cens = c("sex", "age", "hcows_bin","alcdisorder", 
                                       "alcdisorder_missing", "cocdisorder", "cocdisorder_missing",
                                       "hasBipolar","hasAnxPan",
                                       "hasMajorDep",
@@ -222,19 +222,19 @@ for(j in 1:3) # looping over race
         }
         else
         {
-            B_bup <- list(trt = c("sex", "age", "hcows","alcdisorder", 
+            B_bup <- list(trt = c("sex", "age", "hcows_bin","alcdisorder", 
                                   "alcdisorder_missing", "cocdisorder", "cocdisorder_missing",
                                   "hasBipolar","hasAnxPan",
                                   "hasMajorDep",
                                   "bamphetamine30_base", "bcannabis30_base",
                                   "bbenzo30_base", "ivdrug", "ivdrug_missing"),
-                          cens = c("sex", "age", "hcows","alcdisorder", 
+                          cens = c("sex", "age", "hcows_bin","alcdisorder", 
                                  "alcdisorder_missing", "cocdisorder", "cocdisorder_missing",
                                  "hasBipolar","hasAnxPan",
                                  "hasMajorDep",
                                  "bamphetamine30_base", "bcannabis30_base",
                                  "bbenzo30_base", "ivdrug", "ivdrug_missing"),
-                          outcome = c("sex", "age", "hcows","alcdisorder", 
+                          outcome = c("sex", "age", "hcows_bin","alcdisorder", 
                                       "alcdisorder_missing", "cocdisorder", "cocdisorder_missing",
                                       "hasBipolar","hasAnxPan",
                                       "hasMajorDep",
@@ -242,7 +242,7 @@ for(j in 1:3) # looping over race
                                       "bbenzo30_base", "ivdrug", "ivdrug_missing"))
             
             B_bup_as <- list(trt = c("sex", "age"),
-                             cens = c("sex", "age", "hcows","alcdisorder", 
+                             cens = c("sex", "age", "hcows_bin","alcdisorder", 
                                       "alcdisorder_missing", "cocdisorder", "cocdisorder_missing",
                                       "hasBipolar","hasAnxPan",
                                       "hasMajorDep",
@@ -314,20 +314,20 @@ for(j in 1:3) # looping over race
         
         if (i > 1)
         {
-            B_met <- list(trt = c("sex", "age", "hcows","alcdisorder", 
+            B_met <- list(trt = c("sex", "age", "hcows_bin","alcdisorder", 
                                   "alcdisorder_missing", "cocdisorder", "cocdisorder_missing",
                                   "hasBipolar","hasAnxPan",
                                   "hasMajorDep",
                                   "bamphetamine30_base", "bcannabis30_base",
                                   "bbenzo30_base", "ivdrug"),
-                          cens = c("sex", "age", "hcows","alcdisorder", 
+                          cens = c("sex", "age", "hcows_bin","alcdisorder", 
                                    "alcdisorder_missing", "cocdisorder", "cocdisorder_missing",
                                    "hasBipolar","hasAnxPan",
                                    "hasMajorDep",
                                    "bamphetamine30_base", "bcannabis30_base",
                                    "bbenzo30_base", "ivdrug",
                                    as.character(paste0(paste0("wk", i-1), ".dose_this_week"))),
-                          outcome = c("sex", "age", "hcows","alcdisorder", 
+                          outcome = c("sex", "age", "hcows_bin","alcdisorder", 
                                       "alcdisorder_missing", "cocdisorder", "cocdisorder_missing",
                                       "hasBipolar","hasAnxPan",
                                       "hasMajorDep",
@@ -335,7 +335,7 @@ for(j in 1:3) # looping over race
                                       "bbenzo30_base", "ivdrug"))
             
             B_met_as <- list(trt = c("sex", "age"),
-                             cens = c("sex", "age", "hcows","alcdisorder", 
+                             cens = c("sex", "age", "hcows_bin","alcdisorder", 
                                       "alcdisorder_missing", "cocdisorder", "cocdisorder_missing",
                                       "hasBipolar","hasAnxPan",
                                       "hasMajorDep",
@@ -347,19 +347,19 @@ for(j in 1:3) # looping over race
         }
         else
         {
-            B_met <- list(trt = c("sex", "age", "hcows","alcdisorder", 
+            B_met <- list(trt = c("sex", "age", "hcows_bin","alcdisorder", 
                                   "alcdisorder_missing", "cocdisorder", "cocdisorder_missing",
                                   "hasBipolar","hasAnxPan",
                                   "hasMajorDep",
                                   "bamphetamine30_base", "bcannabis30_base",
                                   "bbenzo30_base", "ivdrug"),
-                          cens = c("sex", "age", "hcows","alcdisorder", 
+                          cens = c("sex", "age", "hcows_bin","alcdisorder", 
                                  "alcdisorder_missing", "cocdisorder", "cocdisorder_missing",
                                  "hasBipolar","hasAnxPan",
                                  "hasMajorDep",
                                  "bamphetamine30_base", "bcannabis30_base",
                                  "bbenzo30_base", "ivdrug"),
-                          outcome = c("sex", "age", "hcows","alcdisorder", 
+                          outcome = c("sex", "age", "hcows_bin","alcdisorder", 
                                       "alcdisorder_missing", "cocdisorder", "cocdisorder_missing",
                                       "hasBipolar","hasAnxPan",
                                       "hasMajorDep",
@@ -367,7 +367,7 @@ for(j in 1:3) # looping over race
                                       "bbenzo30_base", "ivdrug"))
             
             B_met_as <- list(trt = c("sex", "age"),
-                             cens = c("sex", "age", "hcows","alcdisorder", 
+                             cens = c("sex", "age", "hcows_bin","alcdisorder", 
                                       "alcdisorder_missing", "cocdisorder", "cocdisorder_missing",
                                       "hasBipolar","hasAnxPan",
                                       "hasMajorDep",
@@ -438,20 +438,20 @@ for(j in 1:3) # looping over race
         
         if (i > 1)
         {
-            B_bup <- list(trt = c("sex", "age", "hcows","alcdisorder", 
+            B_bup <- list(trt = c("sex", "age", "hcows_bin","alcdisorder", 
                                   "alcdisorder_missing", "cocdisorder", "cocdisorder_missing",
                                   "hasBipolar","hasAnxPan",
                                   "hasMajorDep",
                                   "bamphetamine30_base", "bcannabis30_base",
                                   "bbenzo30_base", "ivdrug", "ivdrug_missing"),
-                          cens = c("sex", "age", "hcows","alcdisorder", 
+                          cens = c("sex", "age", "hcows_bin","alcdisorder", 
                                    "alcdisorder_missing", "cocdisorder", "cocdisorder_missing",
                                    "hasBipolar","hasAnxPan",
                                    "hasMajorDep",
                                    "bamphetamine30_base", "bcannabis30_base",
                                    "bbenzo30_base", "ivdrug", "ivdrug_missing",
                                    as.character(paste0(paste0("wk", i-1), ".dose_this_week"))),
-                          outcome = c("sex", "age", "hcows","alcdisorder", 
+                          outcome = c("sex", "age", "hcows_bin","alcdisorder", 
                                       "alcdisorder_missing", "cocdisorder", "cocdisorder_missing",
                                       "hasBipolar","hasAnxPan",
                                       "hasMajorDep",
@@ -459,7 +459,7 @@ for(j in 1:3) # looping over race
                                       "bbenzo30_base", "ivdrug", "ivdrug_missing"))
             
             B_bup_as <- list(trt = c("sex", "age"),
-                             cens = c("sex", "age", "hcows","alcdisorder", 
+                             cens = c("sex", "age", "hcows_bin","alcdisorder", 
                                       "alcdisorder_missing", "cocdisorder", "cocdisorder_missing",
                                       "hasBipolar","hasAnxPan",
                                       "hasMajorDep",
@@ -470,19 +470,19 @@ for(j in 1:3) # looping over race
         }
         else
         {
-            B_bup <- list(trt = c("sex", "age", "hcows","alcdisorder", 
+            B_bup <- list(trt = c("sex", "age", "hcows_bin","alcdisorder", 
                                   "alcdisorder_missing", "cocdisorder", "cocdisorder_missing",
                                   "hasBipolar","hasAnxPan",
                                   "hasMajorDep",
                                   "bamphetamine30_base", "bcannabis30_base",
                                   "bbenzo30_base", "ivdrug", "ivdrug_missing"),
-                          cens = c("sex", "age", "hcows","alcdisorder", 
+                          cens = c("sex", "age", "hcows_bin","alcdisorder", 
                                  "alcdisorder_missing", "cocdisorder", "cocdisorder_missing",
                                  "hasBipolar","hasAnxPan",
                                  "hasMajorDep",
                                  "bamphetamine30_base", "bcannabis30_base",
                                  "bbenzo30_base", "ivdrug", "ivdrug_missing"),
-                          outcome = c("sex", "age", "hcows","alcdisorder", 
+                          outcome = c("sex", "age", "hcows_bin","alcdisorder", 
                                       "alcdisorder_missing", "cocdisorder", "cocdisorder_missing",
                                       "hasBipolar","hasAnxPan",
                                       "hasMajorDep",
@@ -490,7 +490,7 @@ for(j in 1:3) # looping over race
                                       "bbenzo30_base", "ivdrug", "ivdrug_missing"))
             
             B_bup_as <- list(trt = c("sex", "age"),
-                             cens = c("sex", "age", "hcows","alcdisorder", 
+                             cens = c("sex", "age", "hcows_bin","alcdisorder", 
                                       "alcdisorder_missing", "cocdisorder", "cocdisorder_missing",
                                       "hasBipolar","hasAnxPan",
                                       "hasMajorDep",
@@ -532,7 +532,7 @@ for(j in 1:3) # looping over race
         print(paste0(j, sep = " ", i)) # to keep track of which race/week the loop is currently on
         
         # saving results
-        saveRDS(tmle_list_cs[[i]], here::here(paste0("./data/102623/bup_binomial/","result_newcensor_", j, sep = "_", i, ".rds")))
+        saveRDS(tmle_list_cs[[i]], here::here(paste0("./data/102623/bup_binomial/","result_newcensor", j, sep = "_", i, ".rds")))
         saveRDS(tmle_list_cs_limited[[i]], here::here(paste0("./data/102623/bup_binomial/","result_newcensor_limited", j, sep = "_", i, ".rds")))
     }
     race_tmle_list_cs[[j]] <- tmle_list_cs
@@ -561,13 +561,13 @@ for(j in 1:3) # looping over race
         
         if (i > 1)
         {
-            B_comb <- list(trt = c("sex", "age", "hcows","alcdisorder", 
+            B_comb <- list(trt = c("sex", "age", "hcows_bin","alcdisorder", 
                                   "alcdisorder_missing", "cocdisorder", "cocdisorder_missing",
                                   "hasBipolar","hasAnxPan",
                                   "hasMajorDep",
                                   "bamphetamine30_base", "bcannabis30_base",
                                   "bbenzo30_base", "ivdrug", "ivdrug_missing"),
-                          cens = c("sex", "age", "hcows","alcdisorder", 
+                          cens = c("sex", "age", "hcows_bin","alcdisorder", 
                                    "alcdisorder_missing", "cocdisorder", "cocdisorder_missing",
                                    "hasBipolar","hasAnxPan",
                                    "hasMajorDep",
@@ -575,7 +575,7 @@ for(j in 1:3) # looping over race
                                    "bbenzo30_base", "ivdrug", "ivdrug_missing",
                                    as.character(paste0(paste0("wk", i-1), ".dose_this_week")),
                                    "trt_ind"), #indicator for bup/met
-                          outcome = c("sex", "age", "hcows","alcdisorder", 
+                          outcome = c("sex", "age", "hcows_bin","alcdisorder", 
                                       "alcdisorder_missing", "cocdisorder", "cocdisorder_missing",
                                       "hasBipolar","hasAnxPan",
                                       "hasMajorDep",
@@ -583,7 +583,7 @@ for(j in 1:3) # looping over race
                                       "bbenzo30_base", "ivdrug", "ivdrug_missing"))
             
             B_comb_as <- list(trt = c("sex", "age"),
-                             cens = c("sex", "age", "hcows","alcdisorder", 
+                             cens = c("sex", "age", "hcows_bin","alcdisorder", 
                                       "alcdisorder_missing", "cocdisorder", "cocdisorder_missing",
                                       "hasBipolar","hasAnxPan",
                                       "hasMajorDep",
@@ -595,19 +595,19 @@ for(j in 1:3) # looping over race
         }
         else
         {
-            B_comb <- list(trt = c("sex", "age", "hcows","alcdisorder", 
+            B_comb <- list(trt = c("sex", "age", "hcows_bin","alcdisorder", 
                                   "alcdisorder_missing", "cocdisorder", "cocdisorder_missing",
                                   "hasBipolar","hasAnxPan",
                                   "hasMajorDep",
                                   "bamphetamine30_base", "bcannabis30_base",
                                   "bbenzo30_base", "ivdrug", "ivdrug_missing"),
-                          cens = c("sex", "age", "hcows","alcdisorder", 
+                          cens = c("sex", "age", "hcows_bin","alcdisorder", 
                                  "alcdisorder_missing", "cocdisorder", "cocdisorder_missing",
                                  "hasBipolar","hasAnxPan",
                                  "hasMajorDep",
                                  "bamphetamine30_base", "bcannabis30_base",
                                  "bbenzo30_base", "ivdrug", "ivdrug_missing"),
-                          outcome = c("sex", "age", "hcows","alcdisorder", 
+                          outcome = c("sex", "age", "hcows_bin","alcdisorder", 
                                       "alcdisorder_missing", "cocdisorder", "cocdisorder_missing",
                                       "hasBipolar","hasAnxPan",
                                       "hasMajorDep",
@@ -615,7 +615,7 @@ for(j in 1:3) # looping over race
                                       "bbenzo30_base", "ivdrug", "ivdrug_missing"))
             
             B_comb_as <- list(trt = c("sex", "age"),
-                             cens = c("sex", "age", "hcows","alcdisorder", 
+                             cens = c("sex", "age", "hcows_bin","alcdisorder", 
                                       "alcdisorder_missing", "cocdisorder", "cocdisorder_missing",
                                       "hasBipolar","hasAnxPan",
                                       "hasMajorDep",

@@ -25,8 +25,8 @@ unadjusted_diff <- function(est_trt, est_ctl, weeks = 4, ci_level = 0.95,
         est_ctl_new <- est_ctl |>
                 filter(week == i)
             
-        n1 <- est_trt_new$count
-        n2 <- est_ctl_new$count
+        n1 <- est_trt_new$uncensored
+        n2 <- est_ctl_new$uncensored
         
         s1 <- est_trt_new$sd
         s2 <- est_ctl_new$sd
@@ -73,8 +73,8 @@ unadjusted_diff <- function(est_trt, est_ctl, weeks = 4, ci_level = 0.95,
             est_ctl_new <- est_ctl |>
                 filter(week == i)
             
-            n1 <- est_trt_new$count
-            n2 <- est_ctl_new$count
+            n1 <- est_trt_new$uncensored
+            n2 <- est_ctl_new$uncensored
             
             s1 <- est_trt_new$sd
             s2 <- est_ctl_new$sd
@@ -117,8 +117,8 @@ unadjusted_diff <- function(est_trt, est_ctl, weeks = 4, ci_level = 0.95,
             est_ctl_new <- est_ctl |>
                 filter(week == i)
             
-            n1 <- est_trt_new$count
-            n2 <- est_ctl_new$count
+            n1 <- est_trt_new$uncensored
+            n2 <- est_ctl_new$uncensored
             
             s1 <- est_trt_new$sd
             s2 <- est_ctl_new$sd
