@@ -12,13 +12,9 @@ library(patchwork)
 ## Reading Data
 
 ```{r}
-data_bup <- readRDS(here::here("data/processed/data_bup.rds")) |>
-    mutate(wk3.binary = ifelse(wk3.dose_this_week < 16, 0, 1),
-           wk4.binary = ifelse(wk4.dose_this_week < 16, 0, 1))
+data_bup <- readRDS(here::here("data/processed/data_bup.rds")) 
 
-data_met <- readRDS(here::here("data/processed/data_met.rds")) |>
-    mutate(wk3.binary = ifelse(wk3.dose_this_week < 60, 0, 1),
-           wk4.binary = ifelse(wk4.dose_this_week < 60, 0, 1))
+data_met <- readRDS(here::here("data/processed/data_met.rds"))
 ```
 
 ## Descriptive Stats Stratified by Race and Week
@@ -86,7 +82,6 @@ data_met_long <- data_met |>
 # calculating median + iqr
 data_met_long |>
     filter(is.na(dose_this_week) == FALSE) |>
-    filter(censor == 1) |>
     summarize(mean = median(dose_this_week),
               iqr = quantile(dose_this_week, c(0.25, 0.75)),
               max = max(dose_this_week), 
@@ -115,8 +110,12 @@ data_met_long_grouped <- data_met_long |>
 # unadjusted binomial
 bup_binom_df <- data_bup |>
     group_by(xrace) |>
-    summarize(wk3.binary_prop = sum(wk3.binary)/sum(ifelse(wk3.censor == 1, 1, 0)),
-              wk4.binary_prop = sum(wk4.binary)/sum(ifelse(wk4.censor == 1, 1, 0))) |>
+    summarize(wk3.binary_prop = 
+                  sum(
+                      ifelse((wk3.binary == 1 & wk3.censor == 1), 1, 0))/sum(wk3.censor == 1),
+              wk4.binary_prop = 
+                  sum(
+                      ifelse((wk4.binary == 1 & wk4.censor == 1), 1, 0))/sum(wk4.censor == 1)) |>
     mutate(xrace = case_when(xrace == "1" ~ "White",
                     xrace == "2" ~ "Black",
                     xrace == "3" ~ "Hispanic")) |>
@@ -126,8 +125,8 @@ bup_binom_df <- data_bup |>
     mutate(week = ifelse(week == "wk3.binary_prop", 3, 4)) |>
     left_join(data_bup |>
     group_by(xrace) |>
-    summarize(wk3.n = sum(ifelse(wk3.censor == 1, 1, 0)),
-              wk4.n = sum(ifelse(wk4.censor == 1, 1, 0))) |>
+    summarize(wk3.n = sum(wk3.censor == 1),
+              wk4.n = sum(wk4.censor == 1)) |>
     mutate(xrace = case_when(xrace == "1" ~ "White",
                     xrace == "2" ~ "Black",
                     xrace == "3" ~ "Hispanic")) |>
@@ -141,8 +140,12 @@ bup_binom_df <- data_bup |>
 
 met_binom_df <- data_met |>
     group_by(xrace) |>
-    summarize(wk3.binary_prop = sum(wk3.binary)/sum(ifelse(wk3.censor == 1, 1, 0)),
-              wk4.binary_prop = sum(wk4.binary)/sum(ifelse(wk4.censor == 1, 1, 0))) |>
+    summarize(wk3.binary_prop = 
+                  sum(
+                      ifelse((wk3.binary == 1 & wk3.censor == 1), 1, 0))/sum(wk3.censor == 1),
+              wk4.binary_prop = 
+                  sum(
+                      ifelse((wk4.binary == 1 & wk4.censor == 1), 1, 0))/sum(wk4.censor == 1)) |>
     mutate(xrace = case_when(xrace == "1" ~ "White",
                     xrace == "2" ~ "Black",
                     xrace == "3" ~ "Hispanic")) |>
@@ -152,8 +155,8 @@ met_binom_df <- data_met |>
     mutate(week = ifelse(week == "wk3.binary_prop", 3, 4)) |>
     left_join(data_met |>
     group_by(xrace) |>
-    summarize(wk3.n = sum(ifelse(wk3.censor == 1, 1, 0)),
-              wk4.n = sum(ifelse(wk4.censor == 1, 1, 0))) |>
+    summarize(wk3.n = sum(wk3.censor == 1),
+              wk4.n = sum(wk4.censor == 1)) |>
     mutate(xrace = case_when(xrace == "1" ~ "White",
                     xrace == "2" ~ "Black",
                     xrace == "3" ~ "Hispanic")) |>
@@ -172,8 +175,12 @@ data_comb <- data_bup |>
 
 comb_binom_df <- data_comb |>
     group_by(xrace) |>
-    summarize(wk3.binary_prop = sum(wk3.binary)/sum(ifelse(wk3.censor == 1, 1, 0)),
-              wk4.binary_prop = sum(wk4.binary)/sum(ifelse(wk4.censor == 1, 1, 0))) |>
+    summarize(wk3.binary_prop = 
+                  sum(
+                      ifelse((wk3.binary == 1 & wk3.censor == 1), 1, 0))/sum(wk3.censor == 1),
+              wk4.binary_prop = 
+                  sum(
+                      ifelse((wk4.binary == 1 & wk4.censor == 1), 1, 0))/sum(wk4.censor == 1)) |>
     mutate(xrace = case_when(xrace == "1" ~ "White",
                              xrace == "2" ~ "Black",
                              xrace == "3" ~ "Hispanic")) |>
@@ -183,8 +190,8 @@ comb_binom_df <- data_comb |>
     mutate(week = ifelse(week == "wk3.binary_prop", 3, 4)) |>
     left_join(data_comb |>
                   group_by(xrace) |>
-                  summarize(wk3.n = sum(ifelse(wk3.censor == 1, 1, 0)),
-                            wk4.n = sum(ifelse(wk4.censor == 1, 1, 0))) |>
+                  summarize(wk3.n = sum(wk3.censor == 1),
+                            wk4.n = sum(wk4.censor == 1)) |>
                   mutate(xrace = case_when(xrace == "1" ~ "White",
                                            xrace == "2" ~ "Black",
                                            xrace == "3" ~ "Hispanic")) |>

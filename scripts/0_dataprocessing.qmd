@@ -32,10 +32,25 @@ dat_wide <- relapse_harmonized_wide |>
 # stratifying datasets by treatment
 
 data_bup <- dat_wide |>
-    filter(medicine == 'bup') #bup only
+    filter(medicine == 'bup') |>
+    mutate(hcows_bin = case_when(hwithdraw == "1" ~ 0,
+                                 hwithdraw == "2" ~ 0,
+                                 hwithdraw == "3" ~ 1,
+                                 hwithdraw == "4" ~ 1,
+                                 TRUE ~ as.numeric(hwithdraw))) |>
+    mutate(wk3.binary = ifelse(wk3.dose_this_week < 16, 0, 1),
+           wk4.binary = ifelse(wk4.dose_this_week < 16, 0, 1)) 
+
 
 data_met <- dat_wide |>
-    filter(medicine == 'met') # met only
+    filter(medicine == 'met') |>
+    mutate(hcows_bin = case_when(hwithdraw == "1" ~ 0,
+                                 hwithdraw == "2" ~ 0,
+                                 hwithdraw == "3" ~ 1,
+                                 hwithdraw == "4" ~ 1,
+                                 TRUE ~ as.numeric(hwithdraw))) |>
+    mutate(wk3.binary = ifelse(wk3.dose_this_week < 16, 0, 1),
+           wk4.binary = ifelse(wk4.dose_this_week < 16, 0, 1)) 
 ```
 
 ## Creating Censoring Variables
@@ -108,7 +123,7 @@ for (i in 1:4)
 ```{r}
 covartable <- tbl_summary(
     data_bup,
-    include =  c("sex", "age", "hcows","alcdisorder", 
+    include =  c("sex", "age", "hcows_bin","alcdisorder", 
          "cocdisorder",
        "hasBipolar","hasAnxPan",
        "hasMajorDep",
@@ -125,7 +140,7 @@ as_kable(covartable, format = "latex")
 
 covartable_met <- tbl_summary(
     data_met,
-    include = c("sex", "age", "hcows","alcdisorder", 
+    include = c("sex", "age", "hcows_bin","alcdisorder", 
          "cocdisorder",
        "hasBipolar","hasAnxPan",
        "hasMajorDep",
