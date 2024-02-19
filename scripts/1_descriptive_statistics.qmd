@@ -34,7 +34,8 @@ data_bup_long <- data_bup |>
     mutate(dose_this_week = case_when(
         censor == 0 ~ as.numeric(NA),
         TRUE ~ dose_this_week),
-        week = as.integer(gsub("^.{0,2}", "", week))) 
+        week = as.integer(gsub("^.{0,2}", "", week))) |>
+    mutate(dose_this_week = ifelse(censor == 0, as.numeric(NA), dose_this_week))
 
 # calculating median + iqr
 data_bup_long |>
@@ -77,11 +78,13 @@ data_met_long <- data_met |>
     mutate(dose_this_week = case_when(
         censor == 0 ~ as.numeric(NA),
         TRUE ~ dose_this_week),
-        week = as.integer(gsub("^.{0,2}", "", week))) 
+        week = as.integer(gsub("^.{0,2}", "", week))) |>
+    mutate(dose_this_week = ifelse(censor == 0, as.numeric(NA), dose_this_week))
 
 # calculating median + iqr
 data_met_long |>
     filter(is.na(dose_this_week) == FALSE) |>
+    filter(censor == 1) |>
     summarize(mean = median(dose_this_week),
               iqr = quantile(dose_this_week, c(0.25, 0.75)),
               max = max(dose_this_week), 
