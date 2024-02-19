@@ -841,7 +841,7 @@ met_binomial_plot <- ggplot(met_binomial_total, aes(x = week, y = theta, group =
     geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.25, position = position_dodge(width = 0.5)) +
     labs(title = "",
          x = "Study Week",
-         y = "Mean Dose") +
+         y = "Proportion of Higher Dose") +
     scale_x_continuous(breaks = seq(1, 4, by = 1)) +
     scale_color_manual(values = custom_colors) + 
     scale_shape_manual(values = c(1, 0, 8)) +
@@ -892,7 +892,7 @@ met_binomial_pairwise <- ggplot(met_binomial_pair, aes(x = time, y = effect_est,
     geom_errorbar(aes(ymin = ci_lwr, ymax = ci_upr), width = 0.25, position = position_dodge(width = 0.5)) +
     labs(title = "",
          x = "Study Week",
-         y = "Mean Dose Difference") +
+         y = "Proportion of Higher Dose Difference") +
     geom_hline(yintercept = 0, linetype = "dotted", color = "black") +
     scale_x_continuous(breaks = seq(3, 4, by = 1)) +
     scale_color_manual(values = c("#1f78b4", "darkseagreen4")) + 
@@ -951,7 +951,7 @@ bup_binomial_plot <- ggplot(bup_binomial_total, aes(x = week, y = theta, group =
     geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.25, position = position_dodge(width = 0.5)) +
     labs(title = "",
          x = "Study Week",
-         y = "Mean Dose") +
+         y = "Proportion of Higher Dose") +
     scale_x_continuous(breaks = seq(1, 4, by = 1)) +
     scale_color_manual(values = custom_colors) + 
     scale_shape_manual(values = c(1, 0, 8)) +
@@ -1002,7 +1002,7 @@ bup_binomial_pairwise <- ggplot(bup_binomial_pair, aes(x = time, y = effect_est,
     geom_errorbar(aes(ymin = ci_lwr, ymax = ci_upr), width = 0.25, position = position_dodge(width = 0.5)) +
     labs(title = "",
          x = "Study Week",
-         y = "Mean Dose Difference") +
+         y = "Proportion of Higher Dose Difference") +
     geom_hline(yintercept = 0, linetype = "dotted", color = "black") +
     scale_x_continuous(breaks = seq(3, 4, by = 1)) +
     scale_color_manual(values = c("#1f78b4", "darkseagreen4")) + 
@@ -1063,7 +1063,7 @@ comb_binomial_plot <- ggplot(comb_binomial_total, aes(x = week, y = theta, group
     geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.25, position = position_dodge(width = 0.5)) +
     labs(title = "",
          x = "Study Week",
-         y = "Mean Dose") +
+         y = "Proportion of Higher Dose") +
     scale_x_continuous(breaks = seq(1, 4, by = 1)) +
     scale_color_manual(values = custom_colors) + 
     scale_shape_manual(values = c(1, 0, 8)) +
@@ -1114,7 +1114,7 @@ comb_binomial_pairwise <- ggplot(comb_binomial_pair, aes(x = time, y = effect_es
     geom_errorbar(aes(ymin = ci_lwr, ymax = ci_upr), width = 0.25, position = position_dodge(width = 0.5)) +
     labs(title = "",
          x = "Study Week",
-         y = "Mean Dose Difference") +
+         y = "Proportion of Higher Dose Difference") +
     geom_hline(yintercept = 0, linetype = "dotted", color = "black") +
     scale_x_continuous(breaks = seq(1, 4, by = 1)) +
     scale_color_manual(values = c("#1f78b4", "darkseagreen4")) + 
