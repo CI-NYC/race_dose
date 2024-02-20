@@ -41,8 +41,11 @@ data_bup_long <- data_bup |>
 data_bup_long |>
     filter(is.na(dose_this_week) == FALSE) |>
     filter(censor == 1) |>
-    summarize(mean = median(dose_this_week),
-              iqr = quantile(dose_this_week, c(0.25, 0.75)))
+    summarize(mean = mean(dose_this_week),
+              median = quantile(dose_this_week, c(0.5)),
+              iqr = quantile(dose_this_week, c(0.25, 0.75)),
+              max = max(dose_this_week), 
+              min = min(dose_this_week))
 
 data_bup_long_grouped <- data_bup_long |>
         group_by(week, xrace) |>
@@ -85,7 +88,8 @@ data_met_long <- data_met |>
 data_met_long |>
     filter(is.na(dose_this_week) == FALSE) |>
     filter(censor == 1) |>
-    summarize(mean = median(dose_this_week),
+    summarize(mean = mean(dose_this_week),
+              median = quantile(dose_this_week, c(0.5)),
               iqr = quantile(dose_this_week, c(0.25, 0.75)),
               max = max(dose_this_week), 
               min = min(dose_this_week))
