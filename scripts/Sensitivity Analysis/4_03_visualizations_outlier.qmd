@@ -195,18 +195,19 @@ unadjust_met_23 <- unadjusted_diff(data_met_long_2, data_met_long_3, ci_type = "
 custom_colors <- c("White" = "#e31a1c", "Black" = "#1f78b4", "Hispanic" = "darkseagreen4")
 
 met_cont_unadj <- data_met_long |>
-    mutate(type = "Unadjusted")
+    mutate(type = "Crude")
 
 met_cont_lim <- met_result_newcensors_lim |>
-    mutate(type = "Age + Sex")
+    mutate(type = "Adjusted by age & sex")
 
 met_cont_all <- met_result_newcensors_all |>
-    mutate(type = "Expanded")
+    mutate(type = "Adjusted by expanded set")
 
 met_cont_total <- met_cont_unadj |>
     merge(met_cont_lim, all = TRUE) |>
     merge(met_cont_all, all = TRUE) |>
-    mutate(type = factor(type, levels = c("Unadjusted", "Age + Sex", "Expanded")))
+    mutate(type = factor(type, levels = c("Crude", "Adjusted by age & sex", "Adjusted by expanded set"))) |>
+    filter(week >= 3)
 
 met_cont_plot <- ggplot(met_cont_total, aes(x = week, y = theta, group = race, color = race, fill = race, shape = race)) +
     geom_point(position = position_dodge(width = 0.5)) +
@@ -250,18 +251,19 @@ met_all <- met_all_12_df |> mutate(race = "Black v. White") |>
     merge(met_all_23_df |> mutate(race = "Black v. Hispanic"), all = TRUE) |>
     merge(met_all_13_df |> mutate(race = "Hispanic v. White"), all = TRUE)
 
-met_cont_pair <- met_unadj |> mutate(type = "Unadjusted") |>
-    merge(met_as |> mutate(type = "Age + Sex"), all = TRUE) |>
-    merge(met_all |> mutate(type = "Expanded"), all = TRUE) |>
-    mutate(type = factor(type, levels = c("Unadjusted", "Age + Sex", "Expanded"))) |>
-    filter(race != "Black v. Hispanic")
+met_cont_pair <- met_unadj |> mutate(type = "Crude") |>
+    merge(met_as |> mutate(type = "Adjusted by age & sex"), all = TRUE) |>
+    merge(met_all |> mutate(type = "Adjusted by expanded set"), all = TRUE) |>
+    mutate(type = factor(type, levels = c("Crude", "Adjusted by age & sex", "Adjusted by expanded set"))) |>
+    filter(race != "Black v. Hispanic",
+           time >= 3) 
 
 met_pairwise <- ggplot(met_cont_pair, aes(x = time, y = effect_est, group = race, color = race, fill = race, shape = race)) +
     geom_point(position = position_dodge(width = 0.5)) +
     geom_errorbar(aes(ymin = ci_lwr, ymax = ci_upr), width = 0.25, position = position_dodge(width = 0.5)) +
     labs(title = "",
          x = "Study Week",
-         y = "Mean Dose Difference") +
+         y = "Mean Dose (Difference)") +
     geom_hline(yintercept = 0, linetype = "dotted", color = "black") +
     scale_x_continuous(breaks = seq(1, 4, by = 1)) +
     scale_color_manual(values = c("#1f78b4", "darkseagreen4")) + 
