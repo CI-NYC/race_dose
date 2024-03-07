@@ -2,7 +2,7 @@ bup_binomial_total <- bup_binomial_total |>
     arrange(race, type, week)
 
 bup_binomial_pair <- bup_binomial_pair |>
-    select(time, race, type, effect_est, ci_lwr, ci_upr) |>
+    select(time, race, type, theta, conf.low, conf.high) |>
     arrange(race, type, time)
 
 bup_binomial_unadj_tbl <- data.frame(race = c("Black", "Hispanic", "White"),

@@ -8,12 +8,12 @@ unadjusted_diff <- function(est_trt, est_ctl, weeks = 4, ci_level = 0.95,
     
     all_weeks <- tibble(
         time = as.integer(0),
-        ci_lwr = as.double(0),
-        ci_upr = as.double(0),
-        effect_est = as.double(0),
-        std_err = as.double(0),
+        conf.low = as.double(0),
+        conf.high = as.double(0),
+        theta = as.double(0),
+        std.error = as.double(0),
         test_stat = as.double(0),
-        pval = as.double(0))
+        p.value = as.double(0))
     
     if(ci_type == "bonf") #creating Bonferroni CI
     {
@@ -35,29 +35,29 @@ unadjusted_diff <- function(est_trt, est_ctl, weeks = 4, ci_level = 0.95,
         
         se_pooled <- sqrt(sp^2 * ((1/n1) + (1/n2))) #pooled standard error
         
-         ci_upr <- (est_trt_new$avg - est_ctl_new$avg) + 
+         conf.high <- (est_trt_new$avg - est_ctl_new$avg) + 
             qt(p=(1 - ci_level)/(2 * weeks),
                df =  n1 + n2 -2, lower.tail=FALSE) *
              se_pooled
-        ci_lwr <- (est_trt_new$avg - est_ctl_new$avg) -
+        conf.low <- (est_trt_new$avg - est_ctl_new$avg) -
             qt(p=(1 - ci_level)/(2 * weeks), 
                df =  n1 + n2 -2, lower.tail=FALSE) *
             se_pooled
         
-        effect_est <- est_trt_new$avg - est_ctl_new$avg #mean diff
+        theta <- est_trt_new$avg - est_ctl_new$avg #mean diff
         
-        test_stat <- abs((effect_est - 0) / se_pooled) #test stat
+        test_stat <- abs((theta - 0) / se_pooled) #test stat
         
-        pval <- pnorm(-test_stat) #p-value
+        p.value <- pnorm(-test_stat) #p-value
         
         this_week <- tibble(
             time = i,
-            ci_lwr = ci_lwr,
-            ci_upr = ci_upr,
-            effect_est = est_trt_new$avg - est_ctl_new$avg,
-            std_err = se_pooled,
+            conf.low = conf.low,
+            conf.high = conf.high,
+            theta = est_trt_new$avg - est_ctl_new$avg,
+            std.error = se_pooled,
             test_stat = test_stat,
-            pval = pval)
+            p.value = p.value)
         
         all_weeks <- all_weeks |>
             rbind(this_week)
@@ -81,27 +81,27 @@ unadjusted_diff <- function(est_trt, est_ctl, weeks = 4, ci_level = 0.95,
             
             se_pooled <- sqrt((s1^2/n1 + s2^2/n2)) #pooled standard error
             
-            ci_upr <- (est_trt_new$avg - est_ctl_new$avg) + 
+            conf.high <- (est_trt_new$avg - est_ctl_new$avg) + 
                 sqrt(qchisq(p = ci_level, df = weeks))*
                 se_pooled
-            ci_lwr <- (est_trt_new$avg - est_ctl_new$avg) -
+            conf.low <- (est_trt_new$avg - est_ctl_new$avg) -
                 sqrt(qchisq(p = ci_level, df = weeks)) *
                 se_pooled
             
-            effect_est <- est_trt_new$avg - est_ctl_new$avg #mean diff
+            theta <- est_trt_new$avg - est_ctl_new$avg #mean diff
             
-            test_stat <- abs((effect_est - 0) / se_pooled) #test stat
+            test_stat <- abs((theta - 0) / se_pooled) #test stat
             
-            pval <- pnorm(-test_stat) #p-value
+            p.value <- pnorm(-test_stat) #p-value
             
             this_week <- tibble(
                 time = i,
-                ci_lwr = ci_lwr,
-                ci_upr = ci_upr,
-                effect_est = est_trt_new$avg - est_ctl_new$avg,
-                std_err = se_pooled,
+                conf.low = conf.low,
+                conf.high = conf.high,
+                theta = est_trt_new$avg - est_ctl_new$avg,
+                std.error = se_pooled,
                 test_stat = test_stat,
-                pval = pval)
+                p.value = p.value)
             
             all_weeks <- all_weeks |>
                 rbind(this_week)
@@ -123,29 +123,29 @@ unadjusted_diff <- function(est_trt, est_ctl, weeks = 4, ci_level = 0.95,
             s1 <- est_trt_new$sd
             s2 <- est_ctl_new$sd
             
-            std_err <- sqrt((s1^2/n1) + (s2^2/n2)) #pooled standard error
+            std.error <- sqrt((s1^2/n1) + (s2^2/n2)) #pooled standard error
             
-            ci_upr <- (est_trt_new$avg - est_ctl_new$avg) + 
+            conf.high <- (est_trt_new$avg - est_ctl_new$avg) + 
                 abs(qnorm(1 - (1 - ci_level)/2, lower.tail = TRUE)) *
-                std_err
-            ci_lwr <- (est_trt_new$avg - est_ctl_new$avg) -
+                std.error
+            conf.low <- (est_trt_new$avg - est_ctl_new$avg) -
                 abs(qnorm(1 - (1 - ci_level)/2, lower.tail = TRUE)) *
-                std_err
+                std.error
             
-            effect_est <- est_trt_new$avg - est_ctl_new$avg #mean diff
+            theta <- est_trt_new$avg - est_ctl_new$avg #mean diff
             
-            test_stat <- effect_est/std_err #test stat
+            test_stat <- theta/std.error #test stat
             
-            pval = 2 * (1 - pnorm(abs(test_stat))) #p-value
+            p.value = 2 * (1 - pnorm(abs(test_stat))) #p-value
             
             this_week <- tibble(
                 time = i,
-                ci_lwr = ci_lwr,
-                ci_upr = ci_upr,
-                effect_est = est_trt_new$avg - est_ctl_new$avg,
-                std_err = std_err,
+                conf.low = conf.low,
+                conf.high = conf.high,
+                theta = est_trt_new$avg - est_ctl_new$avg,
+                std.error = std.error,
                 test_stat = test_stat,
-                pval = pval)
+                p.value = p.value)
             
             all_weeks <- all_weeks |>
                 rbind(this_week)
@@ -160,12 +160,12 @@ unadjusted_diff_binom <- function(est_trt, est_ctl, weeks = 4, ci_level = 0.95,
     
     all_weeks <- tibble(
         time = as.integer(0),
-        ci_lwr = as.double(0),
-        ci_upr = as.double(0),
-        effect_est = as.double(0),
-        std_err = as.double(0),
+        conf.low = as.double(0),
+        conf.high = as.double(0),
+        theta = as.double(0),
+        std.error = as.double(0),
         test_stat = as.double(0),
-        pval = as.double(0))
+        p.value = as.double(0))
     
     if (ci_type == "marginal") #non-FWER adjusted
     {
@@ -183,30 +183,30 @@ unadjusted_diff_binom <- function(est_trt, est_ctl, weeks = 4, ci_level = 0.95,
             n1 <- est_trt_new$n
             n2 <- est_ctl_new$n
             
-            effect_est <- p1 - p2 #prop diff
+            theta <- p1 - p2 #prop diff
             
-            std_err <- sqrt(((p1 * (1 - p1))/n1) + ((p2 * (1 - p2))/n2))
+            std.error <- sqrt(((p1 * (1 - p1))/n1) + ((p2 * (1 - p2))/n2))
 
-            ci_upr <- effect_est + 
+            conf.high <- theta + 
                 abs(qnorm(1 - (1 - ci_level)/2, lower.tail = TRUE)) *
-                std_err
+                std.error
             
-            ci_lwr <- effect_est -
+            conf.low <- theta -
                 abs(qnorm(1 - (1 - ci_level)/2, lower.tail = TRUE)) *
-                std_err
+                std.error
             
-            test_stat <- effect_est/std_err #test stat
+            test_stat <- theta/std.error #test stat
             
-            pval = 2 * (1 - pnorm(abs(test_stat))) #p-value
+            p.value = 2 * (1 - pnorm(abs(test_stat))) #p-value
             
             this_week <- tibble(
                 time = i,
-                ci_lwr = ci_lwr,
-                ci_upr = ci_upr,
-                effect_est = effect_est,
-                std_err = std_err,
+                conf.low = conf.low,
+                conf.high = conf.high,
+                theta = theta,
+                std.error = std.error,
                 test_stat = test_stat,
-                pval = pval)
+                p.value = p.value)
             
             all_weeks <- all_weeks |>
                 rbind(this_week)

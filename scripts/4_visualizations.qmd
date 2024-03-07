@@ -11,12 +11,13 @@ library(ggpubr)
 library(ggalluvial)
 library(gtsummary)
 library(patchwork)
+library(lmtp)
 
 knitr::opts_chunk$set(warning=FALSE, message=FALSE)
 knitr::opts_chunk$set(fig.width=18, fig.height=12) 
 
 # scripts to make confidence intervals
-source(here::here("scripts/source/utils_adapted.R"))
+#source(here::here("scripts/source/utils_adapted.R"))
 source(here::here("scripts/source/unadjusted_ci.R"))
 ```
 
@@ -448,75 +449,203 @@ for (i in 1:4) {
     }
 }
 
-bup_all_12_df <- summarize_results(bup_2, bup_1, ci_level = 0.95, ci_type = "marginal")$diff_est |>
-    filter(time > 0)
-bup_all_23_df <- summarize_results(bup_2, bup_3, ci_level = 0.95, ci_type = "marginal")$diff_est |>
-    filter(time > 0)
-bup_all_13_df <- summarize_results(bup_3, bup_1, ci_level = 0.95, ci_type = "marginal")$diff_est |>
-    filter(time > 0)
+lmtp_contrast_simple <- function(X, Y) {
+  res <- lmtp_contrast(X, ref = Y)
+  
+  return(res)
+}
 
-met_all_12_df <- summarize_results(met_2, met_1, ci_level = 0.95, ci_type = "marginal")$diff_est |>
-    filter(time > 0)
-met_all_23_df <- summarize_results(met_2, met_3, ci_level = 0.95, ci_type = "marginal")$diff_est |>
-    filter(time > 0)
-met_all_13_df <- summarize_results(met_3, met_1, ci_level = 0.95, ci_type = "marginal")$diff_est |>
-    filter(time > 0)
+bup_all_12_contrast <- mapply(lmtp_contrast_simple, X = bup_2, Y = bup_1)
 
-bup_as_12_df <- summarize_results(bup_as_2, bup_as_1, ci_level = 0.95, ci_type = "marginal")$diff_est |>
-    filter(time > 0)
-bup_as_23_df <- summarize_results(bup_as_2, bup_as_3, ci_level = 0.95, ci_type = "marginal")$diff_est |>
-    filter(time > 0)
-bup_as_13_df <- summarize_results(bup_as_3, bup_as_1, ci_level = 0.95, ci_type = "marginal")$diff_est |>
-    filter(time > 0)
+bup_all_12_df <- as.data.frame(bup_all_12_contrast[,1]$val) |>
+    mutate(time = 1) |>
+    merge(as.data.frame(bup_all_12_contrast[,2]$val) |>
+    mutate(time = 2), all = TRUE) |>
+    merge(as.data.frame(bup_all_12_contrast[,3]$val) |>
+    mutate(time = 3), all = TRUE) |>
+    merge(as.data.frame(bup_all_12_contrast[,4]$val) |>
+    mutate(time = 4), all = TRUE) |>
+    arrange(time)
 
-met_as_12_df <- summarize_results(met_as_2, met_as_1, ci_level = 0.95, ci_type = "marginal")$diff_est |>
-    filter(time > 0)
-met_as_23_df <- summarize_results(met_as_2, met_as_3, ci_level = 0.95, ci_type = "marginal")$diff_est |>
-    filter(time > 0)
-met_as_13_df <- summarize_results(met_as_3, met_as_1, ci_level = 0.95, ci_type = "marginal")$diff_est |>
-    filter(time > 0)
+bup_all_13_contrast <- mapply(lmtp_contrast_simple, X = bup_3, Y = bup_1)
 
-bup_binomial_as_12_df <- summarize_results(bup_binomial_as_2, bup_binomial_as_1, ci_level = 0.95, ci_type = "marginal")$diff_est |>
-    filter(time > 0)
-bup_binomial_as_23_df <- summarize_results(bup_binomial_as_2, bup_binomial_as_3, ci_level = 0.95, ci_type = "marginal")$diff_est |>
-    filter(time > 0)
-bup_binomial_as_13_df <- summarize_results(bup_binomial_as_3, bup_binomial_as_1, ci_level = 0.95, ci_type = "marginal")$diff_est |>
-    filter(time > 0)
+bup_all_13_df <- as.data.frame(bup_all_13_contrast[,1]$val) |>
+    mutate(time = 1) |>
+    merge(as.data.frame(bup_all_13_contrast[,2]$val) |>
+    mutate(time = 2), all = TRUE) |>
+    merge(as.data.frame(bup_all_13_contrast[,3]$val) |>
+    mutate(time = 3), all = TRUE) |>
+    merge(as.data.frame(bup_all_13_contrast[,4]$val) |>
+    mutate(time = 4), all = TRUE) |>
+    arrange(time)
 
-met_binomial_as_12_df <- summarize_results(met_binomial_as_2, met_binomial_as_1, ci_level = 0.95, ci_type = "marginal")$diff_est |>
-    filter(time > 0)
-met_binomial_as_23_df <- summarize_results(met_binomial_as_2, met_binomial_as_3, ci_level = 0.95, ci_type = "marginal")$diff_est |>
-    filter(time > 0)
-met_binomial_as_13_df <- summarize_results(met_binomial_as_3, met_binomial_as_1, ci_level = 0.95, ci_type = "marginal")$diff_est |>
-    filter(time > 0)
+met_all_12_contrast <- mapply(lmtp_contrast_simple, X = met_2, Y = met_1)
 
-bup_binomial_12_df <- summarize_results(bup_binomial_2, bup_binomial_1, ci_level = 0.95, ci_type = "marginal")$diff_est |>
-    filter(time > 0)
-bup_binomial_23_df <- summarize_results(bup_binomial_2, bup_binomial_3, ci_level = 0.95, ci_type = "marginal")$diff_est |>
-    filter(time > 0)
-bup_binomial_13_df <- summarize_results(bup_binomial_3, bup_binomial_1, ci_level = 0.95, ci_type = "marginal")$diff_est |>
-    filter(time > 0)
+met_all_12_df <- as.data.frame(met_all_12_contrast[,1]$val) |>
+    mutate(time = 1) |>
+    merge(as.data.frame(met_all_12_contrast[,2]$val) |>
+    mutate(time = 2), all = TRUE) |>
+    merge(as.data.frame(met_all_12_contrast[,3]$val) |>
+    mutate(time = 3), all = TRUE) |>
+    merge(as.data.frame(met_all_12_contrast[,4]$val) |>
+    mutate(time = 4), all = TRUE) |>
+    arrange(time)
 
-met_binomial_12_df <- summarize_results(met_binomial_2, met_binomial_1, ci_level = 0.95, ci_type = "marginal")$diff_est |>
-    filter(time > 0)
-met_binomial_23_df <- summarize_results(met_binomial_2, met_binomial_3, ci_level = 0.95, ci_type = "marginal")$diff_est |>
-    filter(time > 0)
-met_binomial_13_df <- summarize_results(met_binomial_3, met_binomial_1, ci_level = 0.95, ci_type = "marginal")$diff_est |>
-    filter(time > 0)
+met_all_13_contrast <- mapply(lmtp_contrast_simple, X = met_3, Y = met_1)
 
-comb_binomial_as_12_df <- summarize_results(comb_binomial_as_2, comb_binomial_as_1, ci_level = 0.95, ci_type = "marginal")$diff_est |>
-    filter(time > 0)
-comb_binomial_as_23_df <- summarize_results(comb_binomial_as_2, comb_binomial_as_3, ci_level = 0.95, ci_type = "marginal")$diff_est |>
-    filter(time > 0)
-comb_binomial_as_13_df <- summarize_results(comb_binomial_as_3, comb_binomial_as_1, ci_level = 0.95, ci_type = "marginal")$diff_est |>
-    filter(time > 0)
+met_all_13_df <- as.data.frame(met_all_13_contrast[,1]$val) |>
+    mutate(time = 1) |>
+    merge(as.data.frame(met_all_13_contrast[,2]$val) |>
+    mutate(time = 2), all = TRUE) |>
+    merge(as.data.frame(met_all_13_contrast[,3]$val) |>
+    mutate(time = 3), all = TRUE) |>
+    merge(as.data.frame(met_all_13_contrast[,4]$val) |>
+    mutate(time = 4), all = TRUE) |>
+    arrange(time)
 
-comb_binomial_12_df <- summarize_results(comb_binomial_2, comb_binomial_1, ci_level = 0.95, ci_type = "marginal")$diff_est |>
-    filter(time > 0)
-comb_binomial_23_df <- summarize_results(comb_binomial_2, comb_binomial_3, ci_level = 0.95, ci_type = "marginal")$diff_est |>
-    filter(time > 0)
-comb_binomial_13_df <- summarize_results(comb_binomial_3, comb_binomial_1, ci_level = 0.95, ci_type = "marginal")$diff_est |>
-    filter(time > 0)
+bup_as_12_contrast <- mapply(lmtp_contrast_simple, X = bup_as_2, Y = bup_as_1)
+
+bup_as_12_df <- as.data.frame(bup_as_12_contrast[,1]$val) |>
+    mutate(time = 1) |>
+    merge(as.data.frame(bup_as_12_contrast[,2]$val) |>
+    mutate(time = 2), all = TRUE) |>
+    merge(as.data.frame(bup_as_12_contrast[,3]$val) |>
+    mutate(time = 3), all = TRUE) |>
+    merge(as.data.frame(bup_as_12_contrast[,4]$val) |>
+    mutate(time = 4), all = TRUE) |>
+    arrange(time)
+
+bup_as_13_contrast <- mapply(lmtp_contrast_simple, X = bup_as_3, Y = bup_as_1)
+
+bup_as_13_df <- as.data.frame(bup_as_13_contrast[,1]$val) |>
+    mutate(time = 1) |>
+    merge(as.data.frame(bup_as_13_contrast[,2]$val) |>
+    mutate(time = 2), all = TRUE) |>
+    merge(as.data.frame(bup_as_13_contrast[,3]$val) |>
+    mutate(time = 3), all = TRUE) |>
+    merge(as.data.frame(bup_as_13_contrast[,4]$val) |>
+    mutate(time = 4), all = TRUE) |>
+    arrange(time)
+
+met_as_12_contrast <- mapply(lmtp_contrast_simple, X = met_as_2, Y = met_as_1)
+
+met_as_12_df <- as.data.frame(met_as_12_contrast[,1]$val) |>
+    mutate(time = 1) |>
+    merge(as.data.frame(met_as_12_contrast[,2]$val) |>
+    mutate(time = 2), all = TRUE) |>
+    merge(as.data.frame(met_as_12_contrast[,3]$val) |>
+    mutate(time = 3), all = TRUE) |>
+    merge(as.data.frame(met_as_12_contrast[,4]$val) |>
+    mutate(time = 4), all = TRUE) |>
+    arrange(time)
+
+met_as_13_contrast <- mapply(lmtp_contrast_simple, X = met_as_3, Y = met_as_1)
+
+met_as_13_df <- as.data.frame(met_as_13_contrast[,1]$val) |>
+    mutate(time = 1) |>
+    merge(as.data.frame(met_as_13_contrast[,2]$val) |>
+    mutate(time = 2), all = TRUE) |>
+    merge(as.data.frame(met_as_13_contrast[,3]$val) |>
+    mutate(time = 3), all = TRUE) |>
+    merge(as.data.frame(met_as_13_contrast[,4]$val) |>
+    mutate(time = 4), all = TRUE) |>
+    arrange(time)
+
+bup_binomial_as_12_contrast <- mapply(lmtp_contrast_simple, X = bup_binomial_as_2, Y = bup_binomial_as_1)
+
+bup_binomial_as_12_df <- as.data.frame(bup_binomial_as_12_contrast[,1]$val) |>
+    mutate(time = 3) |>
+    merge(as.data.frame(bup_binomial_as_12_contrast[,2]$val) |>
+    mutate(time = 4), all = TRUE) |>
+    arrange(time)
+
+bup_binomial_as_13_contrast <- mapply(lmtp_contrast_simple, X = bup_binomial_as_3, Y = bup_binomial_as_1)
+
+bup_binomial_as_13_df <- as.data.frame(bup_binomial_as_13_contrast[,1]$val) |>
+    mutate(time = 3) |>
+    merge(as.data.frame(bup_binomial_as_13_contrast[,2]$val) |>
+    mutate(time = 4), all = TRUE) |>
+    arrange(time)
+
+met_binomial_as_12_contrast <- mapply(lmtp_contrast_simple, X = met_binomial_as_2, Y = met_binomial_as_1)
+
+met_binomial_as_12_df <- as.data.frame(met_binomial_as_12_contrast[,1]$val) |>
+    mutate(time = 3) |>
+    merge(as.data.frame(met_binomial_as_12_contrast[,2]$val) |>
+    mutate(time = 4), all = TRUE) |>
+    arrange(time)
+
+met_binomial_as_13_contrast <- mapply(lmtp_contrast_simple, X = met_binomial_as_3, Y = met_binomial_as_1)
+
+met_binomial_as_13_df <- as.data.frame(met_binomial_as_13_contrast[,1]$val) |>
+    mutate(time = 3) |>
+    merge(as.data.frame(met_binomial_as_13_contrast[,2]$val) |>
+    mutate(time = 4), all = TRUE) |>
+    arrange(time)
+
+bup_binomial_12_contrast <- mapply(lmtp_contrast_simple, X = bup_binomial_2, Y = bup_binomial_1)
+
+bup_binomial_12_df <- as.data.frame(bup_binomial_12_contrast[,1]$val) |>
+    mutate(time = 3) |>
+    merge(as.data.frame(bup_binomial_12_contrast[,2]$val) |>
+    mutate(time = 4), all = TRUE) |>
+    arrange(time)
+
+bup_binomial_13_contrast <- mapply(lmtp_contrast_simple, X = bup_binomial_3, Y = bup_binomial_1)
+
+bup_binomial_13_df <- as.data.frame(bup_binomial_13_contrast[,1]$val) |>
+    mutate(time = 3) |>
+    merge(as.data.frame(bup_binomial_13_contrast[,2]$val) |>
+    mutate(time = 4), all = TRUE) |>
+    arrange(time)
+
+met_binomial_12_contrast <- mapply(lmtp_contrast_simple, X = met_binomial_2, Y = met_binomial_1)
+
+met_binomial_12_df <- as.data.frame(met_binomial_12_contrast[,1]$val) |>
+    mutate(time = 3) |>
+    merge(as.data.frame(met_binomial_12_contrast[,2]$val) |>
+    mutate(time = 4), all = TRUE) |>
+    arrange(time)
+
+met_binomial_13_contrast <- mapply(lmtp_contrast_simple, X = met_binomial_3, Y = met_binomial_1)
+
+met_binomial_13_df <- as.data.frame(met_binomial_13_contrast[,1]$val) |>
+    mutate(time = 3) |>
+    merge(as.data.frame(met_binomial_13_contrast[,2]$val) |>
+    mutate(time = 4), all = TRUE) |>
+    arrange(time)
+
+comb_binomial_as_12_contrast <- mapply(lmtp_contrast_simple, X = comb_binomial_as_2, Y = comb_binomial_as_1)
+
+comb_binomial_as_12_df <- as.data.frame(comb_binomial_as_12_contrast[,1]$val) |>
+    mutate(time = 3) |>
+    merge(as.data.frame(comb_binomial_as_12_contrast[,2]$val) |>
+    mutate(time = 4), all = TRUE) |>
+    arrange(time)
+
+comb_binomial_as_13_contrast <- mapply(lmtp_contrast_simple, X = comb_binomial_as_3, Y = comb_binomial_as_1)
+
+comb_binomial_as_13_df <- as.data.frame(comb_binomial_as_13_contrast[,1]$val) |>
+    mutate(time = 3) |>
+    merge(as.data.frame(comb_binomial_as_13_contrast[,2]$val) |>
+    mutate(time = 4), all = TRUE) |>
+    arrange(time)
+
+comb_binomial_12_contrast <- mapply(lmtp_contrast_simple, X = comb_binomial_2, Y = comb_binomial_1)
+
+comb_binomial_12_df <- as.data.frame(comb_binomial_12_contrast[,1]$val) |>
+    mutate(time = 3) |>
+    merge(as.data.frame(comb_binomial_12_contrast[,2]$val) |>
+    mutate(time = 4), all = TRUE) |>
+    arrange(time)
+
+comb_binomial_13_contrast <- mapply(lmtp_contrast_simple, X = comb_binomial_3, Y = comb_binomial_1)
+
+comb_binomial_13_df <- as.data.frame(comb_binomial_13_contrast[,1]$val) |>
+    mutate(time = 3) |>
+    merge(as.data.frame(comb_binomial_13_contrast[,2]$val) |>
+    mutate(time = 4), all = TRUE) |>
+    arrange(time)
 
 data_bup_long_1 <- data_bup_long |>
     filter(race == "White") |>
@@ -650,26 +779,22 @@ met_cont_plot <- ggplot(met_cont_total, aes(x = week, y = theta, group = race, c
     )
 
 met_unadj <- unadjust_met_12 |> mutate(race = "Black v. White") |>
-    merge(unadjust_met_23 |> mutate(race = "Black v. Hispanic"), all = TRUE) |>
     merge(unadjust_met_13 |> mutate(race = "Hispanic v. White"), all = TRUE)
 
 met_as <- met_as_12_df |> mutate(race = "Black v. White") |>
-    merge(met_as_23_df |> mutate(race = "Black v. Hispanic"), all = TRUE) |>
     merge(met_as_13_df |> mutate(race = "Hispanic v. White"), all = TRUE)
 
 met_all <- met_all_12_df |> mutate(race = "Black v. White") |>
-    merge(met_all_23_df |> mutate(race = "Black v. Hispanic"), all = TRUE) |>
     merge(met_all_13_df |> mutate(race = "Hispanic v. White"), all = TRUE)
 
 met_cont_pair <- met_unadj |> mutate(type = "Crude") |>
     merge(met_as |> mutate(type = "Adjusted by age & sex"), all = TRUE) |>
     merge(met_all |> mutate(type = "Adjusted by expanded set"), all = TRUE) |>
-    mutate(type = factor(type, levels = c("Crude", "Adjusted by age & sex", "Adjusted by expanded set"))) |>
-    filter(race != "Black v. Hispanic")
+    mutate(type = factor(type, levels = c("Crude", "Adjusted by age & sex", "Adjusted by expanded set")))
 
-met_pairwise <- ggplot(met_cont_pair, aes(x = time, y = effect_est, group = race, color = race, fill = race, shape = race)) +
+met_pairwise <- ggplot(met_cont_pair, aes(x = time, y = theta, group = race, color = race, fill = race, shape = race)) +
     geom_point(position = position_dodge(width = 0.5)) +
-    geom_errorbar(aes(ymin = ci_lwr, ymax = ci_upr), width = 0.25, position = position_dodge(width = 0.5)) +
+    geom_errorbar(aes(ymin = conf.low, ymax = conf.high), width = 0.25, position = position_dodge(width = 0.5)) +
     labs(title = "",
          x = "Study Week",
          y = "Mean Dose (Difference)") +
@@ -754,26 +879,22 @@ bup_cont_plot <- ggplot(bup_cont_total, aes(x = week, y = theta, group = race, c
     )
 
 bup_unadj <- unadjust_bup_12 |> mutate(race = "Black v. White") |>
-    merge(unadjust_bup_23 |> mutate(race = "Black v. Hispanic"), all = TRUE) |>
     merge(unadjust_bup_13 |> mutate(race = "Hispanic v. White"), all = TRUE)
 
 bup_as <- bup_as_12_df |> mutate(race = "Black v. White") |>
-    merge(bup_as_23_df |> mutate(race = "Black v. Hispanic"), all = TRUE) |>
     merge(bup_as_13_df |> mutate(race = "Hispanic v. White"), all = TRUE)
 
 bup_all <- bup_all_12_df |> mutate(race = "Black v. White") |>
-    merge(bup_all_23_df |> mutate(race = "Black v. Hispanic"), all = TRUE) |>
     merge(bup_all_13_df |> mutate(race = "Hispanic v. White"), all = TRUE)
 
 bup_cont_pair <- bup_unadj |> mutate(type = "Crude") |>
     merge(bup_as |> mutate(type = "Adjusted by age & sex"), all = TRUE) |>
     merge(bup_all |> mutate(type = "Adjusted by expanded set"), all = TRUE) |>
-    mutate(type = factor(type, levels = c("Crude", "Adjusted by age & sex", "Adjusted by expanded set"))) |>
-    filter(race != "Black v. Hispanic")
+    mutate(type = factor(type, levels = c("Crude", "Adjusted by age & sex", "Adjusted by expanded set")))
 
-bup_pairwise <- ggplot(bup_cont_pair, aes(x = time, y = effect_est, group = race, color = race, fill = race, shape = race)) +
+bup_pairwise <- ggplot(bup_cont_pair, aes(x = time, y = theta, group = race, color = race, fill = race, shape = race)) +
     geom_point(position = position_dodge(width = 0.5)) +
-    geom_errorbar(aes(ymin = ci_lwr, ymax = ci_upr), width = 0.25, position = position_dodge(width = 0.5)) +
+    geom_errorbar(aes(ymin = conf.low, ymax = conf.high), width = 0.25, position = position_dodge(width = 0.5)) +
     labs(title = "",
          x = "Study Week",
          y = "Mean Dose (Difference)") +
@@ -867,15 +988,12 @@ met_binomial_plot <- ggplot(met_binomial_total, aes(x = week, y = theta, group =
     )
 
 met_binomial_unadj_pair <- unadjust_met_12_bin |> mutate(race = "Black v. White") |>
-    merge(unadjust_met_23_bin |> mutate(race = "Black v. Hispanic"), all = TRUE) |>
     merge(unadjust_met_13_bin |> mutate(race = "Hispanic v. White"), all = TRUE)
 
 met_binomial_as_pair <- met_binomial_as_12_df |> mutate(race = "Black v. White") |>
-    merge(met_binomial_as_23_df |> mutate(race = "Black v. Hispanic"), all = TRUE) |>
     merge(met_binomial_as_13_df |> mutate(race = "Hispanic v. White"), all = TRUE)
 
 met_binomial_all_pair <- met_binomial_12_df |> mutate(race = "Black v. White") |>
-    merge(met_binomial_23_df |> mutate(race = "Black v. Hispanic"), all = TRUE) |>
     merge(met_binomial_13_df |> mutate(race = "Hispanic v. White"), all = TRUE)
 
 met_binomial_pair <- met_binomial_unadj_pair |> mutate(type = "Crude") |>
@@ -884,12 +1002,11 @@ met_binomial_pair <- met_binomial_unadj_pair |> mutate(type = "Crude") |>
     mutate(type = factor(type, levels = c("Crude", "Adjusted by age & sex", "Adjusted by expanded set")),
            time = case_when(time == 1 ~ 3,
                             time == 2 ~ 4,
-                            TRUE ~ time)) |>
-    filter(race != "Black v. Hispanic")
+                            TRUE ~ time))
 
-met_binomial_pairwise <- ggplot(met_binomial_pair, aes(x = time, y = effect_est, group = race, color = race, fill = race, shape = race)) +
+met_binomial_pairwise <- ggplot(met_binomial_pair, aes(x = time, y = theta, group = race, color = race, fill = race, shape = race)) +
     geom_point(position = position_dodge(width = 0.5)) +
-    geom_errorbar(aes(ymin = ci_lwr, ymax = ci_upr), width = 0.25, position = position_dodge(width = 0.5)) +
+    geom_errorbar(aes(ymin = conf.low, ymax = conf.high), width = 0.25, position = position_dodge(width = 0.5)) +
     labs(title = "",
          x = "Study Week",
          y = "Probability of Receiving Higher Dose (Difference)") +
@@ -977,15 +1094,12 @@ bup_binomial_plot <- ggplot(bup_binomial_total, aes(x = week, y = theta, group =
     )
 
 bup_binomial_unadj_pair <- unadjust_bup_12_bin |> mutate(race = "Black v. White") |>
-    merge(unadjust_bup_23_bin |> mutate(race = "Black v. Hispanic"), all = TRUE) |>
     merge(unadjust_bup_13_bin |> mutate(race = "Hispanic v. White"), all = TRUE)
 
 bup_binomial_lim_pair <- bup_binomial_as_12_df |> mutate(race = "Black v. White") |>
-    merge(bup_binomial_as_23_df |> mutate(race = "Black v. Hispanic"), all = TRUE) |>
     merge(bup_binomial_as_13_df |> mutate(race = "Hispanic v. White"), all = TRUE)
 
 bup_binomial_all_pair <- bup_binomial_12_df |> mutate(race = "Black v. White") |>
-    merge(bup_binomial_23_df |> mutate(race = "Black v. Hispanic"), all = TRUE) |>
     merge(bup_binomial_13_df |> mutate(race = "Hispanic v. White"), all = TRUE)
 
 bup_binomial_pair <- bup_binomial_unadj_pair |> mutate(type = "Crude") |>
@@ -994,12 +1108,11 @@ bup_binomial_pair <- bup_binomial_unadj_pair |> mutate(type = "Crude") |>
     mutate(type = factor(type, levels = c("Crude", "Adjusted by age & sex", "Adjusted by expanded set")),
            time = case_when(time == 1 ~ 3,
                             time == 2 ~ 4,
-                            TRUE ~ time)) |>
-    filter(race != "Black v. Hispanic")
+                            TRUE ~ time)) 
 
-bup_binomial_pairwise <- ggplot(bup_binomial_pair, aes(x = time, y = effect_est, group = race, color = race, fill = race, shape = race)) +
+bup_binomial_pairwise <- ggplot(bup_binomial_pair, aes(x = time, y = theta, group = race, color = race, fill = race, shape = race)) +
     geom_point(position = position_dodge(width = 0.5)) +
-    geom_errorbar(aes(ymin = ci_lwr, ymax = ci_upr), width = 0.25, position = position_dodge(width = 0.5)) +
+    geom_errorbar(aes(ymin = conf.low, ymax = conf.high), width = 0.25, position = position_dodge(width = 0.5)) +
     labs(title = "",
          x = "Study Week",
          y = "Probability of Receiving Higher Dose (Difference)") +
@@ -1089,15 +1202,12 @@ comb_binomial_plot <- ggplot(comb_binomial_total, aes(x = week, y = theta, group
     )
 
 bup_binomial_unadj_pair <- unadjust_comb_12_bin |> mutate(race = "Black v. White") |>
-    merge(unadjust_comb_23_bin |> mutate(race = "Black v. Hispanic"), all = TRUE) |>
     merge(unadjust_comb_13_bin |> mutate(race = "Hispanic v. White"), all = TRUE)
 
 comb_binomial_as <- comb_binomial_as_12_df |> mutate(race = "Black v. White") |>
-    merge(comb_binomial_as_23_df |> mutate(race = "Black v. Hispanic"), all = TRUE) |>  
     merge(comb_binomial_as_13_df |> mutate(race = "Hispanic v. White"), all = TRUE)
 
 comb_binomial_all_pair <- comb_binomial_12_df |> mutate(race = "Black v. White") |>
-    merge(comb_binomial_23_df |> mutate(race = "Black v. Hispanic"), all = TRUE) |>
     merge(comb_binomial_13_df |> mutate(race = "Hispanic v. White"), all = TRUE)
 
 comb_binomial_pair <- bup_binomial_unadj_pair |> mutate(type = "Crude") |>
@@ -1106,12 +1216,11 @@ comb_binomial_pair <- bup_binomial_unadj_pair |> mutate(type = "Crude") |>
     mutate(type = factor(type, levels = c("Crude", "Adjusted by age & sex", "Adjusted by expanded set")),
            time = case_when(time == 1 ~ 3,
                             time == 2 ~ 4,
-                            TRUE ~ time)) |>
-    filter(race != "Black v. Hispanic")
+                            TRUE ~ time)) 
 
-comb_binomial_pairwise <- ggplot(comb_binomial_pair, aes(x = time, y = effect_est, group = race, color = race, fill = race, shape = race)) +
+comb_binomial_pairwise <- ggplot(comb_binomial_pair, aes(x = time, y = theta, group = race, color = race, fill = race, shape = race)) +
     geom_point(position = position_dodge(width = 0.5)) +
-    geom_errorbar(aes(ymin = ci_lwr, ymax = ci_upr), width = 0.25, position = position_dodge(width = 0.5)) +
+    geom_errorbar(aes(ymin = conf.low, ymax = conf.high), width = 0.25, position = position_dodge(width = 0.5)) +
     labs(title = "",
          x = "Study Week",
          y = "Probability of Receiving Higher Dose (Difference)") +

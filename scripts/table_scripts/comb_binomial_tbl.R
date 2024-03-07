@@ -2,7 +2,7 @@ comb_binomial_total <- comb_binomial_total |>
     arrange(race, type, week)
 
 comb_binomial_pair <- comb_binomial_pair |>
-    select(time, race, type, effect_est, ci_lwr, ci_upr) |>
+    select(time, race, type, theta, conf.low, conf.high) |>
     arrange(race, type, time)
 
 comb_binomial_unadj_tbl <- data.frame(race = c("Black", "Hispanic", "White"),

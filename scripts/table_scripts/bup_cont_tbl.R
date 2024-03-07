@@ -2,7 +2,7 @@ bup_cont_total <- bup_cont_total |>
     arrange(race, type, week)
 
 bup_cont_pair <- bup_cont_pair |>
-    select(time, race, type, effect_est, ci_lwr, ci_upr) |>
+    select(time, race, type, theta, conf.low, conf.high) |>
     arrange(race, type, time)
 
 bup_cont_unadj_tbl <- data.frame(race = c("Black", "Hispanic", "White"),

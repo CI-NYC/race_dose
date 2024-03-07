@@ -11,12 +11,13 @@ library(ggpubr)
 library(ggalluvial)
 library(gtsummary)
 library(patchwork)
+library(lmtp)
 
 knitr::opts_chunk$set(warning=FALSE, message=FALSE)
 knitr::opts_chunk$set(fig.width=18, fig.height=12) 
 
 # scripts to make confidence intervals
-source(here::here("scripts/source/utils_adapted.R"))
+#source(here::here("scripts/source/utils_adapted.R"))
 source(here::here("scripts/source/unadjusted_ci.R"))
 ```
 
@@ -156,19 +157,43 @@ for (i in 1:4) {
     }
 }
 
-met_all_12_df <- summarize_results(met_2, met_1, ci_level = 0.95, ci_type = "marginal")$diff_est |>
-    filter(time > 0)
-met_all_23_df <- summarize_results(met_2, met_3, ci_level = 0.95, ci_type = "marginal")$diff_est |>
-    filter(time > 0)
-met_all_13_df <- summarize_results(met_3, met_1, ci_level = 0.95, ci_type = "marginal")$diff_est |>
-    filter(time > 0)
+lmtp_contrast_simple <- function(X, Y) {
+  res <- lmtp_contrast(X, ref = Y)
+  
+  return(res)
+}
 
-met_as_12_df <- summarize_results(met_as_2, met_as_1, ci_level = 0.95, ci_type = "marginal")$diff_est |>
-    filter(time > 0)
-met_as_23_df <- summarize_results(met_as_2, met_as_3, ci_level = 0.95, ci_type = "marginal")$diff_est |>
-    filter(time > 0)
-met_as_13_df <- summarize_results(met_as_3, met_as_1, ci_level = 0.95, ci_type = "marginal")$diff_est |>
-    filter(time > 0)
+met_all_12_contrast <- mapply(lmtp_contrast_simple, X = met_2, Y = met_1)
+
+met_all_12_df <- as.data.frame(met_all_12_contrast[,3]$val) |>
+    mutate(time = 3) |>
+    merge(as.data.frame(met_all_12_contrast[,4]$val) |>
+    mutate(time = 4), all = TRUE) |>
+    arrange(time)
+
+met_all_13_contrast <- mapply(lmtp_contrast_simple, X = met_3, Y = met_1)
+
+met_all_13_df <- as.data.frame(met_all_13_contrast[,3]$val) |>
+    mutate(time = 3) |>
+    merge(as.data.frame(met_all_13_contrast[,4]$val) |>
+    mutate(time = 4), all = TRUE) |>
+    arrange(time)
+
+met_as_12_contrast <- mapply(lmtp_contrast_simple, X = met_as_2, Y = met_as_1)
+
+met_as_12_df <- as.data.frame(met_as_12_contrast[,3]$val) |>
+    mutate(time = 3) |>
+    merge(as.data.frame(met_as_12_contrast[,4]$val) |>
+    mutate(time = 4), all = TRUE) |>
+    arrange(time)
+
+met_as_13_contrast <- mapply(lmtp_contrast_simple, X = met_as_3, Y = met_as_1)
+
+met_as_13_df <- as.data.frame(met_as_13_contrast[,3]$val) |>
+    mutate(time = 3) |>
+    merge(as.data.frame(met_as_13_contrast[,4]$val) |>
+    mutate(time = 4), all = TRUE) |>
+    arrange(time)
 
 data_met_long_1 <- data_met_long |>
     filter(race == "White") |>
@@ -240,27 +265,23 @@ met_cont_plot <- ggplot(met_cont_total, aes(x = week, y = theta, group = race, c
     )
 
 met_unadj <- unadjust_met_12 |> mutate(race = "Black v. White") |>
-    merge(unadjust_met_23 |> mutate(race = "Black v. Hispanic"), all = TRUE) |>
     merge(unadjust_met_13 |> mutate(race = "Hispanic v. White"), all = TRUE)
 
 met_as <- met_as_12_df |> mutate(race = "Black v. White") |>
-    merge(met_as_23_df |> mutate(race = "Black v. Hispanic"), all = TRUE) |>
     merge(met_as_13_df |> mutate(race = "Hispanic v. White"), all = TRUE)
 
 met_all <- met_all_12_df |> mutate(race = "Black v. White") |>
-    merge(met_all_23_df |> mutate(race = "Black v. Hispanic"), all = TRUE) |>
     merge(met_all_13_df |> mutate(race = "Hispanic v. White"), all = TRUE)
 
 met_cont_pair <- met_unadj |> mutate(type = "Crude") |>
     merge(met_as |> mutate(type = "Adjusted by age & sex"), all = TRUE) |>
     merge(met_all |> mutate(type = "Adjusted by expanded set"), all = TRUE) |>
     mutate(type = factor(type, levels = c("Crude", "Adjusted by age & sex", "Adjusted by expanded set"))) |>
-    filter(race != "Black v. Hispanic",
-           time >= 3) 
+    filter(time >= 3) 
 
-met_pairwise <- ggplot(met_cont_pair, aes(x = time, y = effect_est, group = race, color = race, fill = race, shape = race)) +
+met_pairwise <- ggplot(met_cont_pair, aes(x = time, y = theta, group = race, color = race, fill = race, shape = race)) +
     geom_point(position = position_dodge(width = 0.5)) +
-    geom_errorbar(aes(ymin = ci_lwr, ymax = ci_upr), width = 0.25, position = position_dodge(width = 0.5)) +
+    geom_errorbar(aes(ymin = conf.low, ymax = conf.high), width = 0.25, position = position_dodge(width = 0.5)) +
     labs(title = "",
          x = "Study Week",
          y = "Mean Dose (Difference)") +
