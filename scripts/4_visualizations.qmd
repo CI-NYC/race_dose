@@ -1259,6 +1259,197 @@ ggsave(filename = here::here("figures/comb_binomial_plot_newcensor.png"),
        plot = comb_binomial_plot_newcensor,
        width = 8, height = 11)
 ```
+## Final Plot
+```{r}
+theta_df <- met_cont_total |>
+    filter(type == "Adjusted by age & sex") |>
+    mutate(trt = "Methadone") |>
+merge(bup_cont_total |>
+    filter(type == "Adjusted by age & sex") |>
+        mutate(trt = "Buprenorphine"), all = TRUE) |>
+merge(comb_binomial_total |>
+    filter(type == "Adjusted by age & sex") |>
+        mutate(trt = "Pooled"), all = TRUE)
+
+
+diff_df <- met_cont_pair |>
+    filter(type == "Adjusted by age & sex") |>
+    mutate(trt = "Methadone") |>
+    merge(bup_cont_pair |>
+              filter(type == "Adjusted by age & sex") |>
+              mutate(trt = "Buprenorphine"), all = TRUE) |>
+    merge(comb_binomial_pair |>
+              filter(type == "Adjusted by age & sex") |>
+              mutate(trt = "Pooled"), all = TRUE)
+
+all_theta_plot <- ggplot(theta_df, aes(x = week, y = theta, group = race, color = race, fill = race, shape = race)) +
+    geom_point(position = position_dodge(width = 0.5)) +
+    geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.25, position = position_dodge(width = 0.5)) +
+    labs(title = "",
+         x = "Study Week",
+         y = "Dose (mg)/Probability of Receiving High Dose") +
+    scale_x_continuous(breaks = seq(1, 4, by = 1)) +
+    scale_color_manual(values = custom_colors) + 
+    scale_shape_manual(values = c(1, 0, 8)) +
+    scale_fill_manual(values = custom_colors) +  
+    theme_minimal() +
+    labs(color = "",
+         shape = "",
+         fill = "") +
+    facet_wrap(~trt, scales = "free") + 
+    theme(
+        legend.position = c(0.00125, 0.9975),
+        legend.justification = c("left", "top"),
+        legend.box.just = "left",
+        legend.margin = margin(-12, 2.5, 2.5, 2.5),
+        legend.key = element_rect(fill = "white", colour = "black", size = 0.001),
+        legend.background = element_rect(fill="white", size = 0.5),
+        legend.box.background = element_rect(color = "black", size = 0.25),
+        legend.box = "vertical", 
+        plot.title = element_text(vjust = 0.5),
+        legend.key.size = unit(0.000000000000001, 'cm'), 
+        legend.box.spacing = unit(-5, "pt"),
+        text = element_text(size=10, family = "Times New Roman")
+    )
+
+all_diff_plot <- ggplot(diff_df, aes(x = time, y = theta, group = race, color = race, fill = race, shape = race)) +
+    geom_point(position = position_dodge(width = 0.5)) +
+    geom_errorbar(aes(ymin = conf.low, ymax = conf.high), width = 0.25, position = position_dodge(width = 0.5)) +
+    labs(title = "",
+         x = "Study Week",
+         y = "Difference in Dose (mg)/Probability of Receiving High Dose") +
+    geom_hline(yintercept = 0, linetype = "dotted", color = "black") +
+    scale_x_continuous(breaks = seq(1, 4, by = 1)) +
+    scale_color_manual(values = c("#1f78b4", "darkseagreen4")) + 
+    scale_shape_manual(values = c(1, 0, 8)) +
+    scale_fill_manual(values = c("#1f78b4", "darkseagreen4")) +  
+    theme_minimal() +
+    labs(color = "",
+         shape = "",
+         fill = "") +
+    facet_wrap(~trt, scales = "free") + 
+    theme(
+        legend.position = c(0.00125, 0.9975),
+        legend.justification = c("left", "top"),
+        legend.box.just = "left",
+        legend.margin = margin(-12, 2.5, 2.5, 2.5),
+        legend.title = element_text(margin = margin(0, 0, 0, 0)),
+        legend.key = element_rect(fill = "white", colour = "black", size = 0.001),
+        legend.background = element_rect(fill="white", size = 0.5),
+        legend.box.background = element_rect(color = "black", size = 0.25),
+        legend.box = "vertical", 
+        plot.title = element_text(vjust = 0.5),
+        legend.key.size = unit(0.000000000000001, 'cm'), 
+        legend.box.spacing = unit(-10, "pt"),
+        text = element_text(size = 10, family = "Times New Roman")
+    )
+
+final_plot <- all_theta_plot + all_diff_plot + 
+    plot_annotation(tag_levels = 'A') + plot_layout(ncol = 1) & 
+    theme(plot.tag = element_text(size = 12),
+          panel.border = element_rect(colour = "black", fill=NA))
+
+ggsave(filename = here::here("figures/final_plot.png"),
+       plot = final_plot,
+       width = 10, height = 15)
+```
+
+## Appendix Plot
+
+```{r}
+theta_df <- met_cont_total |>
+    filter(type == "Adjusted by expanded set") |>
+    mutate(trt = "Methadone") |>
+merge(bup_cont_total |>
+    filter(type == "Adjusted by expanded set") |>
+        mutate(trt = "Buprenorphine"), all = TRUE) |>
+merge(comb_binomial_total |>
+    filter(type == "Adjusted by expanded set") |>
+        mutate(trt = "Pooled"), all = TRUE)
+
+
+diff_df <- met_cont_pair |>
+    filter(type == "Adjusted by expanded set") |>
+    mutate(trt = "Methadone") |>
+    merge(bup_cont_pair |>
+              filter(type == "Adjusted by expanded set") |>
+              mutate(trt = "Buprenorphine"), all = TRUE) |>
+    merge(comb_binomial_pair |>
+              filter(type == "Adjusted by expanded set") |>
+              mutate(trt = "Pooled"), all = TRUE)
+
+all_theta_plot <- ggplot(theta_df, aes(x = week, y = theta, group = race, color = race, fill = race, shape = race)) +
+    geom_point(position = position_dodge(width = 0.5)) +
+    geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.25, position = position_dodge(width = 0.5)) +
+    labs(title = "",
+         x = "Study Week",
+         y = "Dose (mg)/Probability of Receiving High Dose") +
+    scale_x_continuous(breaks = seq(1, 4, by = 1)) +
+    scale_color_manual(values = custom_colors) + 
+    scale_shape_manual(values = c(1, 0, 8)) +
+    scale_fill_manual(values = custom_colors) +  
+    theme_minimal() +
+    labs(color = "",
+         shape = "",
+         fill = "") +
+    facet_wrap(~trt, scales = "free") + 
+    theme(
+        legend.position = c(0.00125, 0.9975),
+        legend.justification = c("left", "top"),
+        legend.box.just = "left",
+        legend.margin = margin(-12, 2.5, 2.5, 2.5),
+        legend.key = element_rect(fill = "white", colour = "black", size = 0.001),
+        legend.background = element_rect(fill="white", size = 0.5),
+        legend.box.background = element_rect(color = "black", size = 0.25),
+        legend.box = "vertical", 
+        plot.title = element_text(vjust = 0.5),
+        legend.key.size = unit(0.000000000000001, 'cm'), 
+        legend.box.spacing = unit(-5, "pt"),
+        text = element_text(size=10, family = "Times New Roman")
+    )
+
+all_diff_plot <- ggplot(diff_df, aes(x = time, y = theta, group = race, color = race, fill = race, shape = race)) +
+    geom_point(position = position_dodge(width = 0.5)) +
+    geom_errorbar(aes(ymin = conf.low, ymax = conf.high), width = 0.25, position = position_dodge(width = 0.5)) +
+    labs(title = "",
+         x = "Study Week",
+         y = "Difference in Dose (mg)/Probability of Receiving High Dose") +
+    geom_hline(yintercept = 0, linetype = "dotted", color = "black") +
+    scale_x_continuous(breaks = seq(1, 4, by = 1)) +
+    scale_color_manual(values = c("#1f78b4", "darkseagreen4")) + 
+    scale_shape_manual(values = c(1, 0, 8)) +
+    scale_fill_manual(values = c("#1f78b4", "darkseagreen4")) +  
+    theme_minimal() +
+    labs(color = "",
+         shape = "",
+         fill = "") +
+    facet_wrap(~trt, scales = "free") + 
+    theme(
+        legend.position = c(0.00125, 0.9975),
+        legend.justification = c("left", "top"),
+        legend.box.just = "left",
+        legend.margin = margin(-12, 2.5, 2.5, 2.5),
+        legend.title = element_text(margin = margin(0, 0, 0, 0)),
+        legend.key = element_rect(fill = "white", colour = "black", size = 0.001),
+        legend.background = element_rect(fill="white", size = 0.5),
+        legend.box.background = element_rect(color = "black", size = 0.25),
+        legend.box = "vertical", 
+        plot.title = element_text(vjust = 0.5),
+        legend.key.size = unit(0.000000000000001, 'cm'), 
+        legend.box.spacing = unit(-10, "pt"),
+        text = element_text(size = 10, family = "Times New Roman")
+    )
+
+appendix_plot <- all_theta_plot + all_diff_plot + 
+    plot_annotation(tag_levels = 'A') + plot_layout(ncol = 1) & 
+    theme(plot.tag = element_text(size = 12),
+          panel.border = element_rect(colour = "black", fill=NA))
+
+ggsave(filename = here::here("figures/appendix_plot.png"),
+       plot = appendix_plot,
+       width = 10, height = 15)
+```
+
 
 ## Methods Plots
 
