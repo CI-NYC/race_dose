@@ -5,6 +5,7 @@ editor: visual
 ---
 
 ```{r, include = FALSE}
+#devtools::install_github("nt-williams/lmtp@separate-variable-sets") #separate variable sets
 library(tidyverse)
 library(ggplot2)
 library(lmtp)
@@ -217,7 +218,7 @@ for(j in 1:3) # looping over race
     tmle_list_cs <- list()
     tmle_list_cs_limited <- list()
     
-    for (i in 1:2) # looping over weeks (1-3 for now)
+    for (i in 1:2) # looping over weeks (1-2)
     {
         Y <- c(paste0(paste0("wk", i), ".dose_this_week")) # outcome (dose)
         
@@ -280,7 +281,7 @@ for(j in 1:3) # looping over race
     tmle_list_cs_met <- list()
     tmle_list_cs_met_limited <- list()
     
-    for (i in 1:2) # looping over weeks (1-3 for now)
+    for (i in 1:2) # looping over weeks (1-2 for now)
     {
         Y <- c(paste0(paste0("wk", i), ".dose_this_week")) # outcome (dose)
         
@@ -345,7 +346,7 @@ for(j in 1:3) # looping over race
     tmle_list_cs <- list()
     tmle_list_cs_limited <- list()
     
-    for (i in 3:4) # looping over weeks (1-3 for now)
+    for (i in 3:4) # looping over weeks (3-4 for now)
     {
         Y <- c(paste0(paste0("wk", i), ".dose_this_week")) # outcome (dose)
         
