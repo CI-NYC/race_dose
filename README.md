@@ -1,4 +1,4 @@
-# OUD Treatment Dosage Means by Race/Ethnicity
+# OUD Treatment Dose Means by Race/Ethnicity
 
 Code and Visualizations Related to Treatment Dosage by Race/Ethnicity
 
