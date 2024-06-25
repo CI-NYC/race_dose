@@ -219,13 +219,33 @@ comb_binom_df <- data_comb |>
 bup_sites <- data_bup_long |>
     filter(week <= 4 & censor == 1) |> #filtering out censoring
     group_by(site, week, xrace) |>
-    summarize(count = n(), mean_dose = mean(dose_this_week)) |>
+    summarize(count = n(), 
+              mean_dose = mean(dose_this_week),
+              sd_dose = sd(dose_this_week)) |>
     mutate(freq = count/sum(count))
 
 met_sites <- data_met_long |>
     filter(week <= 4 & censor == 1) |> #filtering out censoring
     group_by(site, week, xrace) |>
-    summarize(count = n(), mean_dose = mean(dose_this_week)) |>
+    summarize(count = n(), 
+              mean_dose = mean(dose_this_week),
+              sd_dose = sd(dose_this_week)) |>
+    mutate(freq = count/sum(count))
+
+bup_sites_norace <- data_bup_long |>
+    filter(week <= 4 & censor == 1) |> #filtering out censoring
+    group_by(site, week) |>
+    summarize(count = n(), 
+              mean_dose = mean(dose_this_week),
+              sd_dose = sd(dose_this_week)) |>
+    mutate(freq = count/sum(count))
+
+met_sites_norace <- data_met_long |>
+    filter(week <= 4 & censor == 1) |> #filtering out censoring
+    group_by(site, week) |>
+    summarize(count = n(), 
+              mean_dose = mean(dose_this_week),
+              sd_dose = sd(dose_this_week)) |>
     mutate(freq = count/sum(count))
 ```
 

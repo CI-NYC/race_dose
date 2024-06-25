@@ -5,14 +5,14 @@ editor: visual
 ---
 
 ```{r, include = FALSE}
-#devtools::install_github("nt-williams/lmtp@separate-variable-sets") #separate variable sets
+#devtools::install_github("nt-williams/lmtp@separate-variable-sets") #separate variable sets for weeks 3-4
 library(tidyverse)
 library(ggplot2)
 library(lmtp)
 library(gtsummary)
 library(SuperLearner)
 
-source("source/shift_functions.R") #loading shift functions
+source("scripts/source/shift_functions.R") #loading shift functions
 ```
 
 ## Reading Data
@@ -384,36 +384,6 @@ for(j in 1:3) # looping over race
                                       as.character(paste0(paste0("wk", i-1), ".dose_this_week"))),
                              outcome = c("sex", "age"))
         }
-        else
-        {
-            B_bup <- list(trt = c("sex", "age", "hcows_bin","alcdisorder", 
-                                  "alcdisorder_missing", "cocdisorder", "cocdisorder_missing",
-                                  "hasBipolar","hasAnxPan",
-                                  "hasMajorDep",
-                                  "bamphetamine30_base", "bcannabis30_base",
-                                  "bbenzo30_base", "ivdrug", "ivdrug_missing"),
-                          cens = c("sex", "age", "hcows_bin","alcdisorder", 
-                                 "alcdisorder_missing", "cocdisorder", "cocdisorder_missing",
-                                 "hasBipolar","hasAnxPan",
-                                 "hasMajorDep",
-                                 "bamphetamine30_base", "bcannabis30_base",
-                                 "bbenzo30_base", "ivdrug", "ivdrug_missing"),
-                          outcome = c("sex", "age", "hcows_bin","alcdisorder", 
-                                      "alcdisorder_missing", "cocdisorder", "cocdisorder_missing",
-                                      "hasBipolar","hasAnxPan",
-                                      "hasMajorDep",
-                                      "bamphetamine30_base", "bcannabis30_base",
-                                      "bbenzo30_base", "ivdrug", "ivdrug_missing"))
-            
-            B_bup_as <- list(trt = c("sex", "age"),
-                             cens = c("sex", "age", "hcows_bin","alcdisorder", 
-                                      "alcdisorder_missing", "cocdisorder", "cocdisorder_missing",
-                                      "hasBipolar","hasAnxPan",
-                                      "hasMajorDep",
-                                      "bamphetamine30_base", "bcannabis30_base",
-                                      "bbenzo30_base", "ivdrug", "ivdrug_missing"),
-                             outcome = c("sex", "age"))
-        }
         
         # expanded baseline covariates (see above)
         progressr::with_progress(tmle_list_cs[[i]] <- lmtp_tmle(
@@ -472,7 +442,7 @@ for(j in 1:3) # looping over race
     tmle_list_cs_met <- list()
     tmle_list_cs_met_limited <- list()
     
-    for (i in 3:4) # looping over weeks (1-3 for now)
+    for (i in 3:4) # looping over weeks (3-4 for now)
     {
         Y <- c(paste0(paste0("wk", i), ".dose_this_week")) # outcome (dose)
         
@@ -511,36 +481,6 @@ for(j in 1:3) # looping over race
                           outcome = c("sex", "age"))
 
         }
-        else
-        {
-            B_met <- list(trt = c("sex", "age", "hcows_bin","alcdisorder", 
-                                       "alcdisorder_missing", "cocdisorder", "cocdisorder_missing",
-                                       "hasBipolar","hasAnxPan",
-                                       "hasMajorDep",
-                                       "bamphetamine30_base", "bcannabis30_base",
-                                       "bbenzo30_base", "ivdrug"),
-                          cens = c("sex", "age", "hcows_bin","alcdisorder", 
-                                   "alcdisorder_missing", "cocdisorder", "cocdisorder_missing",
-                                   "hasBipolar","hasAnxPan",
-                                   "hasMajorDep",
-                                   "bamphetamine30_base", "bcannabis30_base",
-                                   "bbenzo30_base", "ivdrug"),
-                          outcome = c("sex", "age", "hcows_bin","alcdisorder", 
-                                           "alcdisorder_missing", "cocdisorder", "cocdisorder_missing",
-                                           "hasBipolar","hasAnxPan",
-                                           "hasMajorDep",
-                                           "bamphetamine30_base", "bcannabis30_base",
-                                           "bbenzo30_base", "ivdrug"))
-            
-            B_met_as <- list(trt = c("sex", "age"),
-                             cens = c("sex", "age", "hcows_bin","alcdisorder", 
-                                      "alcdisorder_missing", "cocdisorder", "cocdisorder_missing",
-                                      "hasBipolar","hasAnxPan",
-                                      "hasMajorDep",
-                                      "bamphetamine30_base", "bcannabis30_base",
-                                      "bbenzo30_base", "ivdrug"),
-                             outcome = c("sex", "age"))
-                    }
         
         # expanded baseline covariates (see above)
         progressr::with_progress(tmle_list_cs_met[[i]] <- lmtp_tmle(

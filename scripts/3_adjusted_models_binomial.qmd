@@ -5,12 +5,13 @@ editor: visual
 ---
 
 ```{r, include = FALSE}
+#devtools::install_github("nt-williams/lmtp@separate-variable-sets") #separate variable sets
 library(tidyverse)
 library(ggplot2)
 library(lmtp)
 library(SuperLearner)
 
-source("source/shift_functions.R") #loading shift functions
+source(here::here("scripts/source/shift_functions.R")) #loading shift functions
 ```
 
 ## Loading Data
@@ -19,16 +20,21 @@ source("source/shift_functions.R") #loading shift functions
 # appropriate dose if greater than 16 mg
 data_bup <- readRDS(here::here("data/processed/data_bup_imputed.rds")) |>
     mutate(wk3.binary = ifelse(wk3.dose_this_week < 16, 0, 1),
-           wk4.binary = ifelse(wk4.dose_this_week < 16, 0, 1))
+           wk4.binary = ifelse(wk4.dose_this_week < 16, 0, 1)) |>
+    mutate(trt_ind = "0")
 
 # appropriate dose if greater than 60 mg
 data_met <- readRDS(here::here("data/processed/data_met_imputed.rds")) |>
     mutate(wk3.binary = ifelse(wk3.dose_this_week < 60, 0, 1),
-           wk4.binary = ifelse(wk4.dose_this_week < 60, 0, 1))
+           wk4.binary = ifelse(wk4.dose_this_week < 60, 0, 1)) |>
+    mutate(trt_ind = "1")
 
 # combining bup and met for combined analysis
 data_comb <- data_bup |>
-    merge(data_met, all = TRUE)
+    merge(data_met, all = TRUE) |>
+    mutate(trt_ind = factor(trt_ind, ordered = FALSE, levels = c("0", "1")))
+
+saveRDS(data_comb, here::here("data/processed/data_comb_imputed.rds"))
 
 #ensuring enough participants in each group
 data_bup |>
