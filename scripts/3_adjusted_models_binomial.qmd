@@ -32,9 +32,13 @@ data_met <- readRDS(here::here("data/processed/data_met_imputed.rds")) |>
 # combining bup and met for combined analysis
 data_comb <- data_bup |>
     merge(data_met, all = TRUE) |>
-    mutate(trt_ind = factor(trt_ind, ordered = FALSE, levels = c("0", "1")))
+    mutate(trt_ind = factor(trt_ind, ordered = FALSE, levels = c("0", "1"))) |>
+    mutate(project_id = as.numeric(factor(project)))
 
-saveRDS(data_comb, here::here("data/processed/data_comb_imputed.rds"))
+#saveRDS(data_comb, here::here("data/processed/data_comb_imputed.rds"))
+
+#project_ids <- data_comb$project_id
+#saveRDS(project_ids, here::here("data/processed/project_ids_comb.rds"))
 
 #ensuring enough participants in each group
 data_bup |>
@@ -117,9 +121,9 @@ B_met <- c("sex", "age", "hcows_bin","alcdisorder",
 ```{r}
 # learners list
 
-lrnrs_out <- c("SL.mean", "SL.glm", "SL.glmnet", "SL.earth", "SL.gbm", "SL.bartMachine") # must be capable of binary classification
+lrnrs_out <- c("SL.mean", "SL.glm", "SL.glmnet", "SL.earth", "SL.xgboost") # must be capable of binary classification
 
-lrnrs_trt <- c("SL.mean", "SL.glm", "SL.glmnet", "SL.earth", "SL.gbm", "SL.bartMachine") # must be capable of binary classification
+lrnrs_trt <- c("SL.mean", "SL.glm", "SL.glmnet", "SL.earth", "SL.xgboost") # must be capable of binary classification
 
 race_tmle_list_cs<- list()
 race_tmle_list_cs_limited <- list()
@@ -137,8 +141,6 @@ for(j in 1:3) # looping over race
         
         C <- c(paste0(paste0("wk", i), ".censor")) # censor
         
-        if (i > 1)
-        {
             B_bup <- list(trt = c("sex", "age", "hcows_bin","alcdisorder", 
                                   "alcdisorder_missing", "cocdisorder", "cocdisorder_missing",
                                   "hasBipolar","hasAnxPan",
@@ -168,37 +170,6 @@ for(j in 1:3) # looping over race
                                       "bbenzo30_base", "ivdrug", "ivdrug_missing",
                                       as.character(paste0(paste0("wk", i-1), ".dose_this_week"))),
                              outcome = c("sex", "age"))
-        }
-        else
-        {
-            B_bup <- list(trt = c("sex", "age", "hcows_bin","alcdisorder", 
-                                  "alcdisorder_missing", "cocdisorder", "cocdisorder_missing",
-                                  "hasBipolar","hasAnxPan",
-                                  "hasMajorDep",
-                                  "bamphetamine30_base", "bcannabis30_base",
-                                  "bbenzo30_base", "ivdrug", "ivdrug_missing"),
-                          cens = c("sex", "age", "hcows_bin","alcdisorder", 
-                                 "alcdisorder_missing", "cocdisorder", "cocdisorder_missing",
-                                 "hasBipolar","hasAnxPan",
-                                 "hasMajorDep",
-                                 "bamphetamine30_base", "bcannabis30_base",
-                                 "bbenzo30_base", "ivdrug", "ivdrug_missing"),
-                          outcome = c("sex", "age", "hcows_bin","alcdisorder", 
-                                      "alcdisorder_missing", "cocdisorder", "cocdisorder_missing",
-                                      "hasBipolar","hasAnxPan",
-                                      "hasMajorDep",
-                                      "bamphetamine30_base", "bcannabis30_base",
-                                      "bbenzo30_base", "ivdrug", "ivdrug_missing"))
-            
-            B_bup_as <- list(trt = c("sex", "age"),
-                             cens = c("sex", "age", "hcows_bin","alcdisorder", 
-                                      "alcdisorder_missing", "cocdisorder", "cocdisorder_missing",
-                                      "hasBipolar","hasAnxPan",
-                                      "hasMajorDep",
-                                      "bamphetamine30_base", "bcannabis30_base",
-                                      "bbenzo30_base", "ivdrug", "ivdrug_missing"),
-                             outcome = c("sex", "age"))
-        }
         
         # all covariates
         progressr::with_progress(tmle_list_cs[[i]] <- lmtp_tmle(
@@ -244,9 +215,9 @@ for(j in 1:3) # looping over race
 ## Methadone Models
 
 ```{r}
-lrnrs_out_met <- c("SL.mean", "SL.glm", "SL.glmnet", "SL.earth", "SL.gbm", "SL.bartMachine") # must be capable of binary classification
+lrnrs_out_met <- c("SL.mean", "SL.glm", "SL.glmnet", "SL.earth", "SL.xgboost") # must be capable of binary classification
 
-lrnrs_trt_met <- c("SL.mean", "SL.glm", "SL.glmnet", "SL.earth", "SL.gbm", "SL.bartMachine") # must be capable of binary classification
+lrnrs_trt_met <- c("SL.mean", "SL.glm", "SL.glmnet", "SL.earth", "SL.xgboost")# must be capable of binary classification
 
 race_tmle_list_cs_met<- list()
 race_tmle_list_cs_met_limited <- list()
@@ -264,8 +235,6 @@ for(j in 1:3) # looping over race
         
         C <- c(paste0(paste0("wk", i), ".censor")) # censor
         
-        if (i > 1)
-        {
             B_met <- list(trt = c("sex", "age", "hcows_bin","alcdisorder", 
                                   "alcdisorder_missing", "cocdisorder", "cocdisorder_missing",
                                   "hasBipolar","hasAnxPan",
@@ -295,38 +264,6 @@ for(j in 1:3) # looping over race
                                       "bbenzo30_base", "ivdrug",
                                       as.character(paste0(paste0("wk", i-1), ".dose_this_week"))),
                              outcome = c("sex", "age"))
-            
-        }
-        else
-        {
-            B_met <- list(trt = c("sex", "age", "hcows_bin","alcdisorder", 
-                                  "alcdisorder_missing", "cocdisorder", "cocdisorder_missing",
-                                  "hasBipolar","hasAnxPan",
-                                  "hasMajorDep",
-                                  "bamphetamine30_base", "bcannabis30_base",
-                                  "bbenzo30_base", "ivdrug"),
-                          cens = c("sex", "age", "hcows_bin","alcdisorder", 
-                                 "alcdisorder_missing", "cocdisorder", "cocdisorder_missing",
-                                 "hasBipolar","hasAnxPan",
-                                 "hasMajorDep",
-                                 "bamphetamine30_base", "bcannabis30_base",
-                                 "bbenzo30_base", "ivdrug"),
-                          outcome = c("sex", "age", "hcows_bin","alcdisorder", 
-                                      "alcdisorder_missing", "cocdisorder", "cocdisorder_missing",
-                                      "hasBipolar","hasAnxPan",
-                                      "hasMajorDep",
-                                      "bamphetamine30_base", "bcannabis30_base",
-                                      "bbenzo30_base", "ivdrug"))
-            
-            B_met_as <- list(trt = c("sex", "age"),
-                             cens = c("sex", "age", "hcows_bin","alcdisorder", 
-                                      "alcdisorder_missing", "cocdisorder", "cocdisorder_missing",
-                                      "hasBipolar","hasAnxPan",
-                                      "hasMajorDep",
-                                      "bamphetamine30_base", "bcannabis30_base",
-                                      "bbenzo30_base", "ivdrug"),
-                             outcome = c("sex", "age"))
-        }
         
         # all baseline covariates
         progressr::with_progress(tmle_list_cs_met[[i]] <- lmtp_tmle(
@@ -389,9 +326,7 @@ for(j in 1:3) # looping over race
         
         C <- c(paste0(paste0("wk", i), ".censor")) # censor
         
-        if (i > 1)
-        {
-            B_comb <- list(trt = c("sex", "age", "hcows_bin","alcdisorder", 
+        B_comb <- list(trt = c("sex", "age", "hcows_bin","alcdisorder", 
                                   "alcdisorder_missing", "cocdisorder", "cocdisorder_missing",
                                   "hasBipolar","hasAnxPan",
                                   "hasMajorDep",
@@ -422,37 +357,6 @@ for(j in 1:3) # looping over race
                                       as.character(paste0(paste0("wk", i-1), ".dose_this_week")),
                                       "trt_ind"), #indicator for bup/met
                              outcome = c("sex", "age"))
-        }
-        else
-        {
-            B_comb <- list(trt = c("sex", "age", "hcows_bin","alcdisorder", 
-                                  "alcdisorder_missing", "cocdisorder", "cocdisorder_missing",
-                                  "hasBipolar","hasAnxPan",
-                                  "hasMajorDep",
-                                  "bamphetamine30_base", "bcannabis30_base",
-                                  "bbenzo30_base", "ivdrug", "ivdrug_missing"),
-                          cens = c("sex", "age", "hcows_bin","alcdisorder", 
-                                 "alcdisorder_missing", "cocdisorder", "cocdisorder_missing",
-                                 "hasBipolar","hasAnxPan",
-                                 "hasMajorDep",
-                                 "bamphetamine30_base", "bcannabis30_base",
-                                 "bbenzo30_base", "ivdrug", "ivdrug_missing"),
-                          outcome = c("sex", "age", "hcows_bin","alcdisorder", 
-                                      "alcdisorder_missing", "cocdisorder", "cocdisorder_missing",
-                                      "hasBipolar","hasAnxPan",
-                                      "hasMajorDep",
-                                      "bamphetamine30_base", "bcannabis30_base",
-                                      "bbenzo30_base", "ivdrug", "ivdrug_missing"))
-            
-            B_comb_as <- list(trt = c("sex", "age"),
-                             cens = c("sex", "age", "hcows_bin","alcdisorder", 
-                                      "alcdisorder_missing", "cocdisorder", "cocdisorder_missing",
-                                      "hasBipolar","hasAnxPan",
-                                      "hasMajorDep",
-                                      "bamphetamine30_base", "bcannabis30_base",
-                                      "bbenzo30_base", "ivdrug", "ivdrug_missing"),
-                             outcome = c("sex", "age"))
-        }
         
         # all baseline covariates
         progressr::with_progress(tmle_list_cs_comb[[i]] <- lmtp_tmle(
