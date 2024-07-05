@@ -48,3 +48,16 @@ race_shift_hispanic <- function(data, xrace) {
 # function list to loop over
 
 func_list <- c(race_shift_white, race_shift_black, race_shift_hispanic)
+
+### Code from Nick Williams to calculate variance with ID
+
+recalc_var_with_id <- function(x, id) {
+    clusters <- split(x$eif, id)
+    j <- length(clusters)
+    se <- sqrt(var(vapply(clusters, function(x) mean(x), 1)) / j)
+    x$low  <- x$theta - (qnorm(0.975) * se)
+    x$high <- x$theta + (qnorm(0.975) * se)
+    x$standard_error <- se
+    x$id <- id
+    x
+}
