@@ -1,0 +1,300 @@
+---
+title: "Dose Descriptive Statistics and Modeling"
+format: html
+editor: visual
+---
+
+```{r, include = FALSE}
+library(tidyverse)
+library(ggplot2)
+library(ggpubr)
+library(ggalluvial)
+library(gtsummary)
+library(patchwork)
+library(lmtp)
+
+knitr::opts_chunk$set(warning=FALSE, message=FALSE)
+knitr::opts_chunk$set(fig.width=18, fig.height=12) 
+
+# scripts to make confidence intervals
+#source(here::here("scripts/source/utils_adapted.R"))
+source(here::here("scripts/source/unadjusted_ci.R"))
+```
+
+## Reading/Storing result_newcensors
+
+### Reading result_newcensors for Marginal CI
+
+```{r}
+bup_result_newcensors_lim <- data.frame(week = integer(0), race = numeric(0), trial = numeric(0),
+                                        theta = numeric(0), se = numeric(0), lower = numeric(0), upper = numeric(0))
+
+# Loop through the file paths and read the RDS files into data frames
+for (z in 1:3)
+{
+for (j in 1:3)
+{
+bup_result_newcensors_all_temp <- data.frame(week = numeric(0), race = numeric(0), trial = numeric(0),
+                                             theta = numeric(0), se = numeric(0), lower = numeric(0), upper = numeric(0))
+
+bup_result_newcensors_lim_temp <- data.frame(week = numeric(0), race = numeric(0), trial = numeric(0),
+                                             theta = numeric(0), se = numeric(0), lower = numeric(0), upper = numeric(0))
+
+for (i in 4:4) {
+    
+  data_bup_lim <- readRDS(here::here(paste0("./data/trial_stratify/bup/","result_newcensor_limited", j, sep = "_", i, sep = "_", z, ".rds")))
+  bup_result_newcensors_lim_temp[[1, "week"]] <- i
+  bup_result_newcensors_lim_temp[[1, "race"]] <- j
+  bup_result_newcensors_lim_temp[[1, "trial"]] <- z
+  bup_result_newcensors_lim_temp[[1, "theta"]] <- data_bup_lim$theta
+  bup_result_newcensors_lim_temp[[1, "se"]] <- data_bup_lim$standard_error
+  bup_result_newcensors_lim_temp[[1, "lower"]] <- data_bup_lim$low
+  bup_result_newcensors_lim_temp[[1, "upper"]] <- data_bup_lim$high
+  
+bup_result_newcensors_lim <- bup_result_newcensors_lim |>
+    merge(bup_result_newcensors_lim_temp, all = TRUE)
+
+}
+}
+}
+
+bup_result_newcensors_lim <- bup_result_newcensors_lim |>
+    mutate(race = as.factor(race)) |>
+    mutate(race = case_when(race == "1" ~ "White",
+                             race == "2" ~ "Black",
+                             race == "3" ~ "Hispanic"))
+```
+
+### Reading result_newcensors for CI
+
+```{r}
+# bup limited 
+bup_as_1_trial_27 <- list()
+bup_as_2_trial_27 <- list()
+bup_as_3_trial_27 <- list()
+
+for (z in 1:1)
+{
+    for (i in 4:4) {
+        
+            #bup limited
+            bup_as_1_trial_27[[1]] <- readRDS(here::here(paste0("./data/trial_stratify/bup/","result_newcensor_limited", "1", sep = "_", i, 
+                                                       sep = "_", z, ".rds")))
+            
+            bup_as_2_trial_27[[1]] <- readRDS(here::here(paste0("./data/trial_stratify/bup/","result_newcensor_limited", "2", sep = "_", i,
+                                                       sep = "_", z, ".rds")))
+            
+            bup_as_3_trial_27[[1]] <- readRDS(here::here(paste0("./data/trial_stratify/bup/","result_newcensor_limited", "3", sep = "_", i,
+                                                       sep = "_", z, ".rds")))
+    }
+    
+    lmtp_contrast_simple <- function(X, Y) {
+        res <- lmtp_contrast(X, ref = Y)
+        
+        return(res)
+    }
+}
+
+bup_as_12_contrast_trial_27 <- mapply(lmtp_contrast_simple, X = bup_as_2_trial_27, Y = bup_as_1_trial_27)
+
+bup_as_12_df_trial_27 <- as.data.frame(bup_as_12_contrast_trial_27[,1]$val) |>
+    mutate(time = 4)
+
+bup_as_13_contrast_trial_27 <- mapply(lmtp_contrast_simple, X = bup_as_3_trial_27, Y = bup_as_1_trial_27)
+
+bup_as_13_df_trial_27 <- as.data.frame(bup_as_13_contrast_trial_27[,1]$val) |>
+    mutate(time = 4)
+
+##### CTN trial_30
+# bup limited 
+bup_as_1_trial_30 <- list()
+bup_as_2_trial_30 <- list()
+bup_as_3_trial_30 <- list()
+
+for (z in 2:2)
+{
+    for (i in 4:4) {
+        
+        # continuous
+            
+            #bup limited
+            bup_as_1_trial_30[[1]] <- readRDS(here::here(paste0("./data/trial_stratify/bup/","result_newcensor_limited", "1", sep = "_", i, 
+                                                       sep = "_", z, ".rds")))
+            
+            bup_as_2_trial_30[[1]] <- readRDS(here::here(paste0("./data/trial_stratify/bup/","result_newcensor_limited", "2", sep = "_", i,
+                                                       sep = "_", z, ".rds")))
+            
+            bup_as_3_trial_30[[1]] <- readRDS(here::here(paste0("./data/trial_stratify/bup/","result_newcensor_limited", "3", sep = "_", i,
+                                                       sep = "_", z, ".rds")))
+       
+    }
+    
+    lmtp_contrast_simple <- function(X, Y) {
+        res <- lmtp_contrast(X, ref = Y)
+        
+        return(res)
+    }
+}
+
+bup_as_12_contrast_trial_30 <- mapply(lmtp_contrast_simple, X = bup_as_2_trial_30, Y = bup_as_1_trial_30)
+
+bup_as_12_df_trial_30 <- as.data.frame(bup_as_12_contrast_trial_30[,1]$val) |>
+    mutate(time = 4)
+
+bup_as_13_contrast_trial_30 <- mapply(lmtp_contrast_simple, X = bup_as_3_trial_30, Y = bup_as_1_trial_30)
+
+bup_as_13_df_trial_30 <- as.data.frame(bup_as_13_contrast_trial_30[,1]$val) |>
+    mutate(time = 4) 
+
+
+##### CTN trial_51
+# bup limited 
+bup_as_1_trial_51 <- list()
+bup_as_2_trial_51 <- list()
+bup_as_3_trial_51 <- list()
+
+for (z in 3:3)
+{
+    for (i in 4:4) {
+        
+        # continuous
+        
+        #bup limited
+        bup_as_1_trial_51[[1]] <- readRDS(here::here(paste0("./data/trial_stratify/bup/","result_newcensor_limited", "1", sep = "_", i, 
+                                                            sep = "_", z, ".rds")))
+        
+        bup_as_2_trial_51[[1]] <- readRDS(here::here(paste0("./data/trial_stratify/bup/","result_newcensor_limited", "2", sep = "_", i,
+                                                            sep = "_", z, ".rds")))
+        
+        bup_as_3_trial_51[[1]] <- readRDS(here::here(paste0("./data/trial_stratify/bup/","result_newcensor_limited", "3", sep = "_", i,
+                                                            sep = "_", z, ".rds")))
+        
+    }
+    
+    lmtp_contrast_simple <- function(X, Y) {
+        res <- lmtp_contrast(X, ref = Y)
+        
+        return(res)
+    }
+}
+
+bup_as_12_contrast_trial_51 <- mapply(lmtp_contrast_simple, X = bup_as_2_trial_51, Y = bup_as_1_trial_51)
+
+bup_as_12_df_trial_51 <- as.data.frame(bup_as_12_contrast_trial_51[,1]$val) |>
+    mutate(time = 4)
+
+bup_as_13_contrast_trial_51 <- mapply(lmtp_contrast_simple, X = bup_as_3_trial_51, Y = bup_as_1_trial_51)
+
+bup_as_13_df_trial_51 <- as.data.frame(bup_as_13_contrast_trial_51[,1]$val) |>
+    mutate(time = 4) 
+
+### COMBINING
+bup_as_12_df <- bup_as_12_df_trial_27 |>
+    mutate(trial = "trial_27") |>
+    merge(bup_as_12_df_trial_30 |>
+    mutate(trial = "trial_30"), all = TRUE) |>
+    merge(bup_as_12_df_trial_51 |>
+    mutate(trial = "trial_51"), all = TRUE)
+
+bup_as_13_df <- bup_as_13_df_trial_27 |>
+    mutate(trial = "trial_27") |>
+    merge(bup_as_13_df_trial_30 |>
+    mutate(trial = "trial_30"), all = TRUE) |>
+    merge(bup_as_13_df_trial_51 |>
+    mutate(trial = "trial_51"), all = TRUE)
+```
+
+## Final Plot
+
+```{r}
+custom_colors <- c("White" = "#e31a1c", "Black" = "#1f78b4", "Hispanic" = "darkseagreen4")
+
+theta_df_bup <- bup_result_newcensors_lim |>
+    mutate(trt = "Buprenorphine") |>
+    filter(is.na(week) == FALSE) |>
+    mutate(trial = case_when(trial == 1 ~"trial_27",
+                             trial == 2 ~ "trial_30",
+                             trial == 3 ~ "trial_51")) |>
+    mutate(trial = factor(trial, levels = c("trial_27", "trial_30", "trial_51"))) 
+
+diff_df_bup <- bup_as_12_df |> 
+    mutate(race = "Black v. White") |>
+    merge(bup_as_13_df |> mutate(race = "Hispanic v. White"), all = TRUE) |>
+    mutate(trt = "Buprenorphine")  |>
+    filter(is.na(week) == FALSE) |>
+    mutate(trial = factor(trial, levels = c("trial_27", "trial_30", "trial_51"))) 
+
+all_theta_plot_bup <- ggplot(theta_df_bup, aes(x = trial, y = theta, group = race, color = race, fill = race, shape = race)) +
+    geom_point(position = position_dodge(width = 0.5)) +
+    geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.25, position = position_dodge(width = 0.5)) +
+    labs(title = "",
+         x = "trial Level",
+         y = "Dose (mg)") +
+    #scale_x_continuous(breaks = seq(1, 4, by = 1)) +
+    scale_color_manual(values = custom_colors) + 
+    scale_shape_manual(values = c(1, 0, 8)) +
+    scale_fill_manual(values = custom_colors) +  
+    theme_minimal() +
+    labs(color = "",
+         shape = "",
+         fill = "") +
+    #facet_wrap(~trt, scales = "free") + 
+    theme(strip.text = element_text(size = 24),
+        legend.position = c(0.00125, 0.9975),
+        legend.justification = c("left", "top"),
+        legend.box.just = "left",
+        legend.margin = margin(-17.5, 2.5, 2.5, 2.5),
+        legend.key = element_rect(fill = "white", colour = "black", size = 0.001),
+        legend.background = element_rect(fill="white", size = 0.5),
+        legend.box.background = element_rect(color = "black", size = 0.25),
+        legend.box = "vertical", 
+        plot.title = element_text(vjust = 0.5),
+        legend.key.size = unit(0.000000000000001, 'cm'), 
+        legend.box.spacing = unit(-5, "pt"),
+        text = element_text(size=16, family = "Times New Roman")
+    )
+
+all_diff_plot_bup <- ggplot(diff_df_bup, aes(x = trial, y = theta, group = race, color = race, fill = race, shape = race)) +
+    geom_point(position = position_dodge(width = 0.5)) +
+    geom_errorbar(aes(ymin = conf.trial_30, ymax = conf.trial_27), width = 0.25, position = position_dodge(width = 0.5)) +
+    labs(title = "",
+         x = "trial Level",
+         y = "Difference in Dose (mg)") +
+    geom_hline(yintercept = 0, linetype = "dotted", color = "black") +
+    #scale_x_continuous(breaks = seq(1, 4, by = 1)) +
+    scale_color_manual(values = c("#1f78b4", "darkseagreen4")) + 
+    scale_shape_manual(values = c(1, 0, 8)) +
+    scale_fill_manual(values = c("#1f78b4", "darkseagreen4")) +  
+    theme_minimal() +
+    labs(color = "",
+         shape = "",
+         fill = "") +
+    #facet_wrap(~trt, scales = "free") + 
+    theme(strip.text = element_text(size = 24),
+        legend.position = c(0.00125, 0.9975),
+        legend.justification = c("left", "top"),
+        legend.box.just = "left",
+        legend.margin = margin(-17.5, 2.5, 2.5, 2.5),
+        legend.title = element_text(margin = margin(0, 0, 0, 0)),
+        legend.key = element_rect(fill = "white", colour = "black", size = 0.001),
+        legend.background = element_rect(fill="white", size = 0.5),
+        legend.box.background = element_rect(color = "black", size = 0.25),
+        legend.box = "vertical", 
+        plot.title = element_text(vjust = 0.5),
+        legend.key.size = unit(0.000000000000001, 'cm'), 
+        legend.box.spacing = unit(-10, "pt"),
+        text = element_text(size = 16, family = "Times New Roman")
+    )
+
+#final_plot_cont_bup <- all_theta_plot_bup + all_diff_plot_bup +
+#    plot_layout(ncol = 1) & 
+#    theme(plot.tag = element_text(size = 14),
+#          panel.border = element_rect(colour = "black", fill=NA))
+```
+
+## Saving results for tables
+
+```{r}
+saveRDS(theta_df_bup, here::here("data/table_data/appendix/theta_df_bup.rds"))
+saveRDS(diff_df_bup, here::here("data/table_data/appendix/diff_df_bup.rds"))
+```

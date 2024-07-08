@@ -49,9 +49,9 @@ sens_table[3, 1] <- paste0(round(met_cont_total_all[5, 3], 1),
                           " (", round(met_cont_total_all[5, 5], 1), ", ",
                           round(met_cont_total_all[5, 6], 1), ")")
 
-sens_table[4, 1] <- paste0(round(met_cont_total_as[6, 3], 1), 
-                          " (", round(met_cont_total_as[6, 5], 1), ", ",
-                          round(met_cont_total_as[6, 6], 1), ")")
+sens_table[4, 1] <- paste0(round(met_cont_total_all[6, 3], 1), 
+                          " (", round(met_cont_total_all[6, 5], 1), ", ",
+                          round(met_cont_total_all[6, 6], 1), ")")
 
 sens_table[1, 2] <- paste0(round(met_cont_total_as[1, 3], 1), 
                           " (", round(met_cont_total_as[1, 5], 1), ", ",
