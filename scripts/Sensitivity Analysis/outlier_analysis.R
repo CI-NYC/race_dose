@@ -4,7 +4,7 @@ library(tidyverse)
 library(ggplot2)
 library(lmtp)
 library(SuperLearner)
-source("scripts/source/shift_functions.R") #loading shift functions
+source(here::here("scripts/source/shift_functions.R")) #loading shift functions
 
 wk3_dat <- readRDS(here::here("data/sensitivity/data_met_week3_outlier.rds"))
 wk4_dat <- readRDS(here::here("data/sensitivity/data_met_week4_outlier.rds"))
@@ -13,9 +13,9 @@ wk4_dat <- readRDS(here::here("data/sensitivity/data_met_week4_outlier.rds"))
 
 # learners list
 
-lrnrs_out_met <- c("SL.mean", "SL.glm", "SL.glmnet", "SL.earth", "SL.gbm", "SL.bartMachine") # must be capable of binary classification
+lrnrs_out_met <- c("SL.mean", "SL.glm", "SL.glmnet", "SL.earth", "SL.xgboost") # must be capable of binary classification
 
-lrnrs_trt_met <- c("SL.mean", "SL.glm", "SL.glmnet", "SL.earth", "SL.gbm", "SL.bartMachine") # must be capable of binary classification
+lrnrs_trt_met <- c("SL.mean", "SL.glm", "SL.glmnet", "SL.earth", "SL.xgboost") # must be capable of binary classification
 
 ### Continuous Analysis
 

@@ -139,16 +139,17 @@ as_kable(covartable, format = "latex")
 #latex format
 
 trial_tbl <- data_bup |>
-    select(sex, age, hcows_bin, alcdisorder,
-           cocdisorder, hasBipolar, hasAnxPan,
-           hasMajorDep, bamphetamine30_base, bcannabis30_base,
-           bbenzo30_base, ivdrug, xrace, project) |>
+    select(sex, age, xrace, project) |>
     tbl_strata(
         strata = project,
         .tbl_fun =
             ~ .x |>
-            tbl_summary(by = xrace, missing = "ifany", percent = NULL),
+            tbl_summary(by = xrace, 
+                        missing = "ifany", 
+                        statistic = list(all_categorical() ~ "{n}")),
         .header = "**{strata}**, N = {n}")
+as_kable(trial_tbl, format = "latex")
+
 
 covartable_met <- tbl_summary(
     data_met,

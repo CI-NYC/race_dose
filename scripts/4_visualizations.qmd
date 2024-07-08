@@ -84,7 +84,7 @@ for (i in 1:4) {
 
     if (i > 2)
     {
-  data_met <- readRDS(here::here(paste0("./data/20824/met/","result_newcensor_met", j, sep = "_", i, ".rds")))
+  data_met <- readRDS(here::here(paste0("./data/final_0624/met/","result_newcensor_met", j, sep = "_", i, ".rds")))
   met_result_newcensors_all_temp[[i, "week"]] <- i
   met_result_newcensors_all_temp[[i, "race"]] <- j
   met_result_newcensors_all_temp[[i, "theta"]] <- data_met$theta
@@ -92,7 +92,7 @@ for (i in 1:4) {
   met_result_newcensors_all_temp[[i, "lower"]] <- data_met$low
   met_result_newcensors_all_temp[[i, "upper"]] <- data_met$high
   
-  data_met_lim <- readRDS(here::here(paste0("./data/20824/met/","result_newcensor_met_limited", j, sep = "_", i, ".rds")))
+  data_met_lim <- readRDS(here::here(paste0("./data/final_0624/met/","result_newcensor_met_limited", j, sep = "_", i, ".rds")))
   met_result_newcensors_lim_temp[[i, "week"]] <- i
   met_result_newcensors_lim_temp[[i, "race"]] <- j
   met_result_newcensors_lim_temp[[i, "theta"]] <- data_met_lim$theta
@@ -100,7 +100,7 @@ for (i in 1:4) {
   met_result_newcensors_lim_temp[[i, "lower"]] <- data_met_lim$low
   met_result_newcensors_lim_temp[[i, "upper"]] <- data_met_lim$high
  
-  data_bup <- readRDS(here::here(paste0("./data/20824/bup/","result_newcensor", j, sep = "_", i, ".rds")))
+  data_bup <- readRDS(here::here(paste0("./data/final_0624/bup/","result_newcensor", j, sep = "_", i, ".rds")))
   bup_result_newcensors_all_temp[[i, "week"]] <- i
   bup_result_newcensors_all_temp[[i, "race"]] <- j
   bup_result_newcensors_all_temp[[i, "theta"]] <- data_bup$theta
@@ -108,7 +108,7 @@ for (i in 1:4) {
   bup_result_newcensors_all_temp[[i, "lower"]] <- data_bup$low
   bup_result_newcensors_all_temp[[i, "upper"]] <- data_bup$high
   
-  data_bup_lim <- readRDS(here::here(paste0("./data/20824/bup/","result_newcensor_limited", j, sep = "_", i, ".rds")))
+  data_bup_lim <- readRDS(here::here(paste0("./data/final_0624/bup/","result_newcensor_limited", j, sep = "_", i, ".rds")))
   bup_result_newcensors_lim_temp[[i, "week"]] <- i
   bup_result_newcensors_lim_temp[[i, "race"]] <- j
   bup_result_newcensors_lim_temp[[i, "theta"]] <- data_bup_lim$theta
@@ -118,7 +118,7 @@ for (i in 1:4) {
     }
     else
     {
-    data_met <- readRDS(here::here(paste0("./data/20824/met/","result_met", j, sep = "_", i, ".rds")))
+    data_met <- readRDS(here::here(paste0("./data/final_0624/met/","result_met", j, sep = "_", i, ".rds")))
   met_result_newcensors_all_temp[[i, "week"]] <- i
   met_result_newcensors_all_temp[[i, "race"]] <- j
   met_result_newcensors_all_temp[[i, "theta"]] <- data_met$theta
@@ -126,7 +126,7 @@ for (i in 1:4) {
   met_result_newcensors_all_temp[[i, "lower"]] <- data_met$low
   met_result_newcensors_all_temp[[i, "upper"]] <- data_met$high
   
-  data_met_lim <- readRDS(here::here(paste0("./data/20824/met/","result_met_limited", j, sep = "_", i, ".rds")))
+  data_met_lim <- readRDS(here::here(paste0("./data/final_0624/met/","result_met_limited", j, sep = "_", i, ".rds")))
   met_result_newcensors_lim_temp[[i, "week"]] <- i
   met_result_newcensors_lim_temp[[i, "race"]] <- j
   met_result_newcensors_lim_temp[[i, "theta"]] <- data_met_lim$theta
@@ -134,7 +134,7 @@ for (i in 1:4) {
   met_result_newcensors_lim_temp[[i, "lower"]] <- data_met_lim$low
   met_result_newcensors_lim_temp[[i, "upper"]] <- data_met_lim$high
  
-  data_bup <- readRDS(here::here(paste0("./data/20824/bup/","result", j, sep = "_", i, ".rds")))
+  data_bup <- readRDS(here::here(paste0("./data/final_0624/bup/","result", j, sep = "_", i, ".rds")))
   bup_result_newcensors_all_temp[[i, "week"]] <- i
   bup_result_newcensors_all_temp[[i, "race"]] <- j
   bup_result_newcensors_all_temp[[i, "theta"]] <- data_bup$theta
@@ -142,7 +142,7 @@ for (i in 1:4) {
   bup_result_newcensors_all_temp[[i, "lower"]] <- data_bup$low
   bup_result_newcensors_all_temp[[i, "upper"]] <- data_bup$high
   
-  data_bup_lim <- readRDS(here::here(paste0("./data/20824/bup/","result_limited", j, sep = "_", i, ".rds")))
+  data_bup_lim <- readRDS(here::here(paste0("./data/final_0624/bup/","result_limited", j, sep = "_", i, ".rds")))
   bup_result_newcensors_lim_temp[[i, "week"]] <- i
   bup_result_newcensors_lim_temp[[i, "race"]] <- j
   bup_result_newcensors_lim_temp[[i, "theta"]] <- data_bup_lim$theta
@@ -169,14 +169,6 @@ bup_result_newcensors_lim <- bup_result_newcensors_lim |>
 # binomial analysis
 for (j in 1:3)
 {
-    met_binomial_lim_temp <- data.frame(week = numeric(0), race = numeric(0), theta = numeric(0), se = numeric(0), lower = numeric(0), upper = numeric(0))
-    
-    bup_binomial_lim_temp <- data.frame(week = numeric(0), race = numeric(0), theta = numeric(0), se = numeric(0), lower = numeric(0), upper = numeric(0))
-    
-    met_binomial_all_temp <- data.frame(week = numeric(0), race = numeric(0), theta = numeric(0), se = numeric(0), lower = numeric(0), upper = numeric(0))
-    
-    bup_binomial_all_temp <- data.frame(week = numeric(0), race = numeric(0), theta = numeric(0), se = numeric(0), lower = numeric(0), upper = numeric(0))
-    
     comb_binomial_lim_temp <- data.frame(week = numeric(0), race = numeric(0), theta = numeric(0), se = numeric(0), lower = numeric(0), upper = numeric(0))
     
     comb_binomial_all_temp <- data.frame(week = numeric(0), race = numeric(0), theta = numeric(0), se = numeric(0), lower = numeric(0), upper = numeric(0))
@@ -184,39 +176,7 @@ for (j in 1:3)
     
 for (i in 3:4) 
 {
-    data_met_binomial_lim <- readRDS(here::here(paste0("./data/20824/met_binomial/","result_newcensor_met_limited", j, sep = "_", i, ".rds")))
-    met_binomial_lim_temp[[i, "week"]] <- i
-    met_binomial_lim_temp[[i, "race"]] <- j
-    met_binomial_lim_temp[[i, "theta"]] <- data_met_binomial_lim$theta
-    met_binomial_lim_temp[[i, "se"]] <- data_met_binomial_lim$standard_error
-    met_binomial_lim_temp[[i, "lower"]] <- data_met_binomial_lim$low
-    met_binomial_lim_temp[[i, "upper"]] <- data_met_binomial_lim$high
-    
-    data_met_binomial_all <- readRDS(here::here(paste0("./data/20824/met_binomial/","result_newcensor_met", j, sep = "_", i, ".rds")))
-    met_binomial_all_temp[[i, "week"]] <- i
-    met_binomial_all_temp[[i, "race"]] <- j
-    met_binomial_all_temp[[i, "theta"]] <- data_met_binomial_all$theta
-    met_binomial_all_temp[[i, "se"]] <- data_met_binomial_all$standard_error
-    met_binomial_all_temp[[i, "lower"]] <- data_met_binomial_all$low
-    met_binomial_all_temp[[i, "upper"]] <- data_met_binomial_all$high
-    
-    data_bup_binomial_lim <- readRDS(here::here(paste0("./data/20824/bup_binomial/","result_newcensor_limited", j, sep = "_", i, ".rds")))
-    bup_binomial_lim_temp[[i, "week"]] <- i
-    bup_binomial_lim_temp[[i, "race"]] <- j
-    bup_binomial_lim_temp[[i, "theta"]] <- data_bup_binomial_lim$theta
-    bup_binomial_lim_temp[[i, "se"]] <- data_bup_binomial_lim$standard_error
-    bup_binomial_lim_temp[[i, "lower"]] <- data_bup_binomial_lim$low
-    bup_binomial_lim_temp[[i, "upper"]] <- data_bup_binomial_lim$high
-    
-    data_bup_binomial_all <- readRDS(here::here(paste0("./data/20824/bup_binomial/","result_newcensor", j, sep = "_", i, ".rds")))
-    bup_binomial_all_temp[[i, "week"]] <- i
-    bup_binomial_all_temp[[i, "race"]] <- j
-    bup_binomial_all_temp[[i, "theta"]] <- data_bup_binomial_all$theta
-    bup_binomial_all_temp[[i, "se"]] <- data_bup_binomial_all$standard_error
-    bup_binomial_all_temp[[i, "lower"]] <- data_bup_binomial_all$low
-    bup_binomial_all_temp[[i, "upper"]] <- data_bup_binomial_all$high
-    
-    data_comb_binomial_lim <- readRDS(here::here(paste0("./data/20824/comb_binomial/","result_newcensor_comb_limited", j, sep = "_", i, ".rds")))
+    data_comb_binomial_lim <- readRDS(here::here(paste0("./data/final_0624/comb_binomial/","result_newcensor_comb_limited", j, sep = "_", i, ".rds")))
     comb_binomial_lim_temp[[i, "week"]] <- i
     comb_binomial_lim_temp[[i, "race"]] <- j
     comb_binomial_lim_temp[[i, "theta"]] <- data_comb_binomial_lim$theta
@@ -224,7 +184,7 @@ for (i in 3:4)
     comb_binomial_lim_temp[[i, "lower"]] <- data_comb_binomial_lim$low
     comb_binomial_lim_temp[[i, "upper"]] <- data_comb_binomial_lim$high
     
-    data_comb_binomial_all <- readRDS(here::here(paste0("./data/20824/comb_binomial/","result_newcensor_comb", j, sep = "_", i, ".rds")))
+    data_comb_binomial_all <- readRDS(here::here(paste0("./data/final_0624/comb_binomial/","result_newcensor_comb", j, sep = "_", i, ".rds")))
     comb_binomial_all_temp[[i, "week"]] <- i
     comb_binomial_all_temp[[i, "race"]] <- j
     comb_binomial_all_temp[[i, "theta"]] <- data_comb_binomial_all$theta
@@ -232,18 +192,6 @@ for (i in 3:4)
     comb_binomial_all_temp[[i, "lower"]] <- data_comb_binomial_all$low
     comb_binomial_all_temp[[i, "upper"]] <- data_comb_binomial_all$high
 }
-
-met_binomial_lim <- met_binomial_lim |>
-    merge(met_binomial_lim_temp, all = TRUE) 
-
-met_binomial_all <- met_binomial_all |>
-    merge(met_binomial_all_temp, all = TRUE) 
-
-bup_binomial_lim <- bup_binomial_lim |>
-    merge(bup_binomial_lim_temp, all = TRUE) 
-
-bup_binomial_all <- bup_binomial_all |>
-    merge(bup_binomial_all_temp, all = TRUE) 
 
 comb_binomial_lim <- comb_binomial_lim |>
     merge(comb_binomial_lim_temp, all = TRUE) 
@@ -264,17 +212,6 @@ met_result_newcensors_lim <- met_result_newcensors_lim |>
                              race == "2" ~ "Black",
                              race == "3" ~ "Hispanic"))
 
-met_binomial_lim <- met_binomial_lim |>
-    mutate(race = as.factor(race)) |>
-    mutate(race = case_when(race == "1" ~ "White",
-                             race == "2" ~ "Black",
-                             race == "3" ~ "Hispanic"))
-
-met_binomial_all <- met_binomial_all |>
-    mutate(race = as.factor(race)) |>
-    mutate(race = case_when(race == "1" ~ "White",
-                             race == "2" ~ "Black",
-                             race == "3" ~ "Hispanic"))
 
 bup_result_newcensors_all <- bup_result_newcensors_all |>
     mutate(race = as.factor(race)) |>
@@ -283,18 +220,6 @@ bup_result_newcensors_all <- bup_result_newcensors_all |>
                              race == "3" ~ "Hispanic"))
 
 bup_result_newcensors_lim <- bup_result_newcensors_lim |>
-    mutate(race = as.factor(race)) |>
-    mutate(race = case_when(race == "1" ~ "White",
-                             race == "2" ~ "Black",
-                             race == "3" ~ "Hispanic"))
-
-bup_binomial_lim <- bup_binomial_lim |>
-    mutate(race = as.factor(race)) |>
-    mutate(race = case_when(race == "1" ~ "White",
-                             race == "2" ~ "Black",
-                             race == "3" ~ "Hispanic"))
-
-bup_binomial_all <- bup_binomial_all |>
     mutate(race = as.factor(race)) |>
     mutate(race = case_when(race == "1" ~ "White",
                              race == "2" ~ "Black",
@@ -355,97 +280,71 @@ for (i in 1:4) {
     # continuous
         
     #bup limited
-    bup_as_1[[i]] <- readRDS(here::here(paste0("./data/20824/bup/","result_newcensor_limited", "1", sep = "_", i, ".rds")))
+    bup_as_1[[i]] <- readRDS(here::here(paste0("./data/final_0624/bup/","result_newcensor_limited", "1", sep = "_", i, ".rds")))
     
-    bup_as_2[[i]] <- readRDS(here::here(paste0("./data/20824/bup/","result_newcensor_limited", "2", sep = "_", i, ".rds")))
+    bup_as_2[[i]] <- readRDS(here::here(paste0("./data/final_0624/bup/","result_newcensor_limited", "2", sep = "_", i, ".rds")))
     
-    bup_as_3[[i]] <- readRDS(here::here(paste0("./data/20824/bup/","result_newcensor_limited", "3", sep = "_", i, ".rds")))
+    bup_as_3[[i]] <- readRDS(here::here(paste0("./data/final_0624/bup/","result_newcensor_limited", "3", sep = "_", i, ".rds")))
 
     #met limited
-    met_as_1[[i]] <- readRDS(here::here(paste0("./data/20824/met/","result_newcensor_met_limited", "1", sep = "_", i, ".rds")))
+    met_as_1[[i]] <- readRDS(here::here(paste0("./data/final_0624/met/","result_newcensor_met_limited", "1", sep = "_", i, ".rds")))
     
-    met_as_2[[i]] <- readRDS(here::here(paste0("./data/20824/met/","result_newcensor_met_limited", "2", sep = "_", i, ".rds")))
+    met_as_2[[i]] <- readRDS(here::here(paste0("./data/final_0624/met/","result_newcensor_met_limited", "2", sep = "_", i, ".rds")))
 
-    met_as_3[[i]] <- readRDS(here::here(paste0("./data/20824/met/","result_newcensor_met_limited", "3", sep = "_", i, ".rds")))
+    met_as_3[[i]] <- readRDS(here::here(paste0("./data/final_0624/met/","result_newcensor_met_limited", "3", sep = "_", i, ".rds")))
     
     # bup all
-    bup_1[[i]] <- readRDS(here::here(paste0("./data/20824/bup/","result_newcensor", "1", sep = "_", i, ".rds")))
+    bup_1[[i]] <- readRDS(here::here(paste0("./data/final_0624/bup/","result_newcensor", "1", sep = "_", i, ".rds")))
 
-    bup_2[[i]] <- readRDS(here::here(paste0("./data/20824/bup/","result_newcensor", "2", sep = "_", i, ".rds")))
+    bup_2[[i]] <- readRDS(here::here(paste0("./data/final_0624/bup/","result_newcensor", "2", sep = "_", i, ".rds")))
     
-    bup_3[[i]] <- readRDS(here::here(paste0("./data/20824/bup/","result_newcensor", "3", sep = "_", i, ".rds")))
+    bup_3[[i]] <- readRDS(here::here(paste0("./data/final_0624/bup/","result_newcensor", "3", sep = "_", i, ".rds")))
 
     # met all
-    met_1[[i]] <- readRDS(here::here(paste0("./data/20824/met/","result_newcensor_met", "1", sep = "_", i, ".rds")))
-    met_2[[i]] <- readRDS(here::here(paste0("./data/20824/met/","result_newcensor_met", "2", sep = "_", i, ".rds")))
-    met_3[[i]] <- readRDS(here::here(paste0("./data/20824/met/","result_newcensor_met", "3", sep = "_", i, ".rds")))
+    met_1[[i]] <- readRDS(here::here(paste0("./data/final_0624/met/","result_newcensor_met", "1", sep = "_", i, ".rds")))
+    met_2[[i]] <- readRDS(here::here(paste0("./data/final_0624/met/","result_newcensor_met", "2", sep = "_", i, ".rds")))
+    met_3[[i]] <- readRDS(here::here(paste0("./data/final_0624/met/","result_newcensor_met", "3", sep = "_", i, ".rds")))
     
     # binomial
     
-    #bup binomial limited
-    bup_binomial_as_1[[i-2]] <- readRDS(here::here(paste0("./data/20824/bup_binomial/","result_newcensor_limited", "1", sep = "_", i, ".rds")))
-    
-    bup_binomial_as_2[[i-2]] <- readRDS(here::here(paste0("./data/20824/bup_binomial/","result_newcensor_limited", "2", sep = "_", i, ".rds")))
-    
-    bup_binomial_as_3[[i-2]] <- readRDS(here::here(paste0("./data/20824/bup_binomial/","result_newcensor_limited", "3", sep = "_", i, ".rds")))
-    
-    #met binomial limited
-    met_binomial_as_1[[i-2]] <- readRDS(here::here(paste0("./data/20824/met_binomial/","result_newcensor_met_limited", "1", sep = "_", i, ".rds")))
-    
-    met_binomial_as_2[[i-2]] <- readRDS(here::here(paste0("./data/20824/met_binomial/","result_newcensor_met_limited", "2", sep = "_", i, ".rds")))
-    
-    met_binomial_as_3[[i-2]] <- readRDS(here::here(paste0("./data/20824/met_binomial/","result_newcensor_met_limited", "3", sep = "_", i, ".rds")))
-    
-    # bup binomial all
-    bup_binomial_1[[i-2]] <- readRDS(here::here(paste0("./data/20824/bup_binomial/","result_newcensor", "1", sep = "_", i, ".rds")))
-
-    bup_binomial_2[[i-2]] <- readRDS(here::here(paste0("./data/20824/bup_binomial/","result_newcensor", "2", sep = "_", i, ".rds")))
-    
-    bup_binomial_3[[i-2]] <- readRDS(here::here(paste0("./data/20824/bup_binomial/","result_newcensor", "3", sep = "_", i, ".rds")))
-
-    # met binomial all
-    met_binomial_1[[i-2]] <- readRDS(here::here(paste0("./data/20824/met_binomial/","result_newcensor_met", "1", sep = "_", i, ".rds")))
-    met_binomial_2[[i-2]] <- readRDS(here::here(paste0("./data/20824/met_binomial/","result_newcensor_met", "2", sep = "_", i, ".rds")))
-    met_binomial_3[[i-2]] <- readRDS(here::here(paste0("./data/20824/met_binomial/","result_newcensor_met", "3", sep = "_", i, ".rds")))
-    
     #comb binomial limited
-    comb_binomial_as_1[[i-2]] <- readRDS(here::here(paste0("./data/20824/comb_binomial/","result_newcensor_comb_limited", "1", sep = "_", i, ".rds")))
+    comb_binomial_as_1[[i-2]] <- readRDS(here::here(paste0("./data/final_0624/comb_binomial/","result_newcensor_comb_limited", "1", sep = "_", i, ".rds")))
     
-    comb_binomial_as_2[[i-2]] <- readRDS(here::here(paste0("./data/20824/comb_binomial/","result_newcensor_comb_limited", "2", sep = "_", i, ".rds")))
+    comb_binomial_as_2[[i-2]] <- readRDS(here::here(paste0("./data/final_0624/comb_binomial/","result_newcensor_comb_limited", "2", sep = "_", i, ".rds")))
     
-    comb_binomial_as_3[[i-2]] <- readRDS(here::here(paste0("./data/20824/comb_binomial/","result_newcensor_comb_limited", "3", sep = "_", i, ".rds")))
+    comb_binomial_as_3[[i-2]] <- readRDS(here::here(paste0("./data/final_0624/comb_binomial/","result_newcensor_comb_limited", "3", sep = "_", i, ".rds")))
     
     # comb binomial all
-    comb_binomial_1[[i-2]] <- readRDS(here::here(paste0("./data/20824/comb_binomial/","result_newcensor_comb", "1", sep = "_", i, ".rds")))
-    comb_binomial_2[[i-2]] <- readRDS(here::here(paste0("./data/20824/comb_binomial/","result_newcensor_comb", "2", sep = "_", i, ".rds")))
-    comb_binomial_3[[i-2]] <- readRDS(here::here(paste0("./data/20824/comb_binomial/","result_newcensor_comb", "3", sep = "_", i, ".rds")))
+    comb_binomial_1[[i-2]] <- readRDS(here::here(paste0("./data/final_0624/comb_binomial/","result_newcensor_comb", "1", sep = "_", i, ".rds")))
+    comb_binomial_2[[i-2]] <- readRDS(here::here(paste0("./data/final_0624/comb_binomial/","result_newcensor_comb", "2", sep = "_", i, ".rds")))
+    comb_binomial_3[[i-2]] <- readRDS(here::here(paste0("./data/final_0624/comb_binomial/","result_newcensor_comb", "3", sep = "_", i, ".rds")))
     } else
     {
             #bup limited
-    bup_as_1[[i]] <- readRDS(here::here(paste0("./data/20824/bup/","result_limited", "1", sep = "_", i, ".rds")))
+    bup_as_1[[i]] <- readRDS(here::here(paste0("./data/final_0624/bup/","result_limited", "1", sep = "_", i, ".rds")))
     
-    bup_as_2[[i]] <- readRDS(here::here(paste0("./data/20824/bup/","result_limited", "2", sep = "_", i, ".rds")))
+    bup_as_2[[i]] <- readRDS(here::here(paste0("./data/final_0624/bup/","result_limited", "2", sep = "_", i, ".rds")))
     
-    bup_as_3[[i]] <- readRDS(here::here(paste0("./data/20824/bup/","result_limited", "3", sep = "_", i, ".rds")))
+    bup_as_3[[i]] <- readRDS(here::here(paste0("./data/final_0624/bup/","result_limited", "3", sep = "_", i, ".rds")))
 
     #met limited
-    met_as_1[[i]] <- readRDS(here::here(paste0("./data/20824/met/","result_met_limited", "1", sep = "_", i, ".rds")))
+    met_as_1[[i]] <- readRDS(here::here(paste0("./data/final_0624/met/","result_met_limited", "1", sep = "_", i, ".rds")))
     
-    met_as_2[[i]] <- readRDS(here::here(paste0("./data/20824/met/","result_met_limited", "2", sep = "_", i, ".rds")))
+    met_as_2[[i]] <- readRDS(here::here(paste0("./data/final_0624/met/","result_met_limited", "2", sep = "_", i, ".rds")))
 
-    met_as_3[[i]] <- readRDS(here::here(paste0("./data/20824/met/","result_met_limited", "3", sep = "_", i, ".rds")))
+    met_as_3[[i]] <- readRDS(here::here(paste0("./data/final_0624/met/","result_met_limited", "3", sep = "_", i, ".rds")))
     
     # bup all
-    bup_1[[i]] <- readRDS(here::here(paste0("./data/20824/bup/","result", "1", sep = "_", i, ".rds")))
+    bup_1[[i]] <- readRDS(here::here(paste0("./data/final_0624/bup/","result", "1", sep = "_", i, ".rds")))
 
-    bup_2[[i]] <- readRDS(here::here(paste0("./data/20824/bup/","result", "2", sep = "_", i, ".rds")))
+    bup_2[[i]] <- readRDS(here::here(paste0("./data/final_0624/bup/","result", "2", sep = "_", i, ".rds")))
     
-    bup_3[[i]] <- readRDS(here::here(paste0("./data/20824/bup/","result", "3", sep = "_", i, ".rds")))
+    bup_3[[i]] <- readRDS(here::here(paste0("./data/final_0624/bup/","result", "3", sep = "_", i, ".rds")))
 
     # met all
-    met_1[[i]] <- readRDS(here::here(paste0("./data/20824/met/","result_met", "1", sep = "_", i, ".rds")))
-    met_2[[i]] <- readRDS(here::here(paste0("./data/20824/met/","result_met", "2", sep = "_", i, ".rds")))
-    met_3[[i]] <- readRDS(here::here(paste0("./data/20824/met/","result_met", "3", sep = "_", i, ".rds")))
+    met_1[[i]] <- readRDS(here::here(paste0("./data/final_0624/met/","result_met", "1", sep = "_", i, ".rds")))
+    met_2[[i]] <- readRDS(here::here(paste0("./data/final_0624/met/","result_met", "2", sep = "_", i, ".rds")))
+    met_3[[i]] <- readRDS(here::here(paste0("./data/final_0624/met/","result_met", "3", sep = "_", i, ".rds")))
     }
 }
 
@@ -551,70 +450,6 @@ met_as_13_df <- as.data.frame(met_as_13_contrast[,1]$val) |>
     mutate(time = 4), all = TRUE) |>
     arrange(time)
 
-bup_binomial_as_12_contrast <- mapply(lmtp_contrast_simple, X = bup_binomial_as_2, Y = bup_binomial_as_1)
-
-bup_binomial_as_12_df <- as.data.frame(bup_binomial_as_12_contrast[,1]$val) |>
-    mutate(time = 3) |>
-    merge(as.data.frame(bup_binomial_as_12_contrast[,2]$val) |>
-    mutate(time = 4), all = TRUE) |>
-    arrange(time)
-
-bup_binomial_as_13_contrast <- mapply(lmtp_contrast_simple, X = bup_binomial_as_3, Y = bup_binomial_as_1)
-
-bup_binomial_as_13_df <- as.data.frame(bup_binomial_as_13_contrast[,1]$val) |>
-    mutate(time = 3) |>
-    merge(as.data.frame(bup_binomial_as_13_contrast[,2]$val) |>
-    mutate(time = 4), all = TRUE) |>
-    arrange(time)
-
-met_binomial_as_12_contrast <- mapply(lmtp_contrast_simple, X = met_binomial_as_2, Y = met_binomial_as_1)
-
-met_binomial_as_12_df <- as.data.frame(met_binomial_as_12_contrast[,1]$val) |>
-    mutate(time = 3) |>
-    merge(as.data.frame(met_binomial_as_12_contrast[,2]$val) |>
-    mutate(time = 4), all = TRUE) |>
-    arrange(time)
-
-met_binomial_as_13_contrast <- mapply(lmtp_contrast_simple, X = met_binomial_as_3, Y = met_binomial_as_1)
-
-met_binomial_as_13_df <- as.data.frame(met_binomial_as_13_contrast[,1]$val) |>
-    mutate(time = 3) |>
-    merge(as.data.frame(met_binomial_as_13_contrast[,2]$val) |>
-    mutate(time = 4), all = TRUE) |>
-    arrange(time)
-
-bup_binomial_12_contrast <- mapply(lmtp_contrast_simple, X = bup_binomial_2, Y = bup_binomial_1)
-
-bup_binomial_12_df <- as.data.frame(bup_binomial_12_contrast[,1]$val) |>
-    mutate(time = 3) |>
-    merge(as.data.frame(bup_binomial_12_contrast[,2]$val) |>
-    mutate(time = 4), all = TRUE) |>
-    arrange(time)
-
-bup_binomial_13_contrast <- mapply(lmtp_contrast_simple, X = bup_binomial_3, Y = bup_binomial_1)
-
-bup_binomial_13_df <- as.data.frame(bup_binomial_13_contrast[,1]$val) |>
-    mutate(time = 3) |>
-    merge(as.data.frame(bup_binomial_13_contrast[,2]$val) |>
-    mutate(time = 4), all = TRUE) |>
-    arrange(time)
-
-met_binomial_12_contrast <- mapply(lmtp_contrast_simple, X = met_binomial_2, Y = met_binomial_1)
-
-met_binomial_12_df <- as.data.frame(met_binomial_12_contrast[,1]$val) |>
-    mutate(time = 3) |>
-    merge(as.data.frame(met_binomial_12_contrast[,2]$val) |>
-    mutate(time = 4), all = TRUE) |>
-    arrange(time)
-
-met_binomial_13_contrast <- mapply(lmtp_contrast_simple, X = met_binomial_3, Y = met_binomial_1)
-
-met_binomial_13_df <- as.data.frame(met_binomial_13_contrast[,1]$val) |>
-    mutate(time = 3) |>
-    merge(as.data.frame(met_binomial_13_contrast[,2]$val) |>
-    mutate(time = 4), all = TRUE) |>
-    arrange(time)
-
 comb_binomial_as_12_contrast <- mapply(lmtp_contrast_simple, X = comb_binomial_as_2, Y = comb_binomial_as_1)
 
 comb_binomial_as_12_df <- as.data.frame(comb_binomial_as_12_contrast[,1]$val) |>
@@ -671,24 +506,6 @@ data_met_long_3 <- data_met_long |>
     filter(race == "Hispanic") |>
     rename("avg" = "theta")
 
-data_bup_bin_unadj_1 <- data_bup_bin_unadj |>
-    filter(xrace == "White")
-
-data_bup_bin_unadj_2  <- data_bup_bin_unadj |>
-    filter(xrace == "Black")
-
-data_bup_bin_unadj_3 <- data_bup_bin_unadj |>
-    filter(xrace == "Hispanic")
-
-data_met_bin_unadj_1 <- data_met_bin_unadj |>
-    filter(xrace == "White")
-
-data_met_bin_unadj_2  <- data_met_bin_unadj |>
-    filter(xrace == "Black")
-
-data_met_bin_unadj_3 <- data_met_bin_unadj |>
-    filter(xrace == "Hispanic")
-
 data_comb_bin_unadj_1 <- data_comb_bin_unadj |>
     filter(xrace == "White")
 
@@ -709,18 +526,6 @@ unadjust_met_12 <- unadjusted_diff(data_met_long_2, data_met_long_1, ci_type = "
 unadjust_met_13 <- unadjusted_diff(data_met_long_3, data_met_long_1, ci_type = "marginal")
 
 unadjust_met_23 <- unadjusted_diff(data_met_long_2, data_met_long_3, ci_type = "marginal")
-
-unadjust_bup_12_bin <- unadjusted_diff_binom(data_bup_bin_unadj_2, data_bup_bin_unadj_1, ci_type = "marginal")
-
-unadjust_bup_13_bin <- unadjusted_diff_binom(data_bup_bin_unadj_3, data_bup_bin_unadj_1, ci_type = "marginal")
-
-unadjust_bup_23_bin <- unadjusted_diff_binom(data_bup_bin_unadj_2, data_bup_bin_unadj_3, ci_type = "marginal")
-
-unadjust_met_12_bin <- unadjusted_diff_binom(data_met_bin_unadj_2, data_met_bin_unadj_1, ci_type = "marginal")
-
-unadjust_met_13_bin <- unadjusted_diff_binom(data_met_bin_unadj_3, data_met_bin_unadj_1, ci_type = "marginal")
-
-unadjust_met_23_bin <- unadjusted_diff_binom(data_met_bin_unadj_2, data_met_bin_unadj_3, ci_type = "marginal")
 
 unadjust_comb_12_bin <- unadjusted_diff_binom(data_comb_bin_unadj_2, data_comb_bin_unadj_1, ci_type = "marginal")
 
@@ -939,220 +744,6 @@ ggsave(filename = here::here("figures/bup_cont_plot_newcensor.png"),
 ```{r}
 custom_colors <- c("White" = "#e31a1c", "Black" = "#1f78b4", "Hispanic" = "darkseagreen4")
 
-met_binomial_unadj <- readRDS(here::here("data/processed/met_binom_df.rds")) |>
-    mutate(type = "Crude") |>
-    rename("race" = "xrace",
-           "theta" = "prop")
-
-met_binomial_lim <- met_binomial_lim |>
-    slice(1:6) |>
-    mutate(type = "Adjusted by age & sex")
-
-met_binomial_all <- met_binomial_all |>
-    slice(1:6) |>
-    mutate(type = "Adjusted by expanded set")
-
-met_binomial_total <- met_binomial_unadj |>
-    merge(met_binomial_lim, all = TRUE) |>
-    merge(met_binomial_all, all = TRUE) |>
-    mutate(type = factor(type, levels = c("Crude", "Adjusted by age & sex", "Adjusted by expanded set")))
-
-met_binomial_plot <- ggplot(met_binomial_total, aes(x = week, y = theta, group = race, color = race, fill = race, shape = race)) +
-    geom_point(position = position_dodge(width = 0.5)) +
-    geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.25, position = position_dodge(width = 0.5)) +
-    labs(title = "",
-         x = "Study Week",
-         y = "Probability of Receiving Higher Dose") +
-    scale_x_continuous(breaks = seq(1, 4, by = 1)) +
-    scale_color_manual(values = custom_colors) + 
-    scale_shape_manual(values = c(1, 0, 8)) +
-    scale_fill_manual(values = custom_colors) +  
-    theme_minimal() +
-    labs(color = "",
-         shape = "",
-         fill = "") +
-    facet_wrap(~type, scales = "free_x") + 
-    theme(
-        legend.position = c(0.00125, 0.9975),
-        legend.justification = c("left", "top"),
-        legend.box.just = "left",
-        legend.margin = margin(-12, 2.5, 2.5, 2.5),
-        legend.key = element_rect(fill = "white", colour = "black", size = 0.001),
-        legend.background = element_rect(fill="white", size = 0.5),
-        legend.box.background = element_rect(color = "black", size = 0.25),
-        legend.box = "vertical", 
-        plot.title = element_text(vjust = 0.5),
-        legend.key.size = unit(0.000000000000001, 'cm'), 
-        legend.box.spacing = unit(-5, "pt"),
-        text = element_text(size=10, family = "Times New Roman")
-    )
-
-met_binomial_unadj_pair <- unadjust_met_12_bin |> mutate(race = "Black v. White") |>
-    merge(unadjust_met_13_bin |> mutate(race = "Hispanic v. White"), all = TRUE)
-
-met_binomial_as_pair <- met_binomial_as_12_df |> mutate(race = "Black v. White") |>
-    merge(met_binomial_as_13_df |> mutate(race = "Hispanic v. White"), all = TRUE)
-
-met_binomial_all_pair <- met_binomial_12_df |> mutate(race = "Black v. White") |>
-    merge(met_binomial_13_df |> mutate(race = "Hispanic v. White"), all = TRUE)
-
-met_binomial_pair <- met_binomial_unadj_pair |> mutate(type = "Crude") |>
-    merge(met_binomial_as_pair |> mutate(type = "Adjusted by age & sex"), all = TRUE) |>
-    merge(met_binomial_all_pair |> mutate(type = "Adjusted by expanded set"), all = TRUE) |>
-    mutate(type = factor(type, levels = c("Crude", "Adjusted by age & sex", "Adjusted by expanded set")),
-           time = case_when(time == 1 ~ 3,
-                            time == 2 ~ 4,
-                            TRUE ~ time))
-
-met_binomial_pairwise <- ggplot(met_binomial_pair, aes(x = time, y = theta, group = race, color = race, fill = race, shape = race)) +
-    geom_point(position = position_dodge(width = 0.5)) +
-    geom_errorbar(aes(ymin = conf.low, ymax = conf.high), width = 0.25, position = position_dodge(width = 0.5)) +
-    labs(title = "",
-         x = "Study Week",
-         y = "Probability of Receiving Higher Dose (Difference)") +
-    geom_hline(yintercept = 0, linetype = "dotted", color = "black") +
-    scale_x_continuous(breaks = seq(3, 4, by = 1)) +
-    scale_color_manual(values = c("#1f78b4", "darkseagreen4")) + 
-    scale_shape_manual(values = c(1, 0, 8)) +
-    scale_fill_manual(values = c("#1f78b4", "darkseagreen4")) +  
-    theme_minimal() +
-    labs(color = "",
-         shape = "",
-         fill = "") +
-    facet_wrap(~type, scales = "free_x") + 
-    theme(
-        legend.position = c(0.00125, 0.9975),
-        legend.justification = c("left", "top"),
-        legend.box.just = "left",
-        legend.margin = margin(-12, 2.5, 2.5, 2.5),
-        legend.title = element_text(margin = margin(0, 0, 0, 0)),
-        legend.key = element_rect(fill = "white", colour = "black", size = 0.001),
-        legend.background = element_rect(fill="white", size = 0.5),
-        legend.box.background = element_rect(color = "black", size = 0.25),
-        legend.box = "vertical", 
-        plot.title = element_text(vjust = 0.5),
-        legend.key.size = unit(0.000000000000001, 'cm'), 
-        legend.box.spacing = unit(-10, "pt"),
-        text = element_text(size = 10, family = "Times New Roman")
-    )
-
-met_binomial_plot_newcensor <- met_binomial_plot + met_binomial_pairwise + 
-    plot_annotation(tag_levels = 'A') + plot_layout(ncol = 1) & 
-    theme(plot.tag = element_text(size = 12),
-          panel.border = element_rect(colour = "black", fill=NA))
-
-ggsave(filename = here::here("figures/met_binomial_plot_newcensor.png"),
-       plot = met_binomial_plot_newcensor,
-       width = 8, height = 11)
-
-bup_binomial_unadj <- readRDS(here::here("data/processed/bup_binom_df.rds")) |>
-    mutate(type = "Crude") |>
-    rename("race" = "xrace",
-           "theta" = "prop")
-
-bup_binomial_lim <- bup_binomial_lim |>
-    slice(1:6) |>
-    mutate(type = "Adjusted by age & sex")
-
-bup_binomial_all <- bup_binomial_all |>
-    slice(1:6) |>
-    mutate(type = "Adjusted by expanded set")
-
-bup_binomial_total <- bup_binomial_unadj |>
-    merge(bup_binomial_lim, all = TRUE) |>
-    merge(bup_binomial_all, all = TRUE) |>
-    mutate(type = factor(type, levels = c("Crude", "Adjusted by age & sex", "Adjusted by expanded set")))
-
-bup_binomial_plot <- ggplot(bup_binomial_total, aes(x = week, y = theta, group = race, color = race, fill = race, shape = race)) +
-    geom_point(position = position_dodge(width = 0.5)) +
-    geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.25, position = position_dodge(width = 0.5)) +
-    labs(title = "",
-         x = "Study Week",
-         y = "Probability of Receiving Higher Dose") +
-    scale_x_continuous(breaks = seq(1, 4, by = 1)) +
-    scale_color_manual(values = custom_colors) + 
-    scale_shape_manual(values = c(1, 0, 8)) +
-    scale_fill_manual(values = custom_colors) +  
-    theme_minimal() +
-    labs(color = "",
-         shape = "",
-         fill = "") +
-    facet_wrap(~type, scales = "free_x") + 
-    theme(
-        legend.position = c(0.00125, 0.9975),
-        legend.justification = c("left", "top"),
-        legend.box.just = "left",
-        legend.margin = margin(-12, 2.5, 2.5, 2.5),
-        legend.key = element_rect(fill = "white", colour = "black", size = 0.001),
-        legend.background = element_rect(fill="white", size = 0.5),
-        legend.box.background = element_rect(color = "black", size = 0.25),
-        legend.box = "vertical", 
-        plot.title = element_text(vjust = 0.5),
-        legend.key.size = unit(0.000000000000001, 'cm'), 
-        legend.box.spacing = unit(-5, "pt"),
-        text = element_text(size=10, family = "Times New Roman")
-    )
-
-bup_binomial_unadj_pair <- unadjust_bup_12_bin |> mutate(race = "Black v. White") |>
-    merge(unadjust_bup_13_bin |> mutate(race = "Hispanic v. White"), all = TRUE)
-
-bup_binomial_lim_pair <- bup_binomial_as_12_df |> mutate(race = "Black v. White") |>
-    merge(bup_binomial_as_13_df |> mutate(race = "Hispanic v. White"), all = TRUE)
-
-bup_binomial_all_pair <- bup_binomial_12_df |> mutate(race = "Black v. White") |>
-    merge(bup_binomial_13_df |> mutate(race = "Hispanic v. White"), all = TRUE)
-
-bup_binomial_pair <- bup_binomial_unadj_pair |> mutate(type = "Crude") |>
-    merge(bup_binomial_lim_pair |> mutate(type = "Adjusted by age & sex"), all = TRUE) |>
-    merge(bup_binomial_all_pair |> mutate(type = "Adjusted by expanded set"), all = TRUE) |>
-    mutate(type = factor(type, levels = c("Crude", "Adjusted by age & sex", "Adjusted by expanded set")),
-           time = case_when(time == 1 ~ 3,
-                            time == 2 ~ 4,
-                            TRUE ~ time)) 
-
-bup_binomial_pairwise <- ggplot(bup_binomial_pair, aes(x = time, y = theta, group = race, color = race, fill = race, shape = race)) +
-    geom_point(position = position_dodge(width = 0.5)) +
-    geom_errorbar(aes(ymin = conf.low, ymax = conf.high), width = 0.25, position = position_dodge(width = 0.5)) +
-    labs(title = "",
-         x = "Study Week",
-         y = "Probability of Receiving Higher Dose (Difference)") +
-    geom_hline(yintercept = 0, linetype = "dotted", color = "black") +
-    scale_x_continuous(breaks = seq(3, 4, by = 1)) +
-    scale_color_manual(values = c("#1f78b4", "darkseagreen4")) + 
-    scale_shape_manual(values = c(1, 0, 8)) +
-    scale_fill_manual(values = c("#1f78b4", "darkseagreen4")) +  
-    theme_minimal() +
-    labs(color = "",
-         shape = "",
-         fill = "") +
-    facet_wrap(~type, scales = "free_x") + 
-    theme(
-        legend.position = c(0.00125, 0.9975),
-        legend.justification = c("left", "top"),
-        legend.box.just = "left",
-        legend.margin = margin(-12, 2.5, 2.5, 2.5),
-        legend.title = element_text(margin = margin(0, 0, 0, 0)),
-        legend.key = element_rect(fill = "white", colour = "black", size = 0.001),
-        legend.background = element_rect(fill="white", size = 0.5),
-        legend.box.background = element_rect(color = "black", size = 0.25),
-        legend.box = "vertical", 
-        plot.title = element_text(vjust = 0.5),
-        legend.key.size = unit(0.000000000000001, 'cm'), 
-        legend.box.spacing = unit(-10, "pt"),
-        text = element_text(size = 10, family = "Times New Roman")
-    )
-
-bup_binomial_plot_newcensor <- bup_binomial_plot + bup_binomial_pairwise + 
-    plot_annotation(tag_levels = 'A') + plot_layout(ncol = 1) & 
-    theme(plot.tag = element_text(size = 12),
-          panel.border = element_rect(colour = "black", fill=NA))
-
-ggsave(filename = here::here("figures/bup_binomial_plot_newcensor.png"),
-       plot = bup_binomial_plot_newcensor,
-       width = 8, height = 11)
-```
-
-```{r}
 comb_binomial_unadj <- readRDS(here::here("data/processed/comb_binom_df.rds")) |>
     mutate(type = "Crude") |>
     rename("race" = "xrace",
@@ -1663,196 +1254,15 @@ ggsave(filename = here::here("figures/appendix_plot.png"),
        width = 15, height = 20)
 ```
 
-## Methods Plots
+## Saving results for tables
 
 ```{r}
-custom_colors_4 <- c("White, Uncensored" = "#e31a1c", "Black, Uncensored" = "#1f78b4", 
-                     "Hispanic, Uncensored" = "darkseagreen4", 
-                     "Censored" = "darkorchid4") # color scheme, can adjust
+saveRDS(bup_cont_total, here::here("data/table_data/main/bup_cont_total.rds"))
+saveRDS(bup_cont_pair, here::here("data/table_data/main/bup_cont_pair.rds"))
 
-data_bup_long_censored <- data_bup_long_ungrouped |>
-    select(who, week, xrace, dose_this_week, censor) |>
-    filter(week <= 4) |>
-    mutate(dose_this_week = ifelse(is.na(dose_this_week), 0, dose_this_week),
-           xrace = case_when(xrace == "1" ~ "White, Uncensored",
-                             xrace == "2" ~ "Black, Uncensored",
-                             xrace == "3" ~ "Hispanic, Uncensored", 
-                             TRUE ~ xrace),
-           xrace = ifelse(censor == 0, "Censored", xrace),
-                      xrace = factor(xrace, levels = c("Black, Uncensored", 
-                                            "Hispanic, Uncensored", 
-                                            "White, Uncensored", 
-                                            "Censored"))) |>
-    arrange(week, xrace) 
+saveRDS(met_cont_total, here::here("data/table_data/main/met_cont_total.rds"))
+saveRDS(met_cont_pair, here::here("data/table_data/main/met_cont_pair.rds"))
 
-bup_alluvial <- ggplot(data_bup_long_censored,
-       aes(x = week, stratum = xrace, alluvium = who,
-           fill = xrace, label = xrace)) +
-  geom_flow() +
-  geom_stratum(alpha = .75) +
-  geom_text(stat = "stratum", aes(label = after_stat(count)),
-            family = "Times New Roman") +
-    scale_fill_manual(values = custom_colors_4) +
-    theme_void()  +
-  guides(fill = guide_legend(title = "")) + labs(x = "Week") +
-    theme(axis.title.x = element_text(),
-          axis.text.x = element_text(),
-        text = element_text(size=10, family = "Times New Roman"), 
-          legend.box.spacing = unit(-10, "pt")) +
-      labs(title = "Buprenorphine")
-
-data_met_long_censored <- data_met_long_ungrouped |>
-    select(who, week, xrace, dose_this_week, censor) |>
-    filter(week <= 4) |>
-    mutate(dose_this_week = ifelse(is.na(dose_this_week), 0, dose_this_week),
-           xrace = case_when(xrace == "1" ~ "White, Uncensored",
-                             xrace == "2" ~ "Black, Uncensored",
-                             xrace == "3" ~ "Hispanic, Uncensored", 
-                             TRUE ~ xrace),
-           xrace = ifelse(censor == 0, "Censored", xrace),
-           xrace = factor(xrace, levels = c("Black, Uncensored", 
-                                            "Hispanic, Uncensored", 
-                                            "White, Uncensored", 
-                                            "Censored"))) |>
-    arrange(week, xrace)
-
-met_alluvial <- ggplot(data_met_long_censored,
-       aes(x = week, stratum = xrace, alluvium = who,
-           fill = xrace, label = xrace)) +
-  geom_flow() +
-  geom_stratum(alpha = .75) +
-  geom_text(stat = "stratum", aes(label = after_stat(count)), 
-            family = "Times New Roman") +
-    scale_fill_manual(values = custom_colors_4) +
-    theme_void()  +
-  guides(fill = guide_legend(title = "")) + labs(x = "Week") +
-    theme(axis.title.x = element_text(),
-          axis.text.x = element_text(),
-        text = element_text(size=10, family = "Times New Roman"), 
-          legend.box.spacing = unit(-10, "pt")) +
-      labs(title = "Methadone")
-
-bup_alluvial + met_alluvial +
-  plot_layout(ncol=2,widths=c(0.5, 0.5),
-              guides = 'collect') + plot_annotation(tag_levels = 'A') & 
-    theme(plot.tag = element_text(size = 12))
-
-ggsave(here::here("figures/alluvial_plot.png"))
-```
-
-```{r}
-custom_colors_violin <- c("White" = "#e31a1c", "Black" = "#1f78b4", "Hispanic" = "darkseagreen4") # color scheme, can adjust
-
-data_bup_long_df <- data_bup_long_ungrouped |>
-    filter(week <= 4, censor == 1) |>
-    rename("Race" = "xrace") |>
-    mutate(Race = case_when(Race == "1" ~ "White",
-                     Race == "2" ~ "Black",
-                     Race == "3" ~ "Hispanic")) |>
-    mutate(Race = factor(Race, levels = c("Black", "Hispanic", "White")))
-
-data_met_long_df <- data_met_long_ungrouped |>
-    filter(week <= 4, censor == 1) |>
-    rename("Race" = "xrace") |>
-    mutate(Race = case_when(Race == "1" ~ "White",
-                     Race == "2" ~ "Black",
-                     Race == "3" ~ "Hispanic")) |>
-    mutate(Race = factor(Race, levels = c("Black", "Hispanic", "White")))
-
-violin_bup <- ggplot(data_bup_long_df, aes(x = Race, y = dose_this_week, fill = Race)) +
-  geom_violin(alpha = 0.75, show.legend = FALSE) +
-    #geom_boxplot(width=0.1, color="black", show.legend = FALSE) +
-  facet_wrap(~week, ncol = 4,
-             strip.position = "bottom") +
-    scale_fill_manual(values = custom_colors_violin) +
-  theme_minimal() +
-  labs(title = "Buprenorphine",
-       x = "Study Week",
-       y = "Dose") + 
-    theme(axis.title.x=element_blank(),
-        axis.text.x=element_blank(),
-        axis.ticks.x=element_blank(),
-        text = element_text(size = 10, family = "Times New Roman"),
-        panel.grid.major.x = element_blank(),
-        panel.grid.minor.x = element_blank()) +
-    stat_summary(fun = "mean",
-               geom = "crossbar", 
-               width = 0.5,
-               linewidth = 0.25,
-               colour = "black")
-
-violin_met <- ggplot(data_met_long_df, aes(x = Race, y = dose_this_week, fill = Race)) +
-  geom_violin(alpha = 0.75, show.legend = FALSE) +
-    #geom_boxplot(width=0.1, color="black", show.legend = FALSE) +
-  facet_wrap(~week, ncol = 4,
-             strip.position = "bottom") +
-    scale_fill_manual(values = custom_colors_violin) +
-  theme_minimal() +
-  labs(title = "Methadone",
-       x = "Study Week",
-       y = "Dose") + 
-    theme(axis.text.x=element_blank(),
-        axis.ticks.x=element_blank(),
-        text = element_text(size = 10, family = "Times New Roman"),
-        legend.position = "none",
-        panel.grid.major.x = element_blank(),
-        panel.grid.minor.x = element_blank()) +
-    stat_summary(fun = "mean",
-               geom = "crossbar", 
-               width = 0.5,
-               linewidth = 0.25,
-               colour = "black")
-
-violin_bup + violin_met + 
-    plot_annotation(tag_levels = 'A') + plot_layout(ncol = 1) & 
-    theme(plot.tag = element_text(size = 12),
-          panel.border = element_rect(colour = "black", fill=NA))
-
-ggsave(here::here("figures/violin_plot.png"))
-```
-
-## Misc. Plots
-
-```{r}
-bup_sites <- readRDS(here::here("data/processed/bup_sites.rds"))
-met_sites <- readRDS(here::here("data/processed/met_sites.rds"))
-
-bup_site_prop_plot <- ggplot(bup_sites, aes(x = week, y = freq, fill = xrace)) +
-  geom_bar(stat = "identity", position = "stack") +
-  facet_wrap(~site, scales = "fixed", ncol = 4) +
-  labs(title = "Proportion of Race Groups by Site (Bup)", fill = "Race") +
-  scale_fill_brewer(palette = "Set1", labels = c("White", "Black", "Hispanic")) +
-  theme_minimal() + 
-    theme(axis.title.x = element_blank(), axis.title.y = element_blank(),
-          plot.title = element_text(size = 50)) 
-
-met_site_prop_plot <- ggplot(met_sites, aes(x = week, y = freq, fill = xrace)) +
-  geom_bar(stat = "identity", position = "stack") +
-  facet_wrap(~site, scales = "free_x", ncol = 4) +
-  labs(title = "Proportion of Race Groups by Site (Met)", fill = "Race") +
-  scale_fill_brewer(palette = "Set1", labels = c("White", "Black", "Hispanic")) +
-  theme_minimal() + 
-    theme(axis.title.x = element_blank(), axis.title.y = element_blank())
-
-bup_site_count_plot <- ggplot(bup_sites, aes(x = week, y = count, fill = xrace)) +
-  geom_bar(stat = "identity", position = "stack") +
-  facet_wrap(~site, scales = "fixed", ncol = 4) +
-  labs(title = "Count of Race Groups by Site (Bup)", fill = "Race") +
-  scale_fill_brewer(palette = "Set1", labels = c("White", "Black", "Hispanic")) +
-  theme_minimal() + 
-    theme(axis.title.x = element_blank(), axis.title.y = element_blank(),
-          plot.title = element_text(size = 50))
-
-met_site_count_plot <- ggplot(met_sites, aes(x = week, y = count, fill = xrace)) +
-  geom_bar(stat = "identity", position = "stack") +
-  facet_wrap(~site, scales = "free_x", ncol = 5) +
-  labs(title = "Count of Race Groups by Site (Met)", fill = "Race") +
-  scale_fill_brewer(palette = "Set1", labels = c("White", "Black", "Hispanic")) + 
-  theme_minimal() + 
-    theme(axis.title.x = element_blank(), axis.title.y = element_blank())
-
-#ggsave("bup_site_prop_plot.png", plot = bup_site_prop_plot, width = 20, height = 30, bg="white", dpi = 320)
-#ggsave("met_site_prop_plot.png", plot = met_site_prop_plot, bg="white")
-#ggsave("bup_site_count_plot.png", plot = bup_site_count_plot, width = 20, height = 30, bg="white", dpi = 320)
-#ggsave("met_site_count_plot.png", plot = met_site_count_plot, bg="white")
+saveRDS(comb_binomial_total, here::here("data/table_data/main/comb_binomial_total.rds"))
+saveRDS(comb_binomial_pair, here::here("data/table_data/main/comb_binomial_pair.rds"))
 ```

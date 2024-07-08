@@ -28,7 +28,7 @@ data_bup_long <- data_bup |>
     names_to = c("week", "type_name"),
     names_pattern = "(wk[0-9]+).?(.*)",
     values_to = "count") |>
-    pivot_wider(id_cols = c("who", "xrace", "week", "site"),
+    pivot_wider(id_cols = c("who", "xrace", "week", "site", "project"),
                 names_from = "type_name",
                 values_from = "count") |>
     mutate(dose_this_week = case_when(
@@ -248,6 +248,191 @@ met_sites_norace <- data_met_long |>
               sd_dose = sd(dose_this_week)) |>
     mutate(freq = count/sum(count))
 ```
+
+## Reading Data
+
+```{r}
+data_bup <- readRDS(here::here("data/processed/data_bup.rds")) |>
+    mutate(project_id = as.numeric(factor(project)))
+    
+data_met <- readRDS(here::here("data/processed/data_met.rds"))
+```
+
+## Baseline Variables
+
+```{r, warning = FALSE}
+# all baseline covariates
+
+baseline_complete <- c("sex", "age", "site", "edu", "edu_missing", "mar", "mar_missing",
+                       "falcohol", "falcohol_missing", "fdrug", "fdrug_missing",
+                       "hcows_bin", "hcows_bin_missing",
+                       "alcdisorder", "alcdisorder_missing", "cocdisorder", 
+           "cocdisorder_missing",
+       "hasBrainDamage", "hasBrainDamage_missing","hasEpilepsy", "hasEpilepsy_missing",
+       "hasBipolar", "hasBipolar_missing",
+       "hasAnxPan", "hasAnxPan_missing","hasSchiz",
+       "hasSchiz_missing",
+       "hasMajorDep", "hasMajorDep_missing",
+       "bamphetamine30_base", "bcannabis30_base",
+       "bbenzo30_base", "ivdrug", "ivdrug_missing") #baseline covariates
+
+# replacing missing baseline covariates with missing indicators, where applicable
+
+data_bup <- data_bup |>
+  mutate(sex = ifelse(sex == "female", "1", "0"),
+      edu_missing = ifelse(is.na(edu), 1, 0),
+      edu = as.factor(ifelse(is.na(edu), "3", edu)),
+      mar_missing = ifelse(is.na(mar), 1, 0),
+      mar = as.factor(ifelse(is.na(mar), "3", mar)),
+      hcows_bin_missing = ifelse(is.na(hcows_bin), 1, 0),
+      hcows_bin = ifelse(is.na(hcows_bin), 1, hcows_bin),
+      falcohol_missing = ifelse(is.na(falcohol), 1, 0),
+      falcohol = ifelse(is.na(falcohol), 0, falcohol),
+      fdrug_missing = ifelse(is.na(fdrug), 1, 0),
+      fdrug = ifelse(is.na(fdrug), 0, fdrug),
+         alcdisorder_missing = ifelse(is.na(alcdisorder), 1, 0),
+         alcdisorder = ifelse(is.na(alcdisorder), "0", alcdisorder),
+        cocdisorder_missing = ifelse(is.na(cocdisorder), 1, 0),
+        cocdisorder = ifelse(is.na(cocdisorder), "0", cocdisorder),
+        hasBrainDamage_missing = ifelse(is.na(hasBrainDamage), 1, 0),
+        hasBrainDamage = ifelse(is.na(hasBrainDamage), "0", hasBrainDamage),
+        hasEpilepsy_missing = ifelse(is.na(hasEpilepsy), 1, 0),
+        hasEpilepsy = ifelse(is.na(hasEpilepsy), "0", hasEpilepsy),
+        hasSchiz_missing = ifelse(is.na(hasSchiz), 1, 0),
+        hasSchiz = ifelse(is.na(hasSchiz), "0", hasSchiz),
+        hasBipolar_missing = ifelse(is.na(hasBipolar), 1, 0),
+        hasBipolar = ifelse(is.na(hasBipolar), "0", hasBipolar),
+        hasAnxPan_missing = ifelse(is.na(hasAnxPan), 1, 0),
+        hasAnxPan = ifelse(is.na(hasAnxPan), "0", hasAnxPan),
+        hasMajorDep_missing = ifelse(is.na(hasMajorDep), 1, 0),
+        hasMajorDep = ifelse(is.na(hasMajorDep), "0", hasMajorDep),
+        ivdrug_missing = ifelse(is.na(ivdrug), 1, 0),
+        ivdrug = ifelse(is.na(ivdrug), "0", ivdrug),
+      bamphetamine30_base_missing = ifelse(is.na(bamphetamine30_base), 1, 0),
+      bamphetamine30_base = ifelse(is.na(bamphetamine30_base), "0", bamphetamine30_base),
+      bcannabis30_base_missing = ifelse(is.na(bcannabis30_base), 1, 0),
+      bcannabis30_base = ifelse(is.na(bcannabis30_base), "0", bcannabis30_base),
+      bbenzo30_base_missing = ifelse(is.na(bbenzo30_base), 1, 0),
+      bbenzo30_base = ifelse(is.na(bbenzo30_base), "0", bbenzo30_base)) |>
+  mutate_at(vars(all_of(baseline_complete), -age, -site, -edu, -mar), funs(factor(., ordered = FALSE, levels = c("0", "1")))) |>
+    mutate(site = factor(site, ordered = FALSE, levels = c(as.character(unlist(unique(data_bup$site))))))
+
+data_met <- data_met |>
+  mutate(sex = ifelse(sex == "female", "1", "0"),
+      edu_missing = ifelse(is.na(edu), 1, 0),
+      edu = as.factor(ifelse(is.na(edu), "3", edu)),
+      mar_missing = ifelse(is.na(mar), 1, 0),
+      mar = as.factor(ifelse(is.na(mar), "3", mar)),
+      hcows_bin_missing = ifelse(is.na(hcows_bin), 1, 0),
+      hcows_bin = ifelse(is.na(hcows_bin), 0, hcows_bin),
+      falcohol_missing = ifelse(is.na(falcohol), 1, 0),
+      falcohol = ifelse(is.na(falcohol), 0, falcohol),
+      fdrug_missing = ifelse(is.na(fdrug), 1, 0),
+      fdrug = ifelse(is.na(fdrug), 0, fdrug),
+         alcdisorder_missing = ifelse(is.na(alcdisorder), 1, 0),
+         alcdisorder = ifelse(is.na(alcdisorder), "0", alcdisorder),
+        cocdisorder_missing = ifelse(is.na(cocdisorder), 1, 0),
+        cocdisorder = ifelse(is.na(cocdisorder), "0", cocdisorder),
+        hasBrainDamage_missing = ifelse(is.na(hasBrainDamage), 1, 0),
+        hasBrainDamage = ifelse(is.na(hasBrainDamage), "0", hasBrainDamage),
+        hasEpilepsy_missing = ifelse(is.na(hasEpilepsy), 1, 0),
+        hasEpilepsy = ifelse(is.na(hasEpilepsy), "0", hasEpilepsy),
+        hasSchiz_missing = ifelse(is.na(hasSchiz), 1, 0),
+        hasSchiz = ifelse(is.na(hasSchiz), "0", hasSchiz),
+        hasBipolar_missing = ifelse(is.na(hasBipolar), 1, 0),
+        hasBipolar = ifelse(is.na(hasBipolar), "0", hasBipolar),
+        hasAnxPan_missing = ifelse(is.na(hasAnxPan), 1, 0),
+        hasAnxPan = ifelse(is.na(hasAnxPan), "0", hasAnxPan),
+        hasMajorDep_missing = ifelse(is.na(hasMajorDep), 1, 0),
+        hasMajorDep = ifelse(is.na(hasMajorDep), "0", hasMajorDep),
+        ivdrug_missing = ifelse(is.na(ivdrug), 1, 0),
+        ivdrug = ifelse(is.na(ivdrug), "0", ivdrug),
+      bamphetamine30_base_missing = ifelse(is.na(bamphetamine30_base), 1, 0),
+      bamphetamine30_base = ifelse(is.na(bamphetamine30_base), "0", bamphetamine30_base),
+      bcannabis30_base_missing = ifelse(is.na(bcannabis30_base), 1, 0),
+      bcannabis30_base = ifelse(is.na(bcannabis30_base), "0", bcannabis30_base),
+      bbenzo30_base_missing = ifelse(is.na(bbenzo30_base), 1, 0),
+      bbenzo30_base = ifelse(is.na(bbenzo30_base), "0", bbenzo30_base)) |>
+  mutate_at(vars(all_of(baseline_complete), -age, -site, -edu, -mar), funs(factor(., ordered = FALSE, levels = c("0", "1")))) |>
+    mutate(site = factor(site, ordered = FALSE, levels = c(as.character(unlist(unique(data_bup$site))))))
+
+# saving imputed data
+
+#saveRDS(data_bup, here::here("data/processed/data_bup_imputed.rds"))
+#saveRDS(data_met, here::here("data/processed/data_met_imputed.rds"))
+
+#project_ids <- data_bup$project_id
+#saveRDS(project_ids, here::here("data/processed/project_ids.rds"))
+```
+
+```{r}
+# baseline bup covariates
+
+B_bup <- c("sex", "age", "hcows_bin","alcdisorder", 
+           "alcdisorder_missing", "cocdisorder", "cocdisorder_missing",
+       "hasBipolar","hasAnxPan",
+       "hasMajorDep",
+       "bamphetamine30_base", "bcannabis30_base",
+       "bbenzo30_base", "ivdrug", "ivdrug_missing") 
+
+# baseline methadone covariates
+
+B_met <- c("sex", "age", "hcows_bin","alcdisorder", 
+           "alcdisorder_missing", "cocdisorder", "cocdisorder_missing",
+       "hasBipolar","hasAnxPan",
+       "hasMajorDep",
+       "bamphetamine30_base", "bcannabis30_base",
+       "bbenzo30_base", "ivdrug") 
+```
+
+## Covariates Summary Table
+
+```{r}
+data_comb <- (data_bup |> mutate(trt = "bup")) |> #combining bup/met data for summary table
+    rbind(data_met |> mutate(trt = "met"))
+
+covartable <- tbl_summary(
+    data_comb,
+    include = B_bup, #same covariates for both
+    by = trt, # split table by treatment
+    missing = "no"
+  ) |>
+  modify_header(label = "**Baseline Covariate**") |> # update the column header
+  bold_labels() 
+
+as_kable(covartable, format = "latex") #latex format
+```
+
+#### Misc. Cleaning Code
+
+```{r}
+#Checking missing counts
+
+#missing_counts <- sapply(baseline_complete, function(var) {
+#  sum(is.na(data_bup[[var]]))
+#})
+
+#for (i in 1:length(baseline_complete)) {
+#  cat(paste("Missing rows for", baseline_complete[i], ":", missing_counts[i], "\n"))
+#}
+
+# checking "counts" of each variable
+
+# frequency_tables <- list()
+# 
+# # Loop through the predetermined columns and create frequency tables
+# for (col in baseline_complete) {
+#   frequency_tables[[col]] <- table(data_met[[col]])
+# }
+# 
+# # Display the frequency tables
+# for (col in baseline_complete) {
+#   cat("Frequency table for", col, ":\n")
+#   print(frequency_tables[[col]])
+#   cat("\n")
+# }
+```
+
 
 ## Saving Results
 

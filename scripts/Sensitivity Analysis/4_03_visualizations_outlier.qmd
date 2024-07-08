@@ -320,3 +320,10 @@ ggsave(filename = here::here("figures/met_cont_plot_sens.png"),
        plot = met_cont_plot_newcensor,
        width = 8, height = 11)
 ```
+
+# Saving results
+```{r}
+saveRDS(met_cont_total, here::here("data/table_data/appendix/met_cont_total_outlier.rds"))
+saveRDS(met_cont_pair, here::here("data/table_data/appendix/met_cont_pair_outlier.rds"))
+```
+
