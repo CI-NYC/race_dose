@@ -4,7 +4,6 @@ library(ggpubr)
 library(ggalluvial)
 library(gtsummary)
 library(patchwork)
-library(lmtp)
 
 # unadjusted data
 data_bup_long <- readRDS(here::here("data/processed/data_bup_long.rds")) |>
@@ -47,7 +46,7 @@ data_bup_long_censored <- data_bup_long_ungrouped |>
                              TRUE ~ xrace),
            xrace = ifelse(censor == 0, "Censored", xrace),
                       xrace = factor(xrace, levels = c("Non-Hispanic Black, Uncensored", 
-                                            "Non-Hispanic Hispanic, Uncensored", 
+                                            "Hispanic, Uncensored", 
                                             "Non-Hispanic White, Uncensored", 
                                             "Censored"))) |>
     arrange(week, xrace) 
@@ -99,12 +98,16 @@ met_alluvial <- ggplot(data_met_long_censored,
           legend.box.spacing = unit(-10, "pt")) +
       labs(title = "Methadone")
 
-bup_alluvial + met_alluvial +
+alluvial_final <- bup_alluvial + met_alluvial +
   plot_layout(ncol=2,widths=c(0.5, 0.5),
               guides = 'collect') + plot_annotation(tag_levels = 'A') & 
     theme(plot.tag = element_text(size = 12))
 
-#ggsave(here::here("figures/alluvial_plot.png"))
+Cairo::CairoPS(file = here::here("figures/alluvial_plot.eps"), width = 7, height = 7)
+print(alluvial_final)
+dev.off()
+
+#ggsave(here::here("figures/alluvial_plot.eps"), device = cairo_ps, colormodel = "rgb")
 
 custom_colors_violin <- c("Non-Hispanic White" = "#e31a1c", "Non-Hispanic Black" = "#1f78b4", "Hispanic" = "darkseagreen4") # color scheme, can adjust
 
@@ -197,16 +200,22 @@ violin_met <- ggplot(data_met_long_df, aes(x = Race, y = dose_this_week, fill = 
                  colour = "black") + 
     labs(fill = "Race-ethnicity")
 
-violin_bup + violin_met + 
+violin_plot <- violin_bup + violin_met + 
     plot_annotation(tag_levels = 'A') + plot_layout(ncol = 1) & 
     theme(plot.tag = element_text(size = 12),
           panel.border = element_rect(colour = "black", fill=NA))
 
-ggsave(here::here("figures/violin_plot.png"))
+Cairo::CairoPS(file = here::here("figures/violin_plot.eps"), width = 7, height = 7)
+print(violin_plot)
+dev.off()
 
-violin_bup_stratified
+#ggsave(here::here("figures/violin_plot.eps"))
 
-ggsave(here::here("figures/violin_plot_stratified.png"))
+Cairo::CairoPS(file = here::here("figures/violin_bup_stratified.eps"), width = 7, height = 7)
+print(violin_bup_stratified)
+dev.off()
+
+#ggsave(here::here("figures/violin_plot_stratified.eps"))
 
 
 ## Misc. Plots
