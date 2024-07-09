@@ -18,13 +18,7 @@ data_bup_30 <- data_bup |>
 data_bup_51 <- data_bup |>
     filter(project == "51")
 
-
-data_bup_3051 <- data_bup |>
-    filter(project == "30") |>
-    merge(data_bup |>
-    filter(project == "51"))
-
-data_list <- list(data_bup_27, data_bup_30, data_bup_51, data_bup_3051)
+data_list <- list(data_bup_27, data_bup_30, data_bup_51)
 
 # baseline bup covariates
 
@@ -119,7 +113,7 @@ for(j in 1:3) # looping over race
         
         C <- c(paste0(paste0("wk", i), ".censor")) # censor
         
-        if (z == 4)
+        if (z == 3)
         {
             
             B_bup_as <- list(trt = c("sex", "age"),
@@ -234,7 +228,7 @@ for(z in 1:3) # looping over race
             
             C <- c(paste0(paste0("wk", i), ".censor")) # censor
             
-            if (z == 4)
+            if (z == 3)
             {
                 
                 B_comb_as <- list(trt = c("sex", "age"),
