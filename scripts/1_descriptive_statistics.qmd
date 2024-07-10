@@ -41,6 +41,8 @@ data_bup_long <- data_bup |>
 data_bup_long |>
     filter(is.na(dose_this_week) == FALSE) |>
     filter(censor == 1) |>
+    select(who, week, dose_this_week) |>
+    distinct()|>
     summarize(mean = mean(dose_this_week),
               median = quantile(dose_this_week, c(0.5)),
               iqr = quantile(dose_this_week, c(0.25, 0.75)),
@@ -88,6 +90,8 @@ data_met_long <- data_met |>
 data_met_long |>
     filter(is.na(dose_this_week) == FALSE) |>
     filter(censor == 1) |>
+    select(who, week, dose_this_week) |>
+    distinct()|>
     summarize(mean = mean(dose_this_week),
               median = quantile(dose_this_week, c(0.5)),
               iqr = quantile(dose_this_week, c(0.25, 0.75)),
@@ -432,7 +436,6 @@ as_kable(covartable, format = "latex") #latex format
 #   cat("\n")
 # }
 ```
-
 
 ## Saving Results
 

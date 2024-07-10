@@ -7,8 +7,8 @@ bup_cont_pair_trial_indicator <- readRDS(here::here("data/table_data/appendix/bu
 bup_cont_total_drop30 <- readRDS(here::here("data/table_data/appendix/bup_cont_total_drop30.rds"))
 bup_cont_pair_drop30 <- readRDS(here::here("data/table_data/appendix/bup_cont_pair_drop30.rds"))
 
-bup_cont_total_stratify <- readRDS("~/Desktop/epi2023/oud_treatment_dosage/data/table_data/appendix/theta_df_bup.rds")
-bup_cont_pair_stratify <- readRDS("~/Desktop/epi2023/oud_treatment_dosage/data/table_data/appendix/diff_df_bup.rds") |>
+bup_cont_total_stratify <- readRDS(here::here("data/table_data/appendix/theta_df_bup.rds"))
+bup_cont_pair_stratify <- readRDS(here::here("data/table_data/appendix/diff_df_bup.rds")) |>
     arrange(trial)
 
 
@@ -311,11 +311,11 @@ bup_table_appendix[5, 3] <- paste0(round(bup_cont_pair_as_trial_indicator[2, 4],
 
 bup_table_appendix[6, 3] <- paste0(round(bup_cont_pair_as_trial_indicator[3, 4], 1), 
                           " (", round(bup_cont_pair_as_trial_indicator[3, 5], 1), ", ",
-                          round(bup_cont_pair_as_trial_indicator[2, 6], 1), ")")
+                          round(bup_cont_pair_as_trial_indicator[3, 6], 1), ")")
 
 bup_table_appendix[7, 3] <- paste0(round(bup_cont_pair_as_trial_indicator[4, 4], 1), 
-                          " (", round(bup_cont_pair_as_trial_indicator[3, 5], 1), ", ",
-                          round(bup_cont_pair_as_trial_indicator[3, 6], 1), ")")
+                          " (", round(bup_cont_pair_as_trial_indicator[4, 5], 1), ", ",
+                          round(bup_cont_pair_as_trial_indicator[4, 6], 1), ")")
 
 bup_table_appendix[8, 3] <- paste0(round(bup_cont_pair_all_trial_indicator[1, 4], 1), 
                           " (", round(bup_cont_pair_all_trial_indicator[1, 5], 1), ", ",
@@ -343,11 +343,11 @@ bup_table_appendix[13, 3] <- paste0(round(bup_cont_pair_as_drop30[2, 4], 1),
 
 bup_table_appendix[14, 3] <- paste0(round(bup_cont_pair_as_drop30[3, 4], 1), 
                            " (", round(bup_cont_pair_as_drop30[3, 5], 1), ", ",
-                           round(bup_cont_pair_as_drop30[2, 6], 1), ")")
+                           round(bup_cont_pair_as_drop30[3, 6], 1), ")")
 
 bup_table_appendix[15, 3] <- paste0(round(bup_cont_pair_as_drop30[4, 4], 1), 
-                           " (", round(bup_cont_pair_as_drop30[3, 5], 1), ", ",
-                           round(bup_cont_pair_as_drop30[3, 6], 1), ")")
+                           " (", round(bup_cont_pair_as_drop30[4, 5], 1), ", ",
+                           round(bup_cont_pair_as_drop30[4, 6], 1), ")")
 
 bup_table_appendix[16, 3] <- paste0(round(bup_cont_pair_all_drop30[1, 4], 1), 
                            " (", round(bup_cont_pair_all_drop30[1, 5], 1), ", ",

@@ -49,8 +49,8 @@ data_met <- dat_wide |>
                                  hwithdraw == "3" ~ 1,
                                  hwithdraw == "4" ~ 1,
                                  TRUE ~ as.numeric(hwithdraw))) |>
-    mutate(wk3.binary = ifelse(wk3.dose_this_week < 16, 0, 1),
-           wk4.binary = ifelse(wk4.dose_this_week < 16, 0, 1)) 
+    mutate(wk3.binary = ifelse(wk3.dose_this_week < 60, 0, 1),
+           wk4.binary = ifelse(wk4.dose_this_week < 60, 0, 1)) 
 ```
 
 ## Creating Censoring Variables
