@@ -152,7 +152,7 @@ violin_bup <- ggplot(data_bup_long_df, aes(x = Race, y = dose_this_week, fill = 
 violin_bup_stratified <- ggplot(data_bup_long_df, aes(x = Race, y = dose_this_week, fill = Race)) +
     geom_violin(alpha = 0.75, show.legend = FALSE) +
     #geom_boxplot(width=0.1, color="black", show.legend = FALSE) +
-    facet_grid(project ~ week, switch = "y") +
+    facet_grid(project ~ week, switch = "both") +
     scale_fill_manual(values = custom_colors_violin) +
     theme_minimal() +
     labs(title = "Buprenorphine",
@@ -160,16 +160,18 @@ violin_bup_stratified <- ggplot(data_bup_long_df, aes(x = Race, y = dose_this_we
          y = expression(atop("Dose (mg)", "Trial"))
          #y = "Dose (mg)"
     ) + 
-    theme(axis.title.x=element_blank(),
-          axis.text.x=element_blank(),
-          axis.ticks.x=element_blank(),
-          text = element_text(size = 10, family = "Times New Roman"),
-          panel.grid.major.x = element_blank(),
-          panel.grid.minor.x = element_blank(), 
-          strip.placement = "outside",
-          strip.background = element_blank(),
-          #strip.text.y.left = element_text(angle = 0),
-          strip.text.x = element_blank()) + 
+    xlab("Study week") +
+    theme(
+        axis.title.x = element_text(size = 10, family = "Times New Roman"),
+        axis.text.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        text = element_text(size = 10, family = "Times New Roman"),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(), 
+        strip.placement = "outside",
+        strip.background = element_blank(),
+        strip.text.x = element_text(size = 10, family = "Times New Roman")
+    ) + 
     stat_summary(fun = "mean",
                  geom = "crossbar", 
                  width = 0.5,
@@ -215,7 +217,8 @@ Cairo::CairoPS(file = here::here("figures/violin_bup_stratified.eps"), width = 7
 print(violin_bup_stratified)
 dev.off()
 
-#ggsave(here::here("figures/violin_plot_stratified.eps"))
+#violin_bup_stratified
+#ggsave(here::here("figures/violin_plot_stratified.png"))
 
 
 ## Misc. Plots
