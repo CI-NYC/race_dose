@@ -262,8 +262,8 @@ for(j in 1:3) # looping over race
         print(paste0(j, sep = " ", i)) # to keep track of which race/week the loop is currently on
         
         # saving results
-        saveRDS(tmle_list_cs[[i]], here::here(paste0("./data/102623/","result_newcensor", j, sep = "_", i, ".rds")))
-        saveRDS(tmle_list_cs_limited[[i]], here::here(paste0("./data/102623/","result_newcensor_limited", j, sep = "_", i, ".rds")))
+        saveRDS(tmle_list_cs[[i]], here::here(paste0("./data/final_0624/","result_newcensor", j, sep = "_", i, ".rds")))
+        saveRDS(tmle_list_cs_limited[[i]], here::here(paste0("./data/final_0624/","result_newcensor_limited", j, sep = "_", i, ".rds")))
     }
     
     race_tmle_list_cs[[j]] <- tmle_list_cs
@@ -359,8 +359,8 @@ for(j in 1:3) # looping over race
         print(paste0(j, sep = " ", i)) # to keep track of which race/week the loop is currently on
         
         # saving results
-        saveRDS(tmle_list_cs_met[[i]], here::here(paste0("./data/102623/","result_newcensor_met", j, sep = "_", i, ".rds")))
-        saveRDS(tmle_list_cs_met_limited[[i]], here::here(paste0("./data/102623/","result_newcensor_met_limited", j, sep = "_", i, ".rds")))
+        saveRDS(tmle_list_cs_met[[i]], here::here(paste0("./data/final_0624/","result_newcensor_met", j, sep = "_", i, ".rds")))
+        saveRDS(tmle_list_cs_met_limited[[i]], here::here(paste0("./data/final_0624/","result_newcensor_met_limited", j, sep = "_", i, ".rds")))
     }
     
     race_tmle_list_cs_met[[j]] <- tmle_list_cs_met
