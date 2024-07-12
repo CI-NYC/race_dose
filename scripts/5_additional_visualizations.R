@@ -91,7 +91,7 @@ met_alluvial <- ggplot(data_met_long_censored,
             family = "Times New Roman") +
     scale_fill_manual(values = custom_colors_4) +
     theme_void()  +
-  guides(fill = guide_legend(title = "Race-ethnicity")) + labs(x = "Week") +
+  guides(fill = guide_legend(title = "")) + labs(x = "Week") +
     theme(axis.title.x = element_text(),
           axis.text.x = element_text(),
         text = element_text(size=10, family = "Times New Roman"), 
