@@ -91,7 +91,7 @@ met_alluvial <- ggplot(data_met_long_censored,
             family = "Times New Roman") +
     scale_fill_manual(values = custom_colors_4) +
     theme_void()  +
-  guides(fill = guide_legend(title = "")) + labs(x = "Week") +
+  guides(fill = guide_legend(title = "Race-ethnicity")) + labs(x = "Week") +
     theme(axis.title.x = element_text(),
           axis.text.x = element_text(),
         text = element_text(size=10, family = "Times New Roman"), 
@@ -107,7 +107,7 @@ Cairo::CairoPS(file = here::here("figures/alluvial_plot.eps"), width = 7, height
 print(alluvial_final)
 dev.off()
 
-#ggsave(here::here("figures/alluvial_plot.eps"), device = cairo_ps, colormodel = "rgb")
+#ggsave(here::here("figures/alluvial_plot.eps"))
 
 custom_colors_violin <- c("Non-Hispanic White" = "#e31a1c", "Non-Hispanic Black" = "#1f78b4", "Hispanic" = "darkseagreen4") # color scheme, can adjust
 
