@@ -1,0 +1,215 @@
+---
+title: "Dosage Descriptive Statistics and Modelling"
+format: html
+editor: visual
+---
+
+```{r, include = FALSE}
+library(tidyverse)
+library(ggplot2)
+library(ggpubr)
+library(ggalluvial)
+library(gtsummary)
+library(patchwork)
+library(lmtp)
+
+knitr::opts_chunk$set(warning=FALSE, message=FALSE)
+knitr::opts_chunk$set(fig.width=18, fig.height=12) 
+
+# scripts to make confidence intervals
+#source(here::here("scripts/source/utils_adapted.R"))
+source(here::here("scripts/source/unadjusted_ci.R"))
+```
+
+## Reading/Storing result_newcensors
+
+### Reading result_newcensors for Marginal CI
+
+```{r}
+bup_result_newcensors_all <- data.frame(week = integer(0), race = numeric(0), theta = numeric(0), se = numeric(0), lower = numeric(0), upper = numeric(0))
+
+bup_result_newcensors_lim <- data.frame(week = integer(0), race = numeric(0), theta = numeric(0), se = numeric(0), lower = numeric(0), upper = numeric(0))
+
+bup_binomial_lim <- data.frame(week = integer(0), race = numeric(0), theta = numeric(0), se = numeric(0), lower = numeric(0), upper = numeric(0))
+
+bup_binomial_all <- data.frame(week = integer(0), race = numeric(0), theta = numeric(0), se = numeric(0), lower = numeric(0), upper = numeric(0))
+
+comb_binomial_lim <- data.frame(week = integer(0), race = numeric(0), theta = numeric(0), se = numeric(0), lower = numeric(0), upper = numeric(0))
+
+comb_binomial_all <- data.frame(week = integer(0), race = numeric(0), theta = numeric(0), se = numeric(0), lower = numeric(0), upper = numeric(0))
+
+# Loop through the file paths and read the RDS files into data frames
+for (j in 1:3)
+{
+
+bup_result_newcensors_all_temp <- data.frame(week = numeric(0), race = numeric(0), theta = numeric(0), se = numeric(0), lower = numeric(0), upper = numeric(0))
+
+bup_result_newcensors_lim_temp <- data.frame(week = numeric(0), race = numeric(0), theta = numeric(0), se = numeric(0), lower = numeric(0), upper = numeric(0))
+
+for (i in 4:4) {
+
+    if (i > 2)
+    {
+  
+  data_bup_lim <- readRDS(here::here(paste0("./data/trial_indicator/bup/","result_newcensor_limited", j, sep = "_", i, ".rds")))
+  bup_result_newcensors_lim_temp[[i, "week"]] <- i
+  bup_result_newcensors_lim_temp[[i, "race"]] <- j
+  bup_result_newcensors_lim_temp[[i, "theta"]] <- data_bup_lim$theta
+  bup_result_newcensors_lim_temp[[i, "se"]] <- data_bup_lim$standard_error
+  bup_result_newcensors_lim_temp[[i, "lower"]] <- data_bup_lim$low
+  bup_result_newcensors_lim_temp[[i, "upper"]] <- data_bup_lim$high
+    }
+    else
+    {
+  data_bup_lim <- readRDS(here::here(paste0("./data/trial_indicator/bup/","result_newcensor_limited", j, sep = "_", i, ".rds")))
+  bup_result_newcensors_lim_temp[[i, "week"]] <- i
+  bup_result_newcensors_lim_temp[[i, "race"]] <- j
+  bup_result_newcensors_lim_temp[[i, "theta"]] <- data_bup_lim$theta
+  bup_result_newcensors_lim_temp[[i, "se"]] <- data_bup_lim$standard_error
+  bup_result_newcensors_lim_temp[[i, "lower"]] <- data_bup_lim$low
+  bup_result_newcensors_lim_temp[[i, "upper"]] <- data_bup_lim$high
+    }
+}
+
+bup_result_newcensors_lim <- bup_result_newcensors_lim |>
+    merge(bup_result_newcensors_lim_temp, all = TRUE)
+
+}
+
+bup_result_newcensors_lim <- bup_result_newcensors_lim |>
+    mutate(race = as.factor(race)) |>
+    mutate(race = case_when(race == "1" ~ "White",
+                             race == "2" ~ "Black",
+                             race == "3" ~ "Hispanic"))
+```
+
+### Reading result_newcensors for CI
+
+```{r}
+# bup limited 
+bup_as_1 <- list()
+bup_as_2 <- list()
+bup_as_3 <- list()
+
+for (i in 4:4) {
+    
+    #bup limited
+    bup_as_1[[1]] <- readRDS(here::here(paste0("./data/trial_indicator/bup/","result_newcensor_limited", "1", sep = "_", i, ".rds")))
+    
+    bup_as_2[[1]] <- readRDS(here::here(paste0("./data/trial_indicator/bup/","result_newcensor_limited", "2", sep = "_", i, ".rds")))
+    
+    bup_as_3[[1]] <- readRDS(here::here(paste0("./data/trial_indicator/bup/","result_newcensor_limited", "3", sep = "_", i, ".rds")))
+}
+
+lmtp_contrast_simple <- function(X, Y) {
+  res <- lmtp_contrast(X, ref = Y)
+  
+  return(res)
+}
+
+bup_as_12_contrast <- mapply(lmtp_contrast_simple, X = bup_as_2, Y = bup_as_1)
+
+bup_as_12_df <- as.data.frame(bup_as_12_contrast[,1]$val) |>
+    mutate(time = 4) |>
+    arrange(time)
+
+bup_as_13_contrast <- mapply(lmtp_contrast_simple, X = bup_as_3, Y = bup_as_1)
+
+bup_as_13_df <- as.data.frame(bup_as_13_contrast[,1]$val) |>
+    mutate(time = 4) |>
+    arrange(time)
+```
+
+## Plotting Continuous
+
+```{r}
+custom_colors <- c("White" = "#e31a1c", "Black" = "#1f78b4", "Hispanic" = "darkseagreen4")
+
+bup_cont_lim <- bup_result_newcensors_lim |>
+    mutate(type = "Adjusted by age & sex")
+
+bup_cont_total <- bup_result_newcensors_lim |>
+    filter(week == 4)
+
+bup_cont_plot <- ggplot(bup_cont_total, aes(x = week, y = theta, group = race, color = race, fill = race, shape = race)) +
+    geom_point(position = position_dodge(width = 0.5)) +
+    geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.25, position = position_dodge(width = 0.5)) +
+    labs(title = "",
+         x = "Study Week",
+         y = "Mean Dose") +
+    scale_x_continuous(breaks = seq(1, 4, by = 1)) +
+    scale_color_manual(values = custom_colors) + 
+    scale_shape_manual(values = c(1, 0, 8)) +
+    scale_fill_manual(values = custom_colors) +  
+    theme_minimal() +
+    labs(color = "",
+         shape = "",
+         fill = "") +
+    facet_wrap(~type, scales = "free_x") + 
+    theme(
+        legend.position = c(0.00125, 0.9975),
+        legend.justification = c("left", "top"),
+        legend.box.just = "left",
+        legend.margin = margin(-12, 2.5, 2.5, 2.5),
+        legend.title = element_text(margin = margin(0, 0, 0, 0)),
+        legend.key = element_rect(fill = "white", colour = "black", size = 0.0000000001),
+        legend.background = element_rect(fill="white", size = 0.5),
+        legend.box.background = element_rect(color = "black", size = 0.25),
+        legend.box = "vertical", 
+        plot.title = element_text(vjust = 0.5),
+        legend.key.size = unit(0.000000000000001, 'cm'), 
+        legend.box.spacing = unit(-10, "pt"),
+        text = element_text(size = 10, family = "Times New Roman")
+    )
+
+bup_as <- bup_as_12_df |> mutate(race = "Black v. White") |>
+    merge(bup_as_13_df |> mutate(race = "Hispanic v. White"), all = TRUE)
+
+bup_cont_pair <- bup_as |> mutate(type = "Adjusted by age & sex")
+
+bup_pairwise <- ggplot(bup_cont_pair, aes(x = time, y = theta, group = race, color = race, fill = race, shape = race)) +
+    geom_point(position = position_dodge(width = 0.5)) +
+    geom_errorbar(aes(ymin = conf.low, ymax = conf.high), width = 0.25, position = position_dodge(width = 0.5)) +
+    labs(title = "",
+         x = "Study Week",
+         y = "Mean Dose (Difference)") +
+    geom_hline(yintercept = 0, linetype = "dotted", color = "black") +
+    scale_x_continuous(breaks = seq(1, 4, by = 1)) +
+    scale_color_manual(values = c("#1f78b4", "darkseagreen4")) + 
+    scale_shape_manual(values = c(1, 0, 8)) +
+    scale_fill_manual(values = c("#1f78b4", "darkseagreen4")) +  
+    theme_minimal() +
+    labs(color = "",
+         shape = "",
+         fill = "") +
+    facet_wrap(~type, scales = "free_x") + 
+    theme(
+        legend.position = c(0.00125, 0.9975),
+        legend.justification = c("left", "top"),
+        legend.box.just = "left",
+        legend.margin = margin(-12, 2.5, 2.5, 2.5),
+        legend.title = element_text(margin = margin(0, 0, 0, 0)),
+        legend.key = element_rect(fill = "white", colour = "black", size = 0.0000000001),
+        legend.background = element_rect(fill="white", size = 0.5),
+        legend.box.background = element_rect(color = "black", size = 0.25),
+        legend.box = "vertical", 
+        plot.title = element_text(vjust = 0.5),
+        legend.key.size = unit(0.000000000000001, 'cm'), 
+        legend.box.spacing = unit(-10, "pt"),
+        text = element_text(size = 10, family = "Times New Roman")
+    )
+
+bup_cont_plot_newcensor <- bup_cont_plot + bup_pairwise + 
+    plot_annotation(tag_levels = 'A') + plot_layout(ncol = 1) & 
+    theme(plot.tag = element_text(size = 12),
+          panel.border = element_rect(colour = "black", fill=NA))
+
+#ggsave(filename = here::here("figures/bup_cont_plot_newcensor.png"),
+#       plot = bup_cont_plot_newcensor,
+#       width = 8, height = 11)
+```
+
+```{r}
+saveRDS(bup_cont_total, here::here("data/table_data/appendix/bup_cont_total_trial_indicator.rds"))
+saveRDS(bup_cont_pair, here::here("data/table_data/appendix/bup_cont_pair_trial_indicator.rds"))
+```

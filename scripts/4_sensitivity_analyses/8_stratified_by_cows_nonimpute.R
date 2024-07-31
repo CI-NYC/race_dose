@@ -16,10 +16,23 @@ data_bup <- readRDS(here::here("data/processed/data_bup_imputed.rds")) |>
     filter(who %in% data_bup_nonimpute == FALSE)
 
 data_bup_cows_1 <- data_bup |>
-    filter(hcows_bin == "1")
+    filter(hcows_bin == 1)
+
+data_bup_cows_1 |>
+    group_by(xrace) |>
+    summarize(count = n())
 
 data_bup_cows_0 <- data_bup |>
-    filter(hcows_bin == "0")
+    filter(hcows_bin == 0)
+
+data_bup_cows_0 |>
+    group_by(xrace) |>
+    summarize(count = n())
+
+data_bup_cows_0 |>
+    filter(wk4.censor == 1) |>
+    group_by(xrace) |>
+    summarize(count = n())
 
 bup_list <- list(data_bup_cows_1, data_bup_cows_0)
 
@@ -30,10 +43,18 @@ data_met <- readRDS(here::here("data/processed/data_met_imputed.rds")) |>
     filter(who %in% data_met_nonimpute == FALSE)
 
 data_met_cows_1 <- data_met |>
-    filter(hcows_bin == "1")
+    filter(hcows_bin == 1)
+
+data_met_cows_1 |>
+    group_by(xrace) |>
+    summarize(count = n())
 
 data_met_cows_0 <- data_met |>
-    filter(hcows_bin == "0")
+    filter(hcows_bin == 0)
+
+data_met_cows_0 |>
+    group_by(xrace) |>
+    summarize(count = n())
 
 met_list <- list(data_met_cows_1, data_met_cows_0)
 
@@ -43,10 +64,18 @@ data_comb <- readRDS(here::here("data/processed/data_comb_imputed.rds")) |>
     filter(who %in% data_comb_nonimpute == FALSE)
 
 data_comb_cows_1 <- data_comb |>
-    filter(hcows_bin == "1")
+    filter(hcows_bin == 1)
+
+data_comb_cows_1 |>
+    group_by(xrace) |>
+    summarize(count = n())
 
 data_comb_cows_0 <- data_comb |>
-    filter(hcows_bin == "0")
+    filter(hcows_bin == 0)
+
+data_comb_cows_0 |>
+    group_by(xrace) |>
+    summarize(count = n())
 
 comb_list <- list(data_comb_cows_1, data_comb_cows_0)
 
@@ -56,14 +85,9 @@ B_comb_as <- c("sex", "age")
 
 # learners list
 
-lrnrs_out <- c("SL.mean", "SL.glm", "SL.glmnet", "SL.earth", "SL.xgboost") # must be capable of binary classification
+lrnrs_out <- c("SL.mean", "SL.glm", "SL.glmnet", "SL.earth", "SL.xgboost", "SL.ranger") # must be capable of binary classification
 
-lrnrs_trt <- c("SL.mean", "SL.glm", "SL.glmnet", "SL.earth", "SL.xgboost") # must be capable of binary classification
-
-lrnrs_out_met <- c("SL.mean", "SL.glm", "SL.glmnet", "SL.earth", "SL.xgboost") # must be capable of binary classification
-
-lrnrs_trt_met <- c("SL.mean", "SL.glm", "SL.glmnet", "SL.earth", "SL.xgboost") # must be capable of binary classification
-
+lrnrs_trt <- c("SL.mean", "SL.glm", "SL.glmnet", "SL.earth", "SL.xgboost", "SL.ranger") # must be capable of binary classification
 
 # Censoring (weeks 3-4)
 
@@ -175,8 +199,8 @@ for(j in 1:3) # looping over race
             baseline = B_met_as, 
             shift = func_list[[j]], 
             outcome_type = "continuous", 
-            learners_outcome = lrnrs_out_met,
-            learners_trt = lrnrs_trt_met,
+            learners_outcome = lrnrs_out,
+            learners_trt = lrnrs_trt,
             folds = 10,
             .SL_folds = 10,
             mtp = FALSE)) 

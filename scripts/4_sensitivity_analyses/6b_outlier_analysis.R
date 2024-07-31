@@ -13,11 +13,10 @@ wk4_dat <- readRDS(here::here("data/sensitivity/data_met_week4_outlier.rds"))
 
 # learners list
 
-lrnrs_out_met <- c("SL.mean", "SL.glm", "SL.glmnet", "SL.earth", "SL.xgboost") # must be capable of binary classification
+lrnrs_out <- c("SL.mean", "SL.glm", "SL.glmnet", "SL.earth", "SL.xgboost", "SL.ranger") # must be capable of continuous classification
 
-lrnrs_trt_met <- c("SL.mean", "SL.glm", "SL.glmnet", "SL.earth", "SL.xgboost") # must be capable of binary classification
+lrnrs_trt <- c("SL.mean", "SL.glm", "SL.glmnet", "SL.earth", "SL.xgboost", "SL.ranger") # must be capable of binary classification
 
-### Continuous Analysis
 
 ## Met Analysis
 
@@ -31,7 +30,7 @@ for(j in 1:3) # looping over race
     tmle_list_cs_met <- list()
     tmle_list_cs_met_limited <- list()
     
-    for (i in 3:4) # looping over weeks (1-3 for now)
+    for (i in 3:4) 
     {
         Y <- c(paste0(paste0("wk", i), ".dose_this_week")) # outcome (dose)
         

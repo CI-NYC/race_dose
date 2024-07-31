@@ -5,28 +5,37 @@ library(ggalluvial)
 library(gtsummary)
 library(patchwork)
 
-# unadjusted data
-data_bup_long <- readRDS(here::here("data/processed/data_bup_long.rds")) |>
-    rename("theta" = "avg",
-           "lower" = "low",
-           "upper" = "high",
-           "race" = "xrace")
+# appropriate dose if greater than 16 mg
+data_bup_long_ungrouped <- readRDS(here::here("data/processed/data_bup.rds")) |>
+    pivot_longer(
+        cols = starts_with("wk"),
+        names_to = c("week", "type_name"),
+        names_pattern = "(wk[0-9]+).?(.*)",
+        values_to = "count") |>
+    pivot_wider(id_cols = c("who", "xrace", "week", "site", "project"),
+                names_from = "type_name",
+                values_from = "count") |>
+    mutate(dose_this_week = case_when(
+        censor == 0 ~ as.numeric(NA),
+        TRUE ~ dose_this_week),
+        week = as.integer(gsub("^.{0,2}", "", week))) |>
+    mutate(dose_this_week = ifelse(censor == 0, as.numeric(NA), dose_this_week)) # 1263 * 4 = 5052 rows
 
-data_met_long <- readRDS(here::here("data/processed/data_met_long.rds")) |>
-    rename("theta" = "avg",
-           "lower" = "low",
-           "upper" = "high",
-           "race" = "xrace")
-
-data_bup_long_ungrouped <- readRDS(here::here("data/processed/data_bup_long_ungrouped.rds"))
-
-data_met_long_ungrouped <- readRDS(here::here("data/processed/data_met_long_ungrouped.rds"))
-
-data_met_bin_unadj <- readRDS(here::here("data/processed/met_binom_df.rds"))
-
-data_bup_bin_unadj <- readRDS(here::here("data/processed/bup_binom_df.rds"))
-
-data_comb_bin_unadj <- readRDS(here::here("data/processed/comb_binom_df.rds"))
+# appropriate dose if greater than 60 mg
+data_met_long_ungrouped <- readRDS(here::here("data/processed/data_met.rds")) |>
+    pivot_longer(
+        cols = starts_with("wk"),
+        names_to = c("week", "type_name"),
+        names_pattern = "(wk[0-9]+).?(.*)",
+        values_to = "count") |>
+    pivot_wider(id_cols = c("who", "xrace", "week", "site"),
+                names_from = "type_name",
+                values_from = "count") |>
+    mutate(dose_this_week = case_when(
+        censor == 0 ~ as.numeric(NA),
+        TRUE ~ dose_this_week),
+        week = as.integer(gsub("^.{0,2}", "", week))) |>
+    mutate(dose_this_week = ifelse(censor == 0, as.numeric(NA), dose_this_week)) # 485 * 4 = 1940 rows
 
 
 ## Methods Plots
@@ -103,11 +112,14 @@ alluvial_final <- bup_alluvial + met_alluvial +
               guides = 'collect') + plot_annotation(tag_levels = 'A') & 
     theme(plot.tag = element_text(size = 12))
 
+ggsave(here::here("figures/alluvial_plot.png"))
+
+
 Cairo::CairoPS(file = here::here("figures/alluvial_plot.eps"), width = 7, height = 7)
 print(alluvial_final)
 dev.off()
 
-#ggsave(here::here("figures/alluvial_plot.eps"))
+ggsave(here::here("figures/alluvial_plot.eps"))
 
 custom_colors_violin <- c("Non-Hispanic White" = "#e31a1c", "Non-Hispanic Black" = "#1f78b4", "Hispanic" = "darkseagreen4") # color scheme, can adjust
 
@@ -207,18 +219,24 @@ violin_plot <- violin_bup + violin_met +
     theme(plot.tag = element_text(size = 12),
           panel.border = element_rect(colour = "black", fill=NA))
 
+ggsave(here::here("figures/violin_plot.png"))
+
 Cairo::CairoPS(file = here::here("figures/violin_plot.eps"), width = 7, height = 7)
 print(violin_plot)
 dev.off()
 
-#ggsave(here::here("figures/violin_plot.eps"))
+ggsave(here::here("figures/violin_plot.eps"))
+
+violin_bup_stratified
+ggsave(here::here("figures/violin_plot_stratified.png"))
 
 Cairo::CairoPS(file = here::here("figures/violin_bup_stratified.eps"), width = 7, height = 7)
 print(violin_bup_stratified)
 dev.off()
 
-#violin_bup_stratified
-#ggsave(here::here("figures/violin_plot_stratified.png"))
+ggsave(here::here("figures/violin_bup_stratified.eps"))
+
+
 
 
 ## Misc. Plots

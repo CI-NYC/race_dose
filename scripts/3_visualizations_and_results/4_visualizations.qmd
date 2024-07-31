@@ -18,7 +18,6 @@ knitr::opts_chunk$set(fig.width=18, fig.height=12)
 
 # scripts to make confidence intervals
 #source(here::here("scripts/source/utils_adapted.R"))
-source(here::here("scripts/source/unadjusted_ci.R"))
 ```
 
 ## Reading/Storing result_newcensors
@@ -26,29 +25,6 @@ source(here::here("scripts/source/unadjusted_ci.R"))
 ### Reading result_newcensors for Marginal CI
 
 ```{r}
-# unadjusted data
-data_bup_long <- readRDS(here::here("data/processed/data_bup_long.rds")) |>
-    rename("theta" = "avg",
-           "lower" = "low",
-           "upper" = "high",
-           "race" = "xrace")
-
-data_met_long <- readRDS(here::here("data/processed/data_met_long.rds")) |>
-    rename("theta" = "avg",
-           "lower" = "low",
-           "upper" = "high",
-           "race" = "xrace")
-
-data_bup_long_ungrouped <- readRDS(here::here("data/processed/data_bup_long_ungrouped.rds"))
-
-data_met_long_ungrouped <- readRDS(here::here("data/processed/data_met_long_ungrouped.rds"))
-
-data_met_bin_unadj <- readRDS(here::here("data/processed/met_binom_df.rds"))
-
-data_bup_bin_unadj <- readRDS(here::here("data/processed/bup_binom_df.rds"))
-
-data_comb_bin_unadj <- readRDS(here::here("data/processed/comb_binom_df.rds"))
-
 met_result_newcensors_all <- data.frame(week = integer(0), race = numeric(0), theta = numeric(0), se = numeric(0), lower = numeric(0), upper = numeric(0))
 
 met_result_newcensors_lim <- data.frame(week = integer(0), race = numeric(0), theta = numeric(0), se = numeric(0), lower = numeric(0), upper = numeric(0))
@@ -84,7 +60,7 @@ for (i in 1:4) {
 
     if (i > 2)
     {
-  data_met <- readRDS(here::here(paste0("./data/final_0624/met/","result_newcensor_met", j, sep = "_", i, ".rds")))
+  data_met <- readRDS(here::here(paste0("./data/final_0724/met/","result_newcensor_met", j, sep = "_", i, ".rds")))
   met_result_newcensors_all_temp[[i, "week"]] <- i
   met_result_newcensors_all_temp[[i, "race"]] <- j
   met_result_newcensors_all_temp[[i, "theta"]] <- data_met$theta
@@ -92,7 +68,7 @@ for (i in 1:4) {
   met_result_newcensors_all_temp[[i, "lower"]] <- data_met$low
   met_result_newcensors_all_temp[[i, "upper"]] <- data_met$high
   
-  data_met_lim <- readRDS(here::here(paste0("./data/final_0624/met/","result_newcensor_met_limited", j, sep = "_", i, ".rds")))
+  data_met_lim <- readRDS(here::here(paste0("./data/final_0724/met/","result_newcensor_met_limited", j, sep = "_", i, ".rds")))
   met_result_newcensors_lim_temp[[i, "week"]] <- i
   met_result_newcensors_lim_temp[[i, "race"]] <- j
   met_result_newcensors_lim_temp[[i, "theta"]] <- data_met_lim$theta
@@ -100,7 +76,7 @@ for (i in 1:4) {
   met_result_newcensors_lim_temp[[i, "lower"]] <- data_met_lim$low
   met_result_newcensors_lim_temp[[i, "upper"]] <- data_met_lim$high
  
-  data_bup <- readRDS(here::here(paste0("./data/final_0624/bup/","result_newcensor", j, sep = "_", i, ".rds")))
+  data_bup <- readRDS(here::here(paste0("./data/final_0724/bup/","result_newcensor", j, sep = "_", i, ".rds")))
   bup_result_newcensors_all_temp[[i, "week"]] <- i
   bup_result_newcensors_all_temp[[i, "race"]] <- j
   bup_result_newcensors_all_temp[[i, "theta"]] <- data_bup$theta
@@ -108,7 +84,7 @@ for (i in 1:4) {
   bup_result_newcensors_all_temp[[i, "lower"]] <- data_bup$low
   bup_result_newcensors_all_temp[[i, "upper"]] <- data_bup$high
   
-  data_bup_lim <- readRDS(here::here(paste0("./data/final_0624/bup/","result_newcensor_limited", j, sep = "_", i, ".rds")))
+  data_bup_lim <- readRDS(here::here(paste0("./data/final_0724/bup/","result_newcensor_limited", j, sep = "_", i, ".rds")))
   bup_result_newcensors_lim_temp[[i, "week"]] <- i
   bup_result_newcensors_lim_temp[[i, "race"]] <- j
   bup_result_newcensors_lim_temp[[i, "theta"]] <- data_bup_lim$theta
@@ -118,7 +94,7 @@ for (i in 1:4) {
     }
     else
     {
-    data_met <- readRDS(here::here(paste0("./data/final_0624/met/","result_met", j, sep = "_", i, ".rds")))
+    data_met <- readRDS(here::here(paste0("./data/final_0724/met/","result_met", j, sep = "_", i, ".rds")))
   met_result_newcensors_all_temp[[i, "week"]] <- i
   met_result_newcensors_all_temp[[i, "race"]] <- j
   met_result_newcensors_all_temp[[i, "theta"]] <- data_met$theta
@@ -126,7 +102,7 @@ for (i in 1:4) {
   met_result_newcensors_all_temp[[i, "lower"]] <- data_met$low
   met_result_newcensors_all_temp[[i, "upper"]] <- data_met$high
   
-  data_met_lim <- readRDS(here::here(paste0("./data/final_0624/met/","result_met_limited", j, sep = "_", i, ".rds")))
+  data_met_lim <- readRDS(here::here(paste0("./data/final_0724/met/","result_met_limited", j, sep = "_", i, ".rds")))
   met_result_newcensors_lim_temp[[i, "week"]] <- i
   met_result_newcensors_lim_temp[[i, "race"]] <- j
   met_result_newcensors_lim_temp[[i, "theta"]] <- data_met_lim$theta
@@ -134,7 +110,7 @@ for (i in 1:4) {
   met_result_newcensors_lim_temp[[i, "lower"]] <- data_met_lim$low
   met_result_newcensors_lim_temp[[i, "upper"]] <- data_met_lim$high
  
-  data_bup <- readRDS(here::here(paste0("./data/final_0624/bup/","result", j, sep = "_", i, ".rds")))
+  data_bup <- readRDS(here::here(paste0("./data/final_0724/bup/","result", j, sep = "_", i, ".rds")))
   bup_result_newcensors_all_temp[[i, "week"]] <- i
   bup_result_newcensors_all_temp[[i, "race"]] <- j
   bup_result_newcensors_all_temp[[i, "theta"]] <- data_bup$theta
@@ -142,7 +118,7 @@ for (i in 1:4) {
   bup_result_newcensors_all_temp[[i, "lower"]] <- data_bup$low
   bup_result_newcensors_all_temp[[i, "upper"]] <- data_bup$high
   
-  data_bup_lim <- readRDS(here::here(paste0("./data/final_0624/bup/","result_limited", j, sep = "_", i, ".rds")))
+  data_bup_lim <- readRDS(here::here(paste0("./data/final_0724/bup/","result_limited", j, sep = "_", i, ".rds")))
   bup_result_newcensors_lim_temp[[i, "week"]] <- i
   bup_result_newcensors_lim_temp[[i, "race"]] <- j
   bup_result_newcensors_lim_temp[[i, "theta"]] <- data_bup_lim$theta
@@ -176,7 +152,7 @@ for (j in 1:3)
     
 for (i in 3:4) 
 {
-    data_comb_binomial_lim <- readRDS(here::here(paste0("./data/final_0624/comb_binomial/","result_newcensor_comb_limited", j, sep = "_", i, ".rds")))
+    data_comb_binomial_lim <- readRDS(here::here(paste0("./data/final_0724/comb_binomial/","result_newcensor_comb_limited", j, sep = "_", i, ".rds")))
     comb_binomial_lim_temp[[i, "week"]] <- i
     comb_binomial_lim_temp[[i, "race"]] <- j
     comb_binomial_lim_temp[[i, "theta"]] <- data_comb_binomial_lim$theta
@@ -184,7 +160,7 @@ for (i in 3:4)
     comb_binomial_lim_temp[[i, "lower"]] <- data_comb_binomial_lim$low
     comb_binomial_lim_temp[[i, "upper"]] <- data_comb_binomial_lim$high
     
-    data_comb_binomial_all <- readRDS(here::here(paste0("./data/final_0624/comb_binomial/","result_newcensor_comb", j, sep = "_", i, ".rds")))
+    data_comb_binomial_all <- readRDS(here::here(paste0("./data/final_0724/comb_binomial/","result_newcensor_comb", j, sep = "_", i, ".rds")))
     comb_binomial_all_temp[[i, "week"]] <- i
     comb_binomial_all_temp[[i, "race"]] <- j
     comb_binomial_all_temp[[i, "theta"]] <- data_comb_binomial_all$theta
@@ -280,71 +256,71 @@ for (i in 1:4) {
     # continuous
         
     #bup limited
-    bup_as_1[[i]] <- readRDS(here::here(paste0("./data/final_0624/bup/","result_newcensor_limited", "1", sep = "_", i, ".rds")))
+    bup_as_1[[i]] <- readRDS(here::here(paste0("./data/final_0724/bup/","result_newcensor_limited", "1", sep = "_", i, ".rds")))
     
-    bup_as_2[[i]] <- readRDS(here::here(paste0("./data/final_0624/bup/","result_newcensor_limited", "2", sep = "_", i, ".rds")))
+    bup_as_2[[i]] <- readRDS(here::here(paste0("./data/final_0724/bup/","result_newcensor_limited", "2", sep = "_", i, ".rds")))
     
-    bup_as_3[[i]] <- readRDS(here::here(paste0("./data/final_0624/bup/","result_newcensor_limited", "3", sep = "_", i, ".rds")))
+    bup_as_3[[i]] <- readRDS(here::here(paste0("./data/final_0724/bup/","result_newcensor_limited", "3", sep = "_", i, ".rds")))
 
     #met limited
-    met_as_1[[i]] <- readRDS(here::here(paste0("./data/final_0624/met/","result_newcensor_met_limited", "1", sep = "_", i, ".rds")))
+    met_as_1[[i]] <- readRDS(here::here(paste0("./data/final_0724/met/","result_newcensor_met_limited", "1", sep = "_", i, ".rds")))
     
-    met_as_2[[i]] <- readRDS(here::here(paste0("./data/final_0624/met/","result_newcensor_met_limited", "2", sep = "_", i, ".rds")))
+    met_as_2[[i]] <- readRDS(here::here(paste0("./data/final_0724/met/","result_newcensor_met_limited", "2", sep = "_", i, ".rds")))
 
-    met_as_3[[i]] <- readRDS(here::here(paste0("./data/final_0624/met/","result_newcensor_met_limited", "3", sep = "_", i, ".rds")))
+    met_as_3[[i]] <- readRDS(here::here(paste0("./data/final_0724/met/","result_newcensor_met_limited", "3", sep = "_", i, ".rds")))
     
     # bup all
-    bup_1[[i]] <- readRDS(here::here(paste0("./data/final_0624/bup/","result_newcensor", "1", sep = "_", i, ".rds")))
+    bup_1[[i]] <- readRDS(here::here(paste0("./data/final_0724/bup/","result_newcensor", "1", sep = "_", i, ".rds")))
 
-    bup_2[[i]] <- readRDS(here::here(paste0("./data/final_0624/bup/","result_newcensor", "2", sep = "_", i, ".rds")))
+    bup_2[[i]] <- readRDS(here::here(paste0("./data/final_0724/bup/","result_newcensor", "2", sep = "_", i, ".rds")))
     
-    bup_3[[i]] <- readRDS(here::here(paste0("./data/final_0624/bup/","result_newcensor", "3", sep = "_", i, ".rds")))
+    bup_3[[i]] <- readRDS(here::here(paste0("./data/final_0724/bup/","result_newcensor", "3", sep = "_", i, ".rds")))
 
     # met all
-    met_1[[i]] <- readRDS(here::here(paste0("./data/final_0624/met/","result_newcensor_met", "1", sep = "_", i, ".rds")))
-    met_2[[i]] <- readRDS(here::here(paste0("./data/final_0624/met/","result_newcensor_met", "2", sep = "_", i, ".rds")))
-    met_3[[i]] <- readRDS(here::here(paste0("./data/final_0624/met/","result_newcensor_met", "3", sep = "_", i, ".rds")))
+    met_1[[i]] <- readRDS(here::here(paste0("./data/final_0724/met/","result_newcensor_met", "1", sep = "_", i, ".rds")))
+    met_2[[i]] <- readRDS(here::here(paste0("./data/final_0724/met/","result_newcensor_met", "2", sep = "_", i, ".rds")))
+    met_3[[i]] <- readRDS(here::here(paste0("./data/final_0724/met/","result_newcensor_met", "3", sep = "_", i, ".rds")))
     
     # binomial
     
     #comb binomial limited
-    comb_binomial_as_1[[i-2]] <- readRDS(here::here(paste0("./data/final_0624/comb_binomial/","result_newcensor_comb_limited", "1", sep = "_", i, ".rds")))
+    comb_binomial_as_1[[i-2]] <- readRDS(here::here(paste0("./data/final_0724/comb_binomial/","result_newcensor_comb_limited", "1", sep = "_", i, ".rds")))
     
-    comb_binomial_as_2[[i-2]] <- readRDS(here::here(paste0("./data/final_0624/comb_binomial/","result_newcensor_comb_limited", "2", sep = "_", i, ".rds")))
+    comb_binomial_as_2[[i-2]] <- readRDS(here::here(paste0("./data/final_0724/comb_binomial/","result_newcensor_comb_limited", "2", sep = "_", i, ".rds")))
     
-    comb_binomial_as_3[[i-2]] <- readRDS(here::here(paste0("./data/final_0624/comb_binomial/","result_newcensor_comb_limited", "3", sep = "_", i, ".rds")))
+    comb_binomial_as_3[[i-2]] <- readRDS(here::here(paste0("./data/final_0724/comb_binomial/","result_newcensor_comb_limited", "3", sep = "_", i, ".rds")))
     
     # comb binomial all
-    comb_binomial_1[[i-2]] <- readRDS(here::here(paste0("./data/final_0624/comb_binomial/","result_newcensor_comb", "1", sep = "_", i, ".rds")))
-    comb_binomial_2[[i-2]] <- readRDS(here::here(paste0("./data/final_0624/comb_binomial/","result_newcensor_comb", "2", sep = "_", i, ".rds")))
-    comb_binomial_3[[i-2]] <- readRDS(here::here(paste0("./data/final_0624/comb_binomial/","result_newcensor_comb", "3", sep = "_", i, ".rds")))
+    comb_binomial_1[[i-2]] <- readRDS(here::here(paste0("./data/final_0724/comb_binomial/","result_newcensor_comb", "1", sep = "_", i, ".rds")))
+    comb_binomial_2[[i-2]] <- readRDS(here::here(paste0("./data/final_0724/comb_binomial/","result_newcensor_comb", "2", sep = "_", i, ".rds")))
+    comb_binomial_3[[i-2]] <- readRDS(here::here(paste0("./data/final_0724/comb_binomial/","result_newcensor_comb", "3", sep = "_", i, ".rds")))
     } else
     {
             #bup limited
-    bup_as_1[[i]] <- readRDS(here::here(paste0("./data/final_0624/bup/","result_limited", "1", sep = "_", i, ".rds")))
+    bup_as_1[[i]] <- readRDS(here::here(paste0("./data/final_0724/bup/","result_limited", "1", sep = "_", i, ".rds")))
     
-    bup_as_2[[i]] <- readRDS(here::here(paste0("./data/final_0624/bup/","result_limited", "2", sep = "_", i, ".rds")))
+    bup_as_2[[i]] <- readRDS(here::here(paste0("./data/final_0724/bup/","result_limited", "2", sep = "_", i, ".rds")))
     
-    bup_as_3[[i]] <- readRDS(here::here(paste0("./data/final_0624/bup/","result_limited", "3", sep = "_", i, ".rds")))
+    bup_as_3[[i]] <- readRDS(here::here(paste0("./data/final_0724/bup/","result_limited", "3", sep = "_", i, ".rds")))
 
     #met limited
-    met_as_1[[i]] <- readRDS(here::here(paste0("./data/final_0624/met/","result_met_limited", "1", sep = "_", i, ".rds")))
+    met_as_1[[i]] <- readRDS(here::here(paste0("./data/final_0724/met/","result_met_limited", "1", sep = "_", i, ".rds")))
     
-    met_as_2[[i]] <- readRDS(here::here(paste0("./data/final_0624/met/","result_met_limited", "2", sep = "_", i, ".rds")))
+    met_as_2[[i]] <- readRDS(here::here(paste0("./data/final_0724/met/","result_met_limited", "2", sep = "_", i, ".rds")))
 
-    met_as_3[[i]] <- readRDS(here::here(paste0("./data/final_0624/met/","result_met_limited", "3", sep = "_", i, ".rds")))
+    met_as_3[[i]] <- readRDS(here::here(paste0("./data/final_0724/met/","result_met_limited", "3", sep = "_", i, ".rds")))
     
     # bup all
-    bup_1[[i]] <- readRDS(here::here(paste0("./data/final_0624/bup/","result", "1", sep = "_", i, ".rds")))
+    bup_1[[i]] <- readRDS(here::here(paste0("./data/final_0724/bup/","result", "1", sep = "_", i, ".rds")))
 
-    bup_2[[i]] <- readRDS(here::here(paste0("./data/final_0624/bup/","result", "2", sep = "_", i, ".rds")))
+    bup_2[[i]] <- readRDS(here::here(paste0("./data/final_0724/bup/","result", "2", sep = "_", i, ".rds")))
     
-    bup_3[[i]] <- readRDS(here::here(paste0("./data/final_0624/bup/","result", "3", sep = "_", i, ".rds")))
+    bup_3[[i]] <- readRDS(here::here(paste0("./data/final_0724/bup/","result", "3", sep = "_", i, ".rds")))
 
     # met all
-    met_1[[i]] <- readRDS(here::here(paste0("./data/final_0624/met/","result_met", "1", sep = "_", i, ".rds")))
-    met_2[[i]] <- readRDS(here::here(paste0("./data/final_0624/met/","result_met", "2", sep = "_", i, ".rds")))
-    met_3[[i]] <- readRDS(here::here(paste0("./data/final_0624/met/","result_met", "3", sep = "_", i, ".rds")))
+    met_1[[i]] <- readRDS(here::here(paste0("./data/final_0724/met/","result_met", "1", sep = "_", i, ".rds")))
+    met_2[[i]] <- readRDS(here::here(paste0("./data/final_0724/met/","result_met", "2", sep = "_", i, ".rds")))
+    met_3[[i]] <- readRDS(here::here(paste0("./data/final_0724/met/","result_met", "3", sep = "_", i, ".rds")))
     }
 }
 
@@ -481,57 +457,6 @@ comb_binomial_13_df <- as.data.frame(comb_binomial_13_contrast[,1]$val) |>
     merge(as.data.frame(comb_binomial_13_contrast[,2]$val) |>
     mutate(time = 4), all = TRUE) |>
     arrange(time)
-
-data_bup_long_1 <- data_bup_long |>
-    filter(race == "White") |>
-    rename("avg" = "theta")
-
-data_bup_long_2 <- data_bup_long |>
-    filter(race == "Black") |>
-    rename("avg" = "theta")
-
-data_bup_long_3 <- data_bup_long |>
-    filter(race == "Hispanic") |>
-    rename("avg" = "theta")
-
-data_met_long_1 <- data_met_long |>
-    filter(race == "White") |>
-    rename("avg" = "theta")
-
-data_met_long_2 <- data_met_long |>
-    filter(race == "Black") |>
-    rename("avg" = "theta")
-
-data_met_long_3 <- data_met_long |>
-    filter(race == "Hispanic") |>
-    rename("avg" = "theta")
-
-data_comb_bin_unadj_1 <- data_comb_bin_unadj |>
-    filter(xrace == "White")
-
-data_comb_bin_unadj_2  <- data_comb_bin_unadj |>
-    filter(xrace == "Black")
-
-data_comb_bin_unadj_3 <- data_comb_bin_unadj |>
-    filter(xrace == "Hispanic")
-
-unadjust_bup_12 <- unadjusted_diff(data_bup_long_2, data_bup_long_1, ci_type = "marginal")
-
-unadjust_bup_13 <- unadjusted_diff(data_bup_long_3, data_bup_long_1, ci_type = "marginal")
-
-unadjust_bup_23 <- unadjusted_diff(data_bup_long_2, data_bup_long_3, ci_type = "marginal")
-
-unadjust_met_12 <- unadjusted_diff(data_met_long_2, data_met_long_1, ci_type = "marginal")
-
-unadjust_met_13 <- unadjusted_diff(data_met_long_3, data_met_long_1, ci_type = "marginal")
-
-unadjust_met_23 <- unadjusted_diff(data_met_long_2, data_met_long_3, ci_type = "marginal")
-
-unadjust_comb_12_bin <- unadjusted_diff_binom(data_comb_bin_unadj_2, data_comb_bin_unadj_1, ci_type = "marginal")
-
-unadjust_comb_13_bin <- unadjusted_diff_binom(data_comb_bin_unadj_3, data_comb_bin_unadj_1, ci_type = "marginal")
-
-unadjust_comb_23_bin <- unadjusted_diff_binom(data_comb_bin_unadj_2, data_comb_bin_unadj_3, ci_type = "marginal")
 ```
 
 ## Plotting Continuous
@@ -539,19 +464,15 @@ unadjust_comb_23_bin <- unadjusted_diff_binom(data_comb_bin_unadj_2, data_comb_b
 ```{r}
 custom_colors <- c("White" = "#e31a1c", "Black" = "#1f78b4", "Hispanic" = "darkseagreen4")
 
-met_cont_unadj <- data_met_long |>
-    mutate(type = "Crude")
-
 met_cont_lim <- met_result_newcensors_lim |>
     mutate(type = "Adjusted by age & sex")
 
 met_cont_all <- met_result_newcensors_all |>
     mutate(type = "Adjusted by expanded set")
 
-met_cont_total <- met_cont_unadj |>
-    merge(met_cont_lim, all = TRUE) |>
+met_cont_total <- met_cont_lim |>
     merge(met_cont_all, all = TRUE) |>
-    mutate(type = factor(type, levels = c("Crude", "Adjusted by age & sex", "Adjusted by expanded set")))
+    mutate(type = factor(type, levels = c("Adjusted by age & sex", "Adjusted by expanded set")))
 
 met_cont_plot <- ggplot(met_cont_total, aes(x = week, y = theta, group = race, color = race, fill = race, shape = race)) +
     geom_point(position = position_dodge(width = 0.5)) +
@@ -583,19 +504,15 @@ met_cont_plot <- ggplot(met_cont_total, aes(x = week, y = theta, group = race, c
         text = element_text(size=10, family = "Times New Roman")
     )
 
-met_unadj <- unadjust_met_12 |> mutate(race = "Black v. White") |>
-    merge(unadjust_met_13 |> mutate(race = "Hispanic v. White"), all = TRUE)
-
 met_as <- met_as_12_df |> mutate(race = "Black v. White") |>
     merge(met_as_13_df |> mutate(race = "Hispanic v. White"), all = TRUE)
 
 met_all <- met_all_12_df |> mutate(race = "Black v. White") |>
     merge(met_all_13_df |> mutate(race = "Hispanic v. White"), all = TRUE)
 
-met_cont_pair <- met_unadj |> mutate(type = "Crude") |>
-    merge(met_as |> mutate(type = "Adjusted by age & sex"), all = TRUE) |>
+met_cont_pair <- met_as |> mutate(type = "Adjusted by age & sex") |>
     merge(met_all |> mutate(type = "Adjusted by expanded set"), all = TRUE) |>
-    mutate(type = factor(type, levels = c("Crude", "Adjusted by age & sex", "Adjusted by expanded set")))
+    mutate(type = factor(type, levels = c("Adjusted by age & sex", "Adjusted by expanded set")))
 
 met_pairwise <- ggplot(met_cont_pair, aes(x = time, y = theta, group = race, color = race, fill = race, shape = race)) +
     geom_point(position = position_dodge(width = 0.5)) +
@@ -638,19 +555,15 @@ ggsave(filename = here::here("figures/met_cont_plot_newcensor.png"),
        plot = met_cont_plot_newcensor,
        width = 8, height = 11)
 
-bup_cont_unadj <- data_bup_long |>
-    mutate(type = "Crude")
-
 bup_cont_lim <- bup_result_newcensors_lim |>
     mutate(type = "Adjusted by age & sex")
 
 bup_cont_all <- bup_result_newcensors_all |>
     mutate(type = "Adjusted by expanded set")
 
-bup_cont_total <- bup_cont_unadj |>
-    merge(bup_cont_lim, all = TRUE) |>
+bup_cont_total <- bup_cont_lim |>
     merge(bup_cont_all, all = TRUE) |>
-    mutate(type = factor(type, levels = c("Crude", "Adjusted by age & sex", "Adjusted by expanded set")))
+    mutate(type = factor(type, levels = c("Adjusted by age & sex", "Adjusted by expanded set")))
 
 bup_cont_plot <- ggplot(bup_cont_total, aes(x = week, y = theta, group = race, color = race, fill = race, shape = race)) +
     geom_point(position = position_dodge(width = 0.5)) +
@@ -682,20 +595,15 @@ bup_cont_plot <- ggplot(bup_cont_total, aes(x = week, y = theta, group = race, c
         legend.box.spacing = unit(-10, "pt"),
         text = element_text(size = 10, family = "Times New Roman")
     )
-
-bup_unadj <- unadjust_bup_12 |> mutate(race = "Black v. White") |>
-    merge(unadjust_bup_13 |> mutate(race = "Hispanic v. White"), all = TRUE)
-
 bup_as <- bup_as_12_df |> mutate(race = "Black v. White") |>
     merge(bup_as_13_df |> mutate(race = "Hispanic v. White"), all = TRUE)
 
 bup_all <- bup_all_12_df |> mutate(race = "Black v. White") |>
     merge(bup_all_13_df |> mutate(race = "Hispanic v. White"), all = TRUE)
 
-bup_cont_pair <- bup_unadj |> mutate(type = "Crude") |>
-    merge(bup_as |> mutate(type = "Adjusted by age & sex"), all = TRUE) |>
+bup_cont_pair <- bup_as |> mutate(type = "Adjusted by age & sex") |>
     merge(bup_all |> mutate(type = "Adjusted by expanded set"), all = TRUE) |>
-    mutate(type = factor(type, levels = c("Crude", "Adjusted by age & sex", "Adjusted by expanded set")))
+    mutate(type = factor(type, levels = c("Adjusted by age & sex", "Adjusted by expanded set")))
 
 bup_pairwise <- ggplot(bup_cont_pair, aes(x = time, y = theta, group = race, color = race, fill = race, shape = race)) +
     geom_point(position = position_dodge(width = 0.5)) +
@@ -744,11 +652,6 @@ ggsave(filename = here::here("figures/bup_cont_plot_newcensor.png"),
 ```{r}
 custom_colors <- c("White" = "#e31a1c", "Black" = "#1f78b4", "Hispanic" = "darkseagreen4")
 
-comb_binomial_unadj <- readRDS(here::here("data/processed/comb_binom_df.rds")) |>
-    mutate(type = "Crude") |>
-    rename("race" = "xrace",
-           "theta" = "prop")
-
 comb_binomial_lim <- comb_binomial_lim |>
     slice(1:6) |>
     mutate(type = "Adjusted by age & sex")
@@ -757,10 +660,9 @@ comb_binomial_all <- comb_binomial_all |>
     slice(1:6) |>
     mutate(type = "Adjusted by expanded set")
 
-comb_binomial_total <- comb_binomial_unadj |>
-    merge(comb_binomial_lim, all = TRUE) |>
+comb_binomial_total <- comb_binomial_lim |>
     merge(comb_binomial_all, all = TRUE) |>
-    mutate(type = factor(type, levels = c("Crude", "Adjusted by age & sex", "Adjusted by expanded set")))
+    mutate(type = factor(type, levels = c("Adjusted by age & sex", "Adjusted by expanded set")))
 
 comb_binomial_plot <- ggplot(comb_binomial_total, aes(x = week, y = theta, group = race, color = race, fill = race, shape = race)) +
     geom_point(position = position_dodge(width = 0.5)) +
@@ -792,19 +694,15 @@ comb_binomial_plot <- ggplot(comb_binomial_total, aes(x = week, y = theta, group
         text = element_text(size=10, family = "Times New Roman")
     )
 
-bup_binomial_unadj_pair <- unadjust_comb_12_bin |> mutate(race = "Black v. White") |>
-    merge(unadjust_comb_13_bin |> mutate(race = "Hispanic v. White"), all = TRUE)
-
 comb_binomial_as <- comb_binomial_as_12_df |> mutate(race = "Black v. White") |>
     merge(comb_binomial_as_13_df |> mutate(race = "Hispanic v. White"), all = TRUE)
 
 comb_binomial_all_pair <- comb_binomial_12_df |> mutate(race = "Black v. White") |>
     merge(comb_binomial_13_df |> mutate(race = "Hispanic v. White"), all = TRUE)
 
-comb_binomial_pair <- bup_binomial_unadj_pair |> mutate(type = "Crude") |>
-    merge(comb_binomial_as |> mutate(type = "Adjusted by age & sex"), all = TRUE) |>
+comb_binomial_pair <-comb_binomial_as |> mutate(type = "Adjusted by age & sex") |>
     merge(comb_binomial_all_pair |> mutate(type = "Adjusted by expanded set"), all = TRUE) |>
-    mutate(type = factor(type, levels = c("Crude", "Adjusted by age & sex", "Adjusted by expanded set")),
+    mutate(type = factor(type, levels = c("Adjusted by age & sex", "Adjusted by expanded set")),
            time = case_when(time == 1 ~ 3,
                             time == 2 ~ 4,
                             TRUE ~ time)) 

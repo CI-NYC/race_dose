@@ -18,7 +18,6 @@ knitr::opts_chunk$set(fig.width=18, fig.height=12)
 
 # scripts to make confidence intervals
 #source(here::here("scripts/source/utils_adapted.R"))
-source(here::here("scripts/source/unadjusted_ci.R"))
 ```
 
 ## Reading/Storing result_newcensors
@@ -26,13 +25,6 @@ source(here::here("scripts/source/unadjusted_ci.R"))
 ### Reading result_newcensors for Marginal CI
 
 ```{r}
-data_met_long <- readRDS(here::here("data/processed/data_met_long.rds")) |>
-    rename("theta" = "avg",
-           "lower" = "low",
-           "upper" = "high",
-           "race" = "xrace")
-data_met_long_ungrouped <- readRDS(here::here("data/processed/data_met_long_ungrouped.rds"))
-
 met_result_newcensors_all <- data.frame(week = integer(0), race = numeric(0), theta = numeric(0), se = numeric(0), lower = numeric(0), upper = numeric(0))
 
 met_result_newcensors_lim <- data.frame(week = integer(0), race = numeric(0), theta = numeric(0), se = numeric(0), lower = numeric(0), upper = numeric(0))
@@ -67,7 +59,7 @@ for (i in 1:4) {
     }
     else
     {
-    data_met <- readRDS(here::here(paste0("./data/final_0624/met/","result_met", j, sep = "_", i, ".rds")))
+    data_met <- readRDS(here::here(paste0("./data/final_0724/met/","result_met", j, sep = "_", i, ".rds")))
   met_result_newcensors_all_temp[[i, "week"]] <- i
   met_result_newcensors_all_temp[[i, "race"]] <- j
   met_result_newcensors_all_temp[[i, "theta"]] <- data_met$theta
@@ -75,7 +67,7 @@ for (i in 1:4) {
   met_result_newcensors_all_temp[[i, "lower"]] <- data_met$low
   met_result_newcensors_all_temp[[i, "upper"]] <- data_met$high
   
-  data_met_lim <- readRDS(here::here(paste0("./data/final_0624/met/","result_met_limited", j, sep = "_", i, ".rds")))
+  data_met_lim <- readRDS(here::here(paste0("./data/final_0724/met/","result_met_limited", j, sep = "_", i, ".rds")))
   met_result_newcensors_lim_temp[[i, "week"]] <- i
   met_result_newcensors_lim_temp[[i, "race"]] <- j
   met_result_newcensors_lim_temp[[i, "theta"]] <- data_met_lim$theta
@@ -143,17 +135,17 @@ for (i in 1:4) {
     {
 
     #met limited
-    met_as_1[[i]] <- readRDS(here::here(paste0("./data/final_0624/met/","result_met_limited", "1", sep = "_", i, ".rds")))
+    met_as_1[[i]] <- readRDS(here::here(paste0("./data/final_0724/met/","result_met_limited", "1", sep = "_", i, ".rds")))
     
-    met_as_2[[i]] <- readRDS(here::here(paste0("./data/final_0624/met/","result_met_limited", "2", sep = "_", i, ".rds")))
+    met_as_2[[i]] <- readRDS(here::here(paste0("./data/final_0724/met/","result_met_limited", "2", sep = "_", i, ".rds")))
 
-    met_as_3[[i]] <- readRDS(here::here(paste0("./data/final_0624/met/","result_met_limited", "3", sep = "_", i, ".rds")))
+    met_as_3[[i]] <- readRDS(here::here(paste0("./data/final_0724/met/","result_met_limited", "3", sep = "_", i, ".rds")))
 
 
     # met all
-    met_1[[i]] <- readRDS(here::here(paste0("./data/final_0624/met/","result_met", "1", sep = "_", i, ".rds")))
-    met_2[[i]] <- readRDS(here::here(paste0("./data/final_0624/met/","result_met", "2", sep = "_", i, ".rds")))
-    met_3[[i]] <- readRDS(here::here(paste0("./data/final_0624/met/","result_met", "3", sep = "_", i, ".rds")))
+    met_1[[i]] <- readRDS(here::here(paste0("./data/final_0724/met/","result_met", "1", sep = "_", i, ".rds")))
+    met_2[[i]] <- readRDS(here::here(paste0("./data/final_0724/met/","result_met", "2", sep = "_", i, ".rds")))
+    met_3[[i]] <- readRDS(here::here(paste0("./data/final_0724/met/","result_met", "3", sep = "_", i, ".rds")))
     }
 }
 
@@ -194,24 +186,6 @@ met_as_13_df <- as.data.frame(met_as_13_contrast[,3]$val) |>
     merge(as.data.frame(met_as_13_contrast[,4]$val) |>
     mutate(time = 4), all = TRUE) |>
     arrange(time)
-
-data_met_long_1 <- data_met_long |>
-    filter(race == "White") |>
-    rename("avg" = "theta")
-
-data_met_long_2 <- data_met_long |>
-    filter(race == "Black") |>
-    rename("avg" = "theta")
-
-data_met_long_3 <- data_met_long |>
-    filter(race == "Hispanic") |>
-    rename("avg" = "theta")
-
-unadjust_met_12 <- unadjusted_diff(data_met_long_2, data_met_long_1, ci_type = "marginal")
-
-unadjust_met_13 <- unadjusted_diff(data_met_long_3, data_met_long_1, ci_type = "marginal")
-
-unadjust_met_23 <- unadjusted_diff(data_met_long_2, data_met_long_3, ci_type = "marginal")
 ```
 
 ## Plotting Continuous
@@ -219,17 +193,13 @@ unadjust_met_23 <- unadjusted_diff(data_met_long_2, data_met_long_3, ci_type = "
 ```{r}
 custom_colors <- c("White" = "#e31a1c", "Black" = "#1f78b4", "Hispanic" = "darkseagreen4")
 
-met_cont_unadj <- data_met_long |>
-    mutate(type = "Crude")
-
 met_cont_lim <- met_result_newcensors_lim |>
     mutate(type = "Adjusted by age & sex")
 
 met_cont_all <- met_result_newcensors_all |>
     mutate(type = "Adjusted by expanded set")
 
-met_cont_total <- met_cont_unadj |>
-    merge(met_cont_lim, all = TRUE) |>
+met_cont_total <- met_cont_lim |>
     merge(met_cont_all, all = TRUE) |>
     mutate(type = factor(type, levels = c("Crude", "Adjusted by age & sex", "Adjusted by expanded set"))) |>
     filter(week >= 3)
@@ -264,17 +234,13 @@ met_cont_plot <- ggplot(met_cont_total, aes(x = week, y = theta, group = race, c
         text = element_text(size=10, family = "Times New Roman")
     )
 
-met_unadj <- unadjust_met_12 |> mutate(race = "Black v. White") |>
-    merge(unadjust_met_13 |> mutate(race = "Hispanic v. White"), all = TRUE)
-
 met_as <- met_as_12_df |> mutate(race = "Black v. White") |>
     merge(met_as_13_df |> mutate(race = "Hispanic v. White"), all = TRUE)
 
 met_all <- met_all_12_df |> mutate(race = "Black v. White") |>
     merge(met_all_13_df |> mutate(race = "Hispanic v. White"), all = TRUE)
 
-met_cont_pair <- met_unadj |> mutate(type = "Crude") |>
-    merge(met_as |> mutate(type = "Adjusted by age & sex"), all = TRUE) |>
+met_cont_pair <- met_as |> mutate(type = "Adjusted by age & sex") |>
     merge(met_all |> mutate(type = "Adjusted by expanded set"), all = TRUE) |>
     mutate(type = factor(type, levels = c("Crude", "Adjusted by age & sex", "Adjusted by expanded set"))) |>
     filter(time >= 3) 

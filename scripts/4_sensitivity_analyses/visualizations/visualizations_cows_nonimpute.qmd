@@ -145,6 +145,7 @@ comb_binomial_lim <- comb_binomial_lim |>
 ### Reading result_newcensors for CI
 
 ```{r}
+### High COWS
 # bup limited 
 bup_as_1_high <- list()
 bup_as_2_high <- list()
