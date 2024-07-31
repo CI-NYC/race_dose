@@ -1,0 +1,432 @@
+---
+title: "Dosage Descriptive Statistics and Modelling"
+format: html
+editor: visual
+---
+
+```{r, include = FALSE}
+library(tidyverse)
+library(patchwork)
+library(gtsummary)
+```
+
+## Reading Data
+
+```{r}
+data_bup <- readRDS(here::here("data/processed/data_bup.rds")) 
+
+data_met <- readRDS(here::here("data/processed/data_met.rds"))
+```
+
+## Descriptive Stats Stratified by Race and Week
+
+### bup dose in long format for summary statistics
+
+```{r}
+data_bup_long <- data_bup |>
+    pivot_longer(
+    cols = starts_with("wk"),
+    names_to = c("week", "type_name"),
+    names_pattern = "(wk[0-9]+).?(.*)",
+    values_to = "count") |>
+    pivot_wider(id_cols = c("who", "xrace", "week", "site", "project"),
+                names_from = "type_name",
+                values_from = "count") |>
+    mutate(dose_this_week = case_when(
+        censor == 0 ~ as.numeric(NA),
+        TRUE ~ dose_this_week),
+        week = as.integer(gsub("^.{0,2}", "", week))) |>
+    mutate(dose_this_week = ifelse(censor == 0, as.numeric(NA), dose_this_week))
+
+# calculating median + iqr
+data_bup_long |>
+    filter(is.na(dose_this_week) == FALSE) |>
+    filter(censor == 1) |>
+    select(who, week, dose_this_week) |>
+    distinct()|>
+    summarize(mean = mean(dose_this_week),
+              median = quantile(dose_this_week, c(0.5)),
+              iqr = quantile(dose_this_week, c(0.25, 0.75)),
+              max = max(dose_this_week), 
+              min = min(dose_this_week))
+
+data_bup_long_grouped <- data_bup_long |>
+        group_by(week, xrace) |>
+        summarize(avg = mean(dose_this_week, na.rm = TRUE),
+                  sd = sd(dose_this_week, na.rm = TRUE),
+                  se = plotrix::std.error(dose_this_week, na.rm = TRUE),
+                  low = avg - 1.96*se,
+                  high = avg + 1.96*se,
+                  count = n(),
+                  uncensored = sum(censor), #summing uncensored individuals
+                  censored = n() - sum(censor), #summing censored individuals
+                  max = max(dose_this_week, na.rm = TRUE),
+                  min = min(dose_this_week, na.rm = TRUE),
+                  range_bup = max - min) |>
+    mutate(xrace = case_when(xrace == 1 ~ "White",
+                             xrace == "2" ~ "Black",
+                             xrace == "3" ~ "Hispanic")) |>
+    filter(week <= 4)
+```
+
+### met dose in long format for summary statistics
+
+```{r}
+data_met_long <- data_met |>
+    pivot_longer(
+    cols = starts_with("wk"),
+    names_to = c("week", "type_name"),
+    names_pattern = "(wk[0-9]+).?(.*)",
+    values_to = "count") |>
+    pivot_wider(id_cols = c("who", "xrace", "week", "site"),
+                names_from = "type_name",
+                values_from = "count") |>
+    mutate(dose_this_week = case_when(
+        censor == 0 ~ as.numeric(NA),
+        TRUE ~ dose_this_week),
+        week = as.integer(gsub("^.{0,2}", "", week))) |>
+    mutate(dose_this_week = ifelse(censor == 0, as.numeric(NA), dose_this_week))
+
+# calculating median + iqr
+data_met_long |>
+    filter(is.na(dose_this_week) == FALSE) |>
+    filter(censor == 1) |>
+    select(who, week, dose_this_week) |>
+    distinct()|>
+    summarize(mean = mean(dose_this_week),
+              median = quantile(dose_this_week, c(0.5)),
+              iqr = quantile(dose_this_week, c(0.25, 0.75)),
+              max = max(dose_this_week), 
+              min = min(dose_this_week))
+
+data_met_long_grouped <- data_met_long |>
+    group_by(week, xrace) |>
+        summarize(avg = mean(dose_this_week, na.rm = TRUE),
+                  sd = sd(dose_this_week, na.rm = TRUE),
+                  se = plotrix::std.error(dose_this_week, na.rm = TRUE),
+                  low = avg - 1.96*se,
+                  high = avg + 1.96*se,
+                  count = n(),
+                  uncensored = sum(censor), #summing uncensored individuals
+                  censored = n() - sum(censor), #summing censored individuals
+                  max = max(dose_this_week, na.rm = TRUE),
+                  min = min(dose_this_week, na.rm = TRUE),
+                  range_bup = max - min) |>
+    mutate(xrace = case_when(xrace == 1 ~ "White",
+                             xrace == "2" ~ "Black",
+                             xrace == "3" ~ "Hispanic")) |>
+    filter(week <= 4)
+```
+
+```{r}
+# unadjusted binomial
+bup_binom_df <- data_bup |>
+    group_by(xrace) |>
+    summarize(wk3.binary_prop = 
+                  sum(
+                      ifelse((wk3.binary == 1 & wk3.censor == 1), 1, 0))/sum(wk3.censor == 1),
+              wk4.binary_prop = 
+                  sum(
+                      ifelse((wk4.binary == 1 & wk4.censor == 1), 1, 0))/sum(wk4.censor == 1)) |>
+    mutate(xrace = case_when(xrace == 1 ~ "White",
+                    xrace == "2" ~ "Black",
+                    xrace == "3" ~ "Hispanic")) |>
+    pivot_longer(cols = wk3.binary_prop:wk4.binary_prop,
+                 names_to = "week",
+                 values_to = c("prop")) |>
+    mutate(week = ifelse(week == "wk3.binary_prop", 3, 4)) |>
+    left_join(data_bup |>
+    group_by(xrace) |>
+    summarize(wk3.n = sum(wk3.censor == 1),
+              wk4.n = sum(wk4.censor == 1)) |>
+    mutate(xrace = case_when(xrace == 1 ~ "White",
+                    xrace == "2" ~ "Black",
+                    xrace == "3" ~ "Hispanic")) |>
+    pivot_longer(cols = wk3.n:wk4.n,
+                 names_to = "week",
+                 values_to = c("n")) |>
+        mutate(week = ifelse(week == "wk3.n", 3, 4)), by = c("xrace" = "xrace", "week" = "week")) |>
+    mutate(se = sqrt((prop * (1-prop))/n),
+           lower = prop - 1.96*se,
+           upper = prop + 1.96*se)
+
+met_binom_df <- data_met |>
+    group_by(xrace) |>
+    summarize(wk3.binary_prop = 
+                  sum(
+                      ifelse((wk3.binary == 1 & wk3.censor == 1), 1, 0))/sum(wk3.censor == 1),
+              wk4.binary_prop = 
+                  sum(
+                      ifelse((wk4.binary == 1 & wk4.censor == 1), 1, 0))/sum(wk4.censor == 1)) |>
+    mutate(xrace = case_when(xrace == 1 ~ "White",
+                    xrace == "2" ~ "Black",
+                    xrace == "3" ~ "Hispanic")) |>
+    pivot_longer(cols = wk3.binary_prop:wk4.binary_prop,
+                 names_to = "week",
+                 values_to = c("prop")) |>
+    mutate(week = ifelse(week == "wk3.binary_prop", 3, 4)) |>
+    left_join(data_met |>
+    group_by(xrace) |>
+    summarize(wk3.n = sum(wk3.censor == 1),
+              wk4.n = sum(wk4.censor == 1)) |>
+    mutate(xrace = case_when(xrace == 1 ~ "White",
+                    xrace == "2" ~ "Black",
+                    xrace == "3" ~ "Hispanic")) |>
+    pivot_longer(cols = wk3.n:wk4.n,
+                 names_to = "week",
+                 values_to = c("n")) |>
+        mutate(week = ifelse(week == "wk3.n", 3, 4)), by = c("xrace" = "xrace", "week" = "week")) |>
+    mutate(se = sqrt((prop * (1-prop))/n),
+           lower = prop - 1.96*se,
+           upper = prop + 1.96*se)
+
+data_met |>
+    filter(wk4.censor == 1) |>
+    group_by(wk3.binary == 1, wk4.binary == 1) |>
+    summarize(count = n()/nrow(data_met |> filter(wk4.censor == 1)))
+
+data_bup |>
+    filter(wk4.censor == 1) |>
+    group_by(wk3.binary == 1, wk4.binary == 1) |>
+    summarize(count = n()/nrow(data_bup |> filter(wk4.censor == 1)))
+```
+
+```{r}
+data_comb <- data_bup |>
+    merge(data_met, all = TRUE)
+
+comb_binom_df <- data_comb |>
+    group_by(xrace) |>
+    summarize(wk3.binary_prop = 
+                  sum(
+                      ifelse((wk3.binary == 1 & wk3.censor == 1), 1, 0))/sum(wk3.censor == 1),
+              wk4.binary_prop = 
+                  sum(
+                      ifelse((wk4.binary == 1 & wk4.censor == 1), 1, 0))/sum(wk4.censor == 1)) |>
+    mutate(xrace = case_when(xrace == 1 ~ "White",
+                             xrace == "2" ~ "Black",
+                             xrace == "3" ~ "Hispanic")) |>
+    pivot_longer(cols = wk3.binary_prop:wk4.binary_prop,
+                 names_to = "week",
+                 values_to = c("prop")) |>
+    mutate(week = ifelse(week == "wk3.binary_prop", 3, 4)) |>
+    left_join(data_comb |>
+                  group_by(xrace) |>
+                  summarize(wk3.n = sum(wk3.censor == 1),
+                            wk4.n = sum(wk4.censor == 1)) |>
+                  mutate(xrace = case_when(xrace == 1 ~ "White",
+                                           xrace == "2" ~ "Black",
+                                           xrace == "3" ~ "Hispanic")) |>
+                  pivot_longer(cols = wk3.n:wk4.n,
+                               names_to = "week",
+                               values_to = c("n")) |>
+                  mutate(week = ifelse(week == "wk3.n", 3, 4)), by = c("xrace" = "xrace", "week" = "week")) |>
+    mutate(se = sqrt((prop * (1-prop))/n),
+           lower = prop - 1.96*se,
+           upper = prop + 1.96*se)
+```
+
+## Sites
+
+```{r}
+## Site
+
+bup_sites <- data_bup_long |>
+    filter(week <= 4 & censor == 1) |> #filtering out censoring
+    group_by(site, week, xrace) |>
+    summarize(count = n(), 
+              mean_dose = mean(dose_this_week),
+              sd_dose = sd(dose_this_week)) |>
+    mutate(freq = count/sum(count))
+
+met_sites <- data_met_long |>
+    filter(week <= 4 & censor == 1) |> #filtering out censoring
+    group_by(site, week, xrace) |>
+    summarize(count = n(), 
+              mean_dose = mean(dose_this_week),
+              sd_dose = sd(dose_this_week)) |>
+    mutate(freq = count/sum(count))
+
+bup_sites_norace <- data_bup_long |>
+    filter(week <= 4 & censor == 1) |> #filtering out censoring
+    group_by(site, week) |>
+    summarize(count = n(), 
+              mean_dose = mean(dose_this_week),
+              sd_dose = sd(dose_this_week)) |>
+    mutate(freq = count/sum(count))
+
+met_sites_norace <- data_met_long |>
+    filter(week <= 4 & censor == 1) |> #filtering out censoring
+    group_by(site, week) |>
+    summarize(count = n(), 
+              mean_dose = mean(dose_this_week),
+              sd_dose = sd(dose_this_week)) |>
+    mutate(freq = count/sum(count))
+```
+
+## Reading Data
+
+```{r}
+data_bup <- readRDS(here::here("data/processed/data_bup.rds")) #|>
+    #mutate(project_id = as.numeric(factor(project)))
+    
+data_met <- readRDS(here::here("data/processed/data_met.rds"))
+```
+
+## Baseline Variables
+
+```{r, warning = FALSE}
+# all baseline covariates
+
+baseline_complete <- c("sex", "age", "site",
+                       "hcows_bin", "hcows_bin_missing",
+                       "alcdisorder", "alcdisorder_missing", "cocdisorder", 
+           "cocdisorder_missing",
+       "hasBipolar", "hasBipolar_missing",
+       "hasAnxPan", "hasAnxPan_missing",
+       "hasMajorDep", "hasMajorDep_missing",
+       "bamphetamine30_base", "bcannabis30_base",
+       "bbenzo30_base", "ivdrug", "ivdrug_missing") #baseline covariates
+
+# replacing missing baseline covariates with missing indicators, where applicable
+
+data_bup <- data_bup |>
+  mutate(sex = ifelse(sex == "female", 1, 0),
+      hcows_bin_missing = ifelse(is.na(hcows_bin), 1, 0),
+      hcows_bin = ifelse(is.na(hcows_bin), 1, hcows_bin),
+         alcdisorder_missing = ifelse(is.na(alcdisorder), 1, 0),
+         alcdisorder = ifelse(is.na(alcdisorder), 0, alcdisorder),
+        cocdisorder_missing = ifelse(is.na(cocdisorder), 1, 0),
+        cocdisorder = ifelse(is.na(cocdisorder), 0, cocdisorder),
+        hasBipolar_missing = ifelse(is.na(hasBipolar), 1, 0),
+        hasBipolar = ifelse(is.na(hasBipolar), 0, hasBipolar),
+        hasAnxPan_missing = ifelse(is.na(hasAnxPan), 1, 0),
+        hasAnxPan = ifelse(is.na(hasAnxPan), 0, hasAnxPan),
+        hasMajorDep_missing = ifelse(is.na(hasMajorDep), 1, 0),
+        hasMajorDep = ifelse(is.na(hasMajorDep), 0, hasMajorDep),
+        ivdrug_missing = ifelse(is.na(ivdrug), 1, 0),
+        ivdrug = ifelse(is.na(ivdrug), 0, ivdrug),
+      bamphetamine30_base_missing = ifelse(is.na(bamphetamine30_base), 1, 0),
+      bamphetamine30_base = ifelse(is.na(bamphetamine30_base), 0, bamphetamine30_base),
+      bcannabis30_base_missing = ifelse(is.na(bcannabis30_base), 1, 0),
+      bcannabis30_base = ifelse(is.na(bcannabis30_base), 0, bcannabis30_base),
+      bbenzo30_base_missing = ifelse(is.na(bbenzo30_base), 1, 0),
+      bbenzo30_base = ifelse(is.na(bbenzo30_base), 0, bbenzo30_base)) |>
+    mutate(site = factor(site, ordered = FALSE, levels = c(as.character(unlist(unique(data_bup$site)))))) |>
+    mutate(wk3.dose_this_week = ifelse(wk3.censor == 0, wk2.dose_this_week, wk3.dose_this_week)) # if censored then use previous dose (need for model)
+
+data_met <- data_met |>
+  mutate(sex = ifelse(sex == "female", 1, 0),
+      hcows_bin_missing = ifelse(is.na(hcows_bin), 1, 0),
+      hcows_bin = ifelse(is.na(hcows_bin), 0, hcows_bin),
+         alcdisorder_missing = ifelse(is.na(alcdisorder), 1, 0),
+         alcdisorder = ifelse(is.na(alcdisorder), 0, alcdisorder),
+        cocdisorder_missing = ifelse(is.na(cocdisorder), 1, 0),
+        cocdisorder = ifelse(is.na(cocdisorder), 0, cocdisorder),
+        hasBipolar_missing = ifelse(is.na(hasBipolar), 1, 0),
+        hasBipolar = ifelse(is.na(hasBipolar), 0, hasBipolar),
+        hasAnxPan_missing = ifelse(is.na(hasAnxPan), 1, 0),
+        hasAnxPan = ifelse(is.na(hasAnxPan), 0, hasAnxPan),
+        hasMajorDep_missing = ifelse(is.na(hasMajorDep), 1, 0),
+        hasMajorDep = ifelse(is.na(hasMajorDep), 0, hasMajorDep),
+        ivdrug_missing = ifelse(is.na(ivdrug), 1, 0),
+        ivdrug = ifelse(is.na(ivdrug), 1, ivdrug),
+      bamphetamine30_base_missing = ifelse(is.na(bamphetamine30_base), 1, 0),
+      bamphetamine30_base = ifelse(is.na(bamphetamine30_base), 0, bamphetamine30_base),
+      bcannabis30_base_missing = ifelse(is.na(bcannabis30_base), 1, 0),
+      bcannabis30_base = ifelse(is.na(bcannabis30_base), 0, bcannabis30_base),
+      bbenzo30_base_missing = ifelse(is.na(bbenzo30_base), 1, 0),
+      bbenzo30_base = ifelse(is.na(bbenzo30_base), 0, bbenzo30_base)) |>
+    mutate(site = factor(site, ordered = FALSE, levels = c(as.character(unlist(unique(data_bup$site)))))) |>
+    mutate(wk3.dose_this_week = ifelse(wk3.censor == 0, wk2.dose_this_week, wk3.dose_this_week)) # if censored then use previous dose (need for model)
+
+# saving imputed data
+
+saveRDS(data_bup, here::here("data/processed/data_bup_imputed.rds"))
+saveRDS(data_met, here::here("data/processed/data_met_imputed.rds"))
+
+#project_ids <- data_bup$project_id
+#saveRDS(project_ids, here::here("data/processed/project_ids.rds"))
+```
+
+```{r}
+# baseline bup covariates
+
+B_bup <- c("sex", "age", "hcows_bin","alcdisorder", 
+           "alcdisorder_missing", "cocdisorder", "cocdisorder_missing",
+       "hasBipolar","hasAnxPan",
+       "hasMajorDep",
+       "bamphetamine30_base", "bcannabis30_base",
+       "bbenzo30_base", "ivdrug", "ivdrug_missing") 
+
+# baseline methadone covariates
+
+B_met <- c("sex", "age", "hcows_bin","alcdisorder", 
+           "alcdisorder_missing", "cocdisorder", "cocdisorder_missing",
+       "hasBipolar","hasAnxPan",
+       "hasMajorDep",
+       "bamphetamine30_base", "bcannabis30_base",
+       "bbenzo30_base", "ivdrug") 
+```
+
+## Covariates Summary Table
+
+```{r}
+data_comb <- (data_bup |> mutate(trt = "bup")) |> #combining bup/met data for summary table
+    rbind(data_met |> mutate(trt = "met"))
+
+covartable <- tbl_summary(
+    data_comb,
+    include = B_bup, #same covariates for both
+    by = trt, # split table by treatment
+    missing = "no"
+  ) |>
+  modify_header(label = "**Baseline Covariate**") |> # update the column header
+  bold_labels() 
+
+as_kable(covartable, format = "latex") #latex format
+```
+
+#### Misc. Cleaning Code
+
+```{r}
+#Checking missing counts
+
+#missing_counts <- sapply(baseline_complete, function(var) {
+#  sum(is.na(data_bup[[var]]))
+#})
+
+#for (i in 1:length(baseline_complete)) {
+#  cat(paste("Missing rows for", baseline_complete[i], ":", missing_counts[i], "\n"))
+#}
+
+# checking "counts" of each variable
+
+# frequency_tables <- list()
+# 
+# # Loop through the predetermined columns and create frequency tables
+# for (col in baseline_complete) {
+#   frequency_tables[[col]] <- table(data_met[[col]])
+# }
+# 
+# # Display the frequency tables
+# for (col in baseline_complete) {
+#   cat("Frequency table for", col, ":\n")
+#   print(frequency_tables[[col]])
+#   cat("\n")
+# }
+```
+
+## Saving Results
+
+```{r}
+#saveRDS(data_bup_long, here::here("data/processed/data_bup_long_ungrouped.rds"))
+#saveRDS(data_met_long, here::here("data/processed/data_met_long_ungrouped.rds"))
+#saveRDS(data_bup_long_grouped, here::here("data/processed/data_bup_long.rds"))
+#saveRDS(data_met_long_grouped, here::here("data/processed/data_met_long.rds"))
+#saveRDS(bup_sites, here::here("data/processed/bup_sites.rds"))
+#saveRDS(met_sites, here::here("data/processed/met_sites.rds"))
+#saveRDS(bup_binom_df, here::here("data/processed/bup_binom_df.rds"))
+#saveRDS(met_binom_df, here::here("data/processed/met_binom_df.rds"))
+#saveRDS(comb_binom_df, here::here("data/processed/comb_binom_df.rds"))
+```

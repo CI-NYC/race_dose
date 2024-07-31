@@ -12,22 +12,8 @@ library(gtsummary)
 ## Loading Data and Creating Tables
 
 ```{r, message = FALSE}
-relapse_harmonized_long <- readRDS(here::here("data/ctn0094/data/drv/clean_weeks_with_relapse.rds")) |>
-    filter(week_of_intervention <= 4 & never_initiated == FALSE &
-               is.na(xrace) == FALSE & xrace != 4) #keeping only patients who initiated trt
-
-#relapse_harmonized_long |> filter(switched_meds == TRUE) only 2 patients switched med, but occurred after first 4 weeks -> duplicated in wide data, these will be filtered later
-
-relapse_harmonized_wide <- readRDS(here::here("data/ctn0094/data/drv/clean_patients_with_relapse_wide.rds")) |>
-    filter(never_initiated == FALSE) #keeping only patients who initiated trt
-
-#relapse_harmonized_wide |>
-#    filter(duplicated(who) | duplicated(who, fromLast = TRUE)) checking instances of duplicates in wide data
-
-dat_wide <- relapse_harmonized_wide |>
-    filter(medicine == medicine_assigned & #filtering out the two duplicates
-               is.na(xrace) == FALSE & xrace != 4) |> #filtering out missing and other races
-    mutate(xrace = factor(xrace, ordered = FALSE, levels = c("1", "2", "3"))) # refactoring variables to 1, 2, 3 (since 4 was removed)
+dat_wide <- readRDS(here::here("data/ctn94_nonimpute/race_dose/final_analysis_data.rds")) |>
+    mutate(xrace = factor(xrace, ordered = FALSE, levels = c("1", "2", "3")))
 
 # stratifying datasets by treatment
 
@@ -166,11 +152,59 @@ covartable_met <- tbl_summary(
   bold_labels() 
 
 as_kable(covartable_met, format = "latex")
+
+trial_tbl_all <- data_bup |>
+    select(c("sex", "age", "hcows_bin","alcdisorder", "project", "xrace",
+             "cocdisorder",
+             "hasBipolar","hasAnxPan",
+             "hasMajorDep",
+             "bamphetamine30_base", "bcannabis30_base",
+             "bbenzo30_base", "ivdrug")) |>
+    tbl_strata(
+        strata = project,
+        .tbl_fun =
+            ~ .x |>
+            tbl_summary(by = xrace, 
+                        missing = "ifany", 
+                        statistic = list(all_categorical() ~ "{n}")),
+        .header = "**{strata}**, N = {n}")
+
+cows_tbl_bup <- data_bup |>
+    select(c("sex", "age","alcdisorder", "hcows_bin", "xrace",
+             "cocdisorder",
+             "hasBipolar","hasAnxPan",
+             "hasMajorDep",
+             "bamphetamine30_base", "bcannabis30_base",
+             "bbenzo30_base", "ivdrug")) |>
+    tbl_strata(
+        strata = hcows_bin,
+        .tbl_fun =
+            ~ .x |>
+            tbl_summary(by = xrace, 
+                        missing = "ifany", 
+                        statistic = list(all_categorical() ~ "{n}")),
+        .header = "**{strata}**, N = {n}")
+
+cows_tbl_met <- data_met |>
+    select(c("sex", "age","alcdisorder",  "hcows_bin", "xrace",
+             "cocdisorder",
+             "hasBipolar","hasAnxPan",
+             "hasMajorDep",
+             "bamphetamine30_base", "bcannabis30_base",
+             "bbenzo30_base", "ivdrug")) |>
+    tbl_strata(
+        strata = hcows_bin,
+        .tbl_fun =
+            ~ .x |>
+            tbl_summary(by = xrace, 
+                        missing = "ifany", 
+                        statistic = list(all_categorical() ~ "{n}")),
+        .header = "**{strata}**, N = {n}")
 ```
 
 ## Saving Data
 
 ```{r}
-#saveRDS(data_bup, here::here("data/processed/data_bup.rds"))
-#saveRDS(data_met, here::here("data/processed/data_met.rds"))
+saveRDS(data_bup, here::here("data/processed/data_bup.rds"))
+saveRDS(data_met, here::here("data/processed/data_met.rds"))
 ```
