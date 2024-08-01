@@ -1,3 +1,13 @@
+# READ ME ----------------------------------------------------------------------
+#
+#       Author: Shodai Inose
+# Last updated: 1 Aug 2024
+#
+#         Note: Modified code originally written by Nick in here:
+#               https://github.com/CI-NYC/OUD-dynamic-dosing/blob/main/scripts/04_lmtp_formatting.R
+#
+# ------------------------------------------------------------------------------
+
 library(tidyverse)
 
 # read in daily data with relapse variables
