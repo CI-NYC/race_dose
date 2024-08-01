@@ -1,4 +1,12 @@
-# Set up -----------------------------------------------------------------------
+# READ ME ----------------------------------------------------------------------
+#
+#       Author: Shodai Inose
+# Last updated: 1 Aug 2024
+#
+#         Note: Modified code originally written by Nick in here:
+#               https://github.com/CI-NYC/OUD-dynamic-dosing/blob/main/scripts/02_defining_relapse.R
+#
+# ------------------------------------------------------------------------------
 
 # Load packages
 library(tidyverse)
