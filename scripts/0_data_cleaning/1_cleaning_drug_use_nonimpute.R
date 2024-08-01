@@ -1,12 +1,10 @@
 # READ ME ----------------------------------------------------------------------
 #
 #       Author: Shodai Inose
-# Last updated: 26 Jul 2024
+# Last updated: 1 Aug 2024
 #
 #         Note: Modified code originally written by Nick in here:
-#               https://github.com/CI-NYC/OUD-dynamic-dosing
-#               Mofidied code written by Sarah in here:
-#               https://github.com/CI-NYC/harmonize_0027_0030_0051/blob/main/scripts/ctn0094_01_clean.R 
+#               https://github.com/CI-NYC/OUD-dynamic-dosing/blob/main/scripts/01_cleaning.R
 #
 # ------------------------------------------------------------------------------
 
