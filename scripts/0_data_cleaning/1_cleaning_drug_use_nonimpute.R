@@ -5,6 +5,7 @@
 #
 #         Note: Modified code originally written by Nick in here:
 #               https://github.com/CI-NYC/OUD-dynamic-dosing/blob/main/scripts/01_cleaning.R
+#               + Modified code written by Sarah Forrest
 #
 # ------------------------------------------------------------------------------
 

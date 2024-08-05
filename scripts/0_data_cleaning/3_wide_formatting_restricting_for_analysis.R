@@ -1,10 +1,11 @@
 # READ ME ----------------------------------------------------------------------
 #
 #       Author: Shodai Inose
-# Last updated: 1 Aug 2024
+# Last updated: 5 Aug 2024
 #
 #         Note: Modified code originally written by Nick in here:
 #               https://github.com/CI-NYC/OUD-dynamic-dosing/blob/main/scripts/04_lmtp_formatting.R
+#               + Modified code written by Sarah Forrest
 #
 # ------------------------------------------------------------------------------
 
@@ -22,7 +23,7 @@ visits_relapse_initiated <- visits_relapse |>
     filter(never_initiated == FALSE) |>
     filter(when >= initiation_date) |> # only looking at on or after initiation
     group_by(who) |>
-    mutate(days_since_initiation = row_number(),
+    mutate(days_since_initiation = as.numeric(when - initiation_date + 1), # days from initiation
            weeks_since_initiation = ceiling(days_since_initiation / 7)) # weeks from initiation 
 
 # restricting data to criteria for paper
@@ -39,26 +40,26 @@ visits_relapse_initiated <- left_join(map_dfr(split(visits_relapse_initiated, vi
                                               }), 
                                       visits_relapse_initiated) |>
     group_by(who) |>
-    fill(c("initiation_date", "rand_dt", "project", "medicine"), # these variables do not change across visits
+    fill(c("initiation_date", "rand_dt", "project", "medicine", "relapse_date"), # these variables do not change across visits
          .direction = "down") |>
     arrange(who, when) |>
-    mutate(day_of_intervention = ifelse(is.na(day_of_intervention), row_number(), day_of_intervention), # filling in missing dates/weeks
+    mutate(day_of_intervention = ifelse(is.na(day_of_intervention), as.numeric(when - rand_dt + 1), day_of_intervention), # days from randomization
            week_of_intervention = ifelse(is.na(week_of_intervention), ceiling(day_of_intervention / 7), week_of_intervention), # weeks from randomization 
-           days_since_initiation = ifelse(is.na(days_since_initiation), row_number(), days_since_initiation),
+           days_since_initiation = ifelse(is.na(days_since_initiation), as.numeric(when - initiation_date + 1), days_since_initiation), # days from initiation
            weeks_since_initiation = ifelse(is.na(weeks_since_initiation), ceiling(days_since_initiation / 7), weeks_since_initiation) # weeks from initiation 
     )
 
 visits_relapse_initiated |> nrow() # 48944 rows, 1748 patients * 28 days
 
-# Update missing values based on specific conditions for relapse (conditions from Nick and Sarah)
+# Update missing values based on specific conditions for relapse
 visits_relapse_initiated <- visits_relapse_initiated |>
     group_by(who) |>
     mutate(relapse = case_when(
-            is.na(relapse) & lag(relapse) == 1 ~ 1, # if previously relapsed, still considered relapse
-            is.na(relapse) & (week_of_intervention %in% c(1, 2, 3)) ~ 0, # first three weeks of trial
-            is.na(relapse) & (week_of_intervention >= 4) ~ 1,
-            TRUE ~ relapse),
-    )
+        is.na(relapse) & lag(relapse) == 1 ~ 1, # if previously relapsed, still considered relapse
+        is.na(relapse) & relapse_date <= when ~ 1,
+        is.na(relapse) & relapse_date > when ~ 0,
+        TRUE ~ relapse
+    ))
 
 # create weekly (from treatment initiation) relapse variable
 visits_relapse_initiated <- visits_relapse_initiated |>
@@ -103,7 +104,7 @@ visits_relapse_initiated_imputed |>
     filter(medicine == "bup" | medicine == "met") |>
     filter(relapse == 0, max_dose_this_week == 0) |> nrow() 
 
-saveRDS(visits_relapse_initiated_imputed, here::here("data/ctn94_nonimpute/race_dose/visits_relapse_post_initiated_imputed.rds"))
+#saveRDS(visits_relapse_initiated_imputed, here::here("data/ctn94_nonimpute/race_dose/visits_relapse_post_initiated_imputed.rds"))
 
 visits_relapse_initiated_imputed_distinct <- visits_relapse_initiated_imputed |> 
     distinct(who, weeks_since_initiation, .keep_all = TRUE)
@@ -113,12 +114,12 @@ visits_relapse_initiated_imputed_distinct <- visits_relapse_initiated_imputed |>
 visits_relapse_initiated_imputed_distinct <- group_by(visits_relapse_initiated_imputed_distinct, who, weeks_since_initiation) |> 
     mutate(dose_this_week = max_dose_this_week) |> 
     ungroup() |> 
-    select(who, medicine, project, rand_dt, initiation_date, week_of_intervention, weeks_since_initiation, dose_this_week, relapse_this_week)
+    select(who, medicine, project, rand_dt, initiation_date, weeks_since_initiation, dose_this_week, relapse_this_week)
 
 visits_relapse_initiated_imputed_distinct |> filter()
 
 # Long to wide format
-relapse_wide <- pivot_wider(visits_relapse_initiated_imputed_distinct |> select(-week_of_intervention), 
+relapse_wide <- pivot_wider(visits_relapse_initiated_imputed_distinct, 
                             names_from = weeks_since_initiation, 
                             names_glue = "wk{weeks_since_initiation}.{.value}", 
                             values_from = c(
@@ -141,4 +142,5 @@ final_wide |> filter(wk3.relapse_this_week == 0, is.na(wk3.dose_this_week)) |> n
 final_wide |> filter(wk4.relapse_this_week == 0, is.na(wk4.dose_this_week)) |> nrow() # n = 0
 
 # Save
-saveRDS(final_wide, here::here("data/ctn94_nonimpute/race_dose/final_analysis_data.rds"))
+saveRDS(final_wide, here::here("data/ctn94_nonimpute/race_dose/final_analysis_data
+                               .rds"))

@@ -246,7 +246,7 @@ comb_binomial_as_13_df_high <- as.data.frame(comb_binomial_as_13_contrast_high[,
     mutate(time = 4) |>
     arrange(time)
 
-##### CTN low
+##### COWS low
 # bup limited 
 bup_as_1_low <- list()
 bup_as_2_low <- list()

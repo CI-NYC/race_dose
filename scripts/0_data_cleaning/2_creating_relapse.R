@@ -5,6 +5,7 @@
 #
 #         Note: Modified code originally written by Nick in here:
 #               https://github.com/CI-NYC/OUD-dynamic-dosing/blob/main/scripts/02_defining_relapse.R
+#               + Modified code written by Sarah Forrest
 #
 # ------------------------------------------------------------------------------
 
