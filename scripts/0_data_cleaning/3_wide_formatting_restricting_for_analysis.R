@@ -116,8 +116,6 @@ visits_relapse_initiated_imputed_distinct <- group_by(visits_relapse_initiated_i
     ungroup() |> 
     select(who, medicine, project, rand_dt, initiation_date, weeks_since_initiation, dose_this_week, relapse_this_week)
 
-visits_relapse_initiated_imputed_distinct |> filter()
-
 # Long to wide format
 relapse_wide <- pivot_wider(visits_relapse_initiated_imputed_distinct, 
                             names_from = weeks_since_initiation, 
